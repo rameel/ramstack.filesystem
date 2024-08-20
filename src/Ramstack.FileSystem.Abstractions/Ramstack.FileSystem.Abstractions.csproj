@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Description>A .NET library that provides a virtual file system abstraction.</Description>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Deterministic>true</Deterministic>
+    <RootNamespace>Ramstack.FileSystem</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>649;1591</NoWarn>
+    <WarningsAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8610;CS8613;CS8614;CS8618;CS8619;CS8620;CS8625;CS8643;CS8653;CS8714</WarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RepositoryUrl>https://github.com/rameel/ramstack.virtualfilesystem</RepositoryUrl>
+    <Authors>Rameel</Authors>
+    <PackageTags>filesystem;fileprovider</PackageTags>
+    <PackageProjectUrl>https://github.com/rameel/ramstack.virtualfilesystem#readme</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Abstractions.Tests" />
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Adapters" />
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Azure" />
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Embedded" />
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Globbing" />
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Physical" />
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Prefixed" />
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Readonly" />
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Sub" />
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Zip" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MinVer">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Link>Properties\README.md</Link>
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

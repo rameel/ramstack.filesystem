@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <RootNamespace>Ramstack.FileSystem.Sub</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit" />
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Ramstack.FileSystem.Physical\Ramstack.FileSystem.Physical.csproj" />
+    <ProjectReference Include="..\..\src\Ramstack.FileSystem.Sub\Ramstack.FileSystem.Sub.csproj" />
+    <ProjectReference Include="..\Ramstack.FileSystem.Specification.Tests\Ramstack.FileSystem.Specification.Tests.csproj" />
+  </ItemGroup>
+
+</Project>
