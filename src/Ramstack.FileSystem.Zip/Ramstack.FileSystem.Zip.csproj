@@ -16,10 +16,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RepositoryUrl>https://github.com/rameel/ramstack.virtualfilesystem</RepositoryUrl>
+    <RepositoryUrl>https://github.com/rameel/ramstack.filesystem</RepositoryUrl>
     <Authors>Rameel</Authors>
     <PackageTags>filesystem;fileprovider;zip</PackageTags>
-    <PackageProjectUrl>https://github.com/rameel/ramstack.virtualfilesystem#readme</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/rameel/ramstack.filesystem#readme</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
