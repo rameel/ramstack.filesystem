@@ -5,7 +5,7 @@ namespace Ramstack.FileSystem;
 /// <summary>
 /// Provides extension methods for the <see cref="IVirtualFileSystem"/> interface.
 /// </summary>
-public static class VirtualFileSystemExtensions
+public static partial class VirtualFileSystemExtensions
 {
     /// <summary>
     /// Asynchronously determines whether the file exists.
