@@ -121,6 +121,8 @@ public abstract class VirtualDirectory : VirtualNode
     /// </returns>
     public IAsyncEnumerable<VirtualNode> GetFileNodesAsync(string[] patterns, string[]? excludes, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(patterns);
+
         return new FileTreeAsyncEnumerable<VirtualNode, VirtualNode>(this, cancellationToken)
         {
             Patterns = patterns,
@@ -144,6 +146,8 @@ public abstract class VirtualDirectory : VirtualNode
     /// </returns>
     public IAsyncEnumerable<VirtualFile> GetFilesAsync(string[] patterns, string[]? excludes, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(patterns);
+
         return new FileTreeAsyncEnumerable<VirtualNode, VirtualFile>(this, cancellationToken)
         {
             Patterns = patterns,
@@ -168,6 +172,8 @@ public abstract class VirtualDirectory : VirtualNode
     /// </returns>
     public IAsyncEnumerable<VirtualDirectory> GetDirectoriesAsync(string[] patterns, string[]? excludes, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(patterns);
+
         return new FileTreeAsyncEnumerable<VirtualNode, VirtualDirectory>(this, cancellationToken)
         {
             Patterns = patterns,
