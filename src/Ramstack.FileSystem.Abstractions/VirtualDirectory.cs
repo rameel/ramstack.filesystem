@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 using Ramstack.FileSystem.Internal;
+using Ramstack.Globbing.Traversal;
 
 namespace Ramstack.FileSystem;
 
@@ -107,6 +108,83 @@ public abstract class VirtualDirectory : VirtualNode
     /// </returns>
     public IAsyncEnumerable<VirtualDirectory> GetDirectoriesAsync(CancellationToken cancellationToken = default) =>
         GetDirectoriesCoreAsync(cancellationToken);
+
+    /// <summary>
+    /// Asynchronously returns an async-enumerable collection of file nodes (both directories and files)
+    /// within the current directory that match any of the specified glob patterns.
+    /// </summary>
+    /// <param name="patterns">An array of glob patterns to match against the names of file nodes.</param>
+    /// <param name="excludes">An optional array of glob patterns to exclude file nodes.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// An async-enumerable collection of <see cref="VirtualNode"/> instances.
+    /// </returns>
+    public IAsyncEnumerable<VirtualNode> GetFileNodesAsync(string[] patterns, string[]? excludes, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(patterns);
+
+        return new FileTreeAsyncEnumerable<VirtualNode, VirtualNode>(this, cancellationToken)
+        {
+            Patterns = patterns,
+            Excludes = excludes ?? [],
+            FileNameSelector = node => node.FullName,
+            ShouldRecursePredicate = node => node is VirtualDirectory,
+            ChildrenSelector = (node, token) => ((VirtualDirectory)node).GetFileNodesCoreAsync(token),
+            ResultSelector = node => node
+        };
+    }
+
+    /// <summary>
+    /// Asynchronously returns an async-enumerable collection of files within the current directory
+    /// that match any of the specified glob patterns.
+    /// </summary>
+    /// <param name="patterns">An array of glob patterns to match against the names of files.</param>
+    /// <param name="excludes">An optional array of glob patterns to exclude files.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// An async-enumerable collection of <see cref="VirtualFile"/> instances.
+    /// </returns>
+    public IAsyncEnumerable<VirtualFile> GetFilesAsync(string[] patterns, string[]? excludes, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(patterns);
+
+        return new FileTreeAsyncEnumerable<VirtualNode, VirtualFile>(this, cancellationToken)
+        {
+            Patterns = patterns,
+            Excludes = excludes ?? [],
+            FileNameSelector = node => node.FullName,
+            ShouldIncludePredicate = node => node is VirtualFile,
+            ShouldRecursePredicate = node => node is VirtualDirectory,
+            ChildrenSelector = (node, token) => ((VirtualDirectory)node).GetFileNodesCoreAsync(token),
+            ResultSelector = node => (VirtualFile)node
+        };
+    }
+
+    /// <summary>
+    /// Asynchronously returns an async-enumerable collection of directories within the current directory 
+    /// that match any of the specified glob patterns.
+    /// </summary>
+    /// <param name="patterns">An array of glob patterns to match against the names of directories.</param>
+    /// <param name="excludes">An optional array of glob patterns to exclude directories.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// An async-enumerable collection of <see cref="VirtualDirectory"/> instances.
+    /// </returns>
+    public IAsyncEnumerable<VirtualDirectory> GetDirectoriesAsync(string[] patterns, string[]? excludes, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(patterns);
+
+        return new FileTreeAsyncEnumerable<VirtualNode, VirtualDirectory>(this, cancellationToken)
+        {
+            Patterns = patterns,
+            Excludes = excludes ?? [],
+            FileNameSelector = node => node.FullName,
+            ShouldIncludePredicate = node => node is VirtualDirectory,
+            ShouldRecursePredicate = node => node is VirtualDirectory,
+            ChildrenSelector = (node, token) => ((VirtualDirectory)node).GetFileNodesCoreAsync(token),
+            ResultSelector = node => (VirtualDirectory)node
+        };
+    }
 
     /// <summary>
     /// Core implementation for asynchronously creating the current directory.

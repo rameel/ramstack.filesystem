@@ -16,10 +16,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RepositoryUrl>https://github.com/rameel/ramstack.virtualfilesystemystem</RepositoryUrl>
+    <RepositoryUrl>https://github.com/rameel/ramstack.filesystem</RepositoryUrl>
     <Authors>Rameel</Authors>
     <PackageTags>filesystem;fileprovider;azure</PackageTags>
-    <PackageProjectUrl>https://github.com/rameel/ramstack.virtualfilesystemystem#readme</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/rameel/ramstack.filesystem#readme</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
@@ -50,7 +50,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Ramstack.Globbing" />
   </ItemGroup>
 
   <ItemGroup>
