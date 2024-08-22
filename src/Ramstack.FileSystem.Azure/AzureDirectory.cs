@@ -50,7 +50,7 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var blob in collection)
+        await foreach (var blob in collection.ConfigureAwait(false))
             await DeleteBlobAsync(_fileSystem.Container, blob, cancellationToken);
 
         static Task<global::Azure.Response<bool>> DeleteBlobAsync(BlobContainerClient container, BlobItem blob, CancellationToken token) =>
@@ -66,7 +66,7 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var item in collection)
+        await foreach (var item in collection.ConfigureAwait(false))
             yield return item.Prefix is not null
                 ? new AzureDirectory(_fileSystem, VirtualPath.Normalize(item.Prefix))
                 : CreateVirtualFile(item.Blob);
@@ -81,7 +81,7 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var item in collection)
+        await foreach (var item in collection.ConfigureAwait(false))
             if (item.Prefix is null)
                 yield return CreateVirtualFile(item.Blob);
     }
@@ -95,7 +95,7 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var item in collection)
+        await foreach (var item in collection.ConfigureAwait(false))
             if (item.Prefix is not null)
                 yield return new AzureDirectory(_fileSystem, VirtualPath.Normalize(item.Prefix));
     }
