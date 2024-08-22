@@ -2,6 +2,8 @@
 
 Provides a virtual file system abstraction.
 
+**For current implementations, see [Related Projects](#related-projects)**
+
 ## Getting Started
 
 To install the `Ramstack.FileSystem.Abstractions` [NuGet package](https://www.nuget.org/packages/Ramstack.FileSystem.Abstractions)
@@ -19,7 +21,7 @@ The primary interface is `IVirtualFileSystem`, which exposes methods to:
 
 ### VirtualFile
 
-The `VirtualFile` class provides properties and methods for creating, deleting, and opening files within the virtual file system.
+The `VirtualFile` class provides properties and methods for creating, deleting, copying and opening files within the virtual file system.
 
 ```csharp
 using Ramstack.FileSystem;
