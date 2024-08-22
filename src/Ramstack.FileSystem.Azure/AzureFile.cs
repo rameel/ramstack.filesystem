@@ -47,12 +47,18 @@ internal sealed class AzureFile : VirtualFile
     }
 
     /// <inheritdoc />
-    protected override async ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken) =>
-        (await GetBlobClient().DownloadAsync(cancellationToken)).Value.Content;
+    protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken)
+    {
+        var task = GetBlobClient().OpenReadAsync(cancellationToken: cancellationToken);
+        return new ValueTask<Stream>(task);
+    }
 
     /// <inheritdoc />
-    protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken) =>
-        new ValueTask<Stream>(new AzureTempStream(this));
+    protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken)
+    {
+        var task = GetBlobClient().OpenWriteAsync(overwrite: true, cancellationToken: cancellationToken);
+        return new ValueTask<Stream>(task);
+    }
 
     /// <inheritdoc />
     protected override async ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken)
