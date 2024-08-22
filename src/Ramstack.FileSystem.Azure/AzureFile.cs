@@ -9,11 +9,11 @@ namespace Ramstack.FileSystem.Azure;
 /// </summary>
 internal sealed class AzureFile : VirtualFile
 {
-    private readonly AzureFileSystem _fileSystem;
+    private readonly AzureFileSystem _fs;
     private BlobClient? _client;
 
     /// <inheritdoc />
-    public override IVirtualFileSystem FileSystem => _fileSystem;
+    public override IVirtualFileSystem FileSystem => _fs;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureFile"/> class.
@@ -21,7 +21,7 @@ internal sealed class AzureFile : VirtualFile
     /// <param name="fileSystem">The file system associated with this file.</param>
     /// <param name="path">The path to the file.</param>
     public AzureFile(AzureFileSystem fileSystem, string path) : base(path) =>
-        _fileSystem = fileSystem;
+        _fs = fileSystem;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureFile"/> class.
@@ -30,7 +30,7 @@ internal sealed class AzureFile : VirtualFile
     /// <param name="path">The path to the file.</param>
     /// <param name="properties">The properties of the file, if available.</param>
     public AzureFile(AzureFileSystem fileSystem, string path, VirtualNodeProperties? properties) : base(path, properties) =>
-        _fileSystem = fileSystem;
+        _fs = fileSystem;
 
     /// <inheritdoc />
     protected override async ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
@@ -72,7 +72,7 @@ internal sealed class AzureFile : VirtualFile
     {
         var options = new BlobUploadOptions
         {
-            HttpHeaders = _fileSystem.GetBlobHeaders(FullName)
+            HttpHeaders = _fs.GetBlobHeaders(FullName)
         };
 
         if (!overwrite)
@@ -101,7 +101,7 @@ internal sealed class AzureFile : VirtualFile
     /// <inheritdoc />
     protected override async ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
     {
-        var destClient = _fileSystem.CreateBlobClient(destinationPath);
+        var destClient = _fs.CreateBlobClient(destinationPath);
         var conditions = !overwrite
             ? new BlobRequestConditions { IfNoneMatch = new ETag("*") }
             : null;
@@ -133,7 +133,7 @@ internal sealed class AzureFile : VirtualFile
 
         await destClient
             .SetHttpHeadersAsync(
-                _fileSystem.GetBlobHeaders(destinationPath),
+                _fs.GetBlobHeaders(destinationPath),
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
     }
@@ -145,5 +145,5 @@ internal sealed class AzureFile : VirtualFile
     /// The <see cref="BlobClient"/> instance used to manage this blob.
     /// </returns>
     private BlobClient GetBlobClient() =>
-        _client ??= _fileSystem.CreateBlobClient(FullName);
+        _client ??= _fs.CreateBlobClient(FullName);
 }
