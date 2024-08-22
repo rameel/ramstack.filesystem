@@ -61,7 +61,7 @@ public sealed class VirtualNodeProperties
     /// <returns>
     /// A new <see cref="VirtualNodeProperties"/> instance representing a file.
     /// </returns>
-    public static VirtualNodeProperties File(DateTimeOffset creationTime, DateTimeOffset lastAccessTime, DateTimeOffset lastWriteTime, long length) =>
+    public static VirtualNodeProperties CreateFileProperties(DateTimeOffset creationTime, DateTimeOffset lastAccessTime, DateTimeOffset lastWriteTime, long length) =>
         new VirtualNodeProperties(creationTime, lastAccessTime, lastWriteTime, length);
 
     /// <summary>
@@ -73,7 +73,7 @@ public sealed class VirtualNodeProperties
     /// <returns>
     /// A new <see cref="VirtualNodeProperties"/> instance representing a directory.
     /// </returns>
-    public static VirtualNodeProperties Directory(DateTimeOffset creationTime, DateTimeOffset lastAccessTime, DateTimeOffset lastWriteTime) =>
+    public static VirtualNodeProperties CreateDirectoryProperties(DateTimeOffset creationTime, DateTimeOffset lastAccessTime, DateTimeOffset lastWriteTime) =>
         new VirtualNodeProperties(creationTime, lastAccessTime, lastWriteTime, 0);
 
     /// <summary>

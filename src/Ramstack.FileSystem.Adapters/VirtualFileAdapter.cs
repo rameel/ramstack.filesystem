@@ -32,7 +32,7 @@ internal sealed class VirtualFileAdapter : VirtualFile
     protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
     {
         var properties = _file.Exists
-            ? VirtualNodeProperties.File(default, default, _file.LastModified, _file.Length)
+            ? VirtualNodeProperties.CreateFileProperties(default, default, lastWriteTime: _file.LastModified, _file.Length)
             : null;
 
         return new ValueTask<VirtualNodeProperties?>(properties);

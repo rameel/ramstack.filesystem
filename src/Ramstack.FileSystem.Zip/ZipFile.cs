@@ -27,7 +27,7 @@ internal sealed class ZipFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
     {
-        var properties = VirtualNodeProperties.File(default, default, _entry.LastWriteTime, _entry.Length);
+        var properties = VirtualNodeProperties.CreateFileProperties(default, default, lastWriteTime: _entry.LastWriteTime, _entry.Length);
         return new ValueTask<VirtualNodeProperties?>(properties);
     }
 

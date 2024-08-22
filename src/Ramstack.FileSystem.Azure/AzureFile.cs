@@ -41,7 +41,7 @@ internal sealed class AzureFile : VirtualFile
                 .GetPropertiesAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
-            return VirtualNodeProperties.File(
+            return VirtualNodeProperties.CreateFileProperties(
                 creationTime: info.CreatedOn,
                 lastAccessTime: info.LastAccessed,
                 lastWriteTime: info.LastModified,

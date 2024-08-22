@@ -29,7 +29,7 @@ internal sealed class AzureDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
     {
-        var properties = VirtualNodeProperties.Directory(default, default, default);
+        var properties = VirtualNodeProperties.CreateDirectoryProperties(default, default, default);
         return new ValueTask<VirtualNodeProperties?>(properties);
     }
 
@@ -110,11 +110,11 @@ internal sealed class AzureDirectory : VirtualDirectory
     private VirtualFile CreateVirtualFile(BlobItem blob)
     {
         var info = blob.Properties;
-        var properties = VirtualNodeProperties.File(
-            info.CreatedOn.GetValueOrDefault(),
-            info.LastAccessedOn.GetValueOrDefault(),
-            info.LastModified.GetValueOrDefault(),
-            info.ContentLength.GetValueOrDefault(-1));
+        var properties = VirtualNodeProperties.CreateFileProperties(
+            creationTime: info.CreatedOn.GetValueOrDefault(),
+            lastAccessTime: info.LastAccessedOn.GetValueOrDefault(),
+            lastWriteTime: info.LastModified.GetValueOrDefault(),
+            length: info.ContentLength.GetValueOrDefault(defaultValue: -1));
 
         var path = VirtualPath.Normalize(blob.Name);
         return new AzureFile(_fileSystem, path, properties);

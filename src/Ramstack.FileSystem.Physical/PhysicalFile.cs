@@ -29,11 +29,11 @@ internal sealed class PhysicalFile : VirtualFile
     {
         var info = new FileInfo(_physicalPath);
         var properties = info.Exists
-            ? VirtualNodeProperties.File(
-                info.CreationTimeUtc,
-                info.LastAccessTime,
-                info.LastWriteTimeUtc,
-                info.Length)
+            ? VirtualNodeProperties.CreateFileProperties(
+                creationTime: info.CreationTimeUtc,
+                lastAccessTime: info.LastAccessTime,
+                lastWriteTime: info.LastWriteTimeUtc,
+                length: info.Length)
             : null;
 
         return new ValueTask<VirtualNodeProperties?>(properties);
