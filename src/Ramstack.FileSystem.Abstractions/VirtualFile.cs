@@ -104,6 +104,30 @@ public abstract class VirtualFile : VirtualNode
     }
 
     /// <summary>
+    /// Asynchronously copies the file to the specified destination path.
+    /// </summary>
+    /// <param name="destinationPath">The path of the destination file. This cannot be a directory.</param>
+    /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    /// <remarks>
+    /// <list type="bullet">
+    ///   <item><description>If the file does not exist, it will be created.</description></item>
+    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
+    /// </list>
+    /// </remarks>
+    public ValueTask CopyAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken = default)
+    {
+        EnsureWritable();
+
+        destinationPath = VirtualPath.GetFullPath(destinationPath);
+        return CopyCoreAsync(destinationPath, overwrite, cancellationToken);
+    }
+
+    /// <summary>
     /// Core implementation for asynchronously opening the file for reading.
     /// </summary>
     /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
@@ -150,4 +174,26 @@ public abstract class VirtualFile : VirtualNode
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
     protected abstract ValueTask DeleteCoreAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Core implementation for asynchronously copying the file to the specified destination path.
+    /// </summary>
+    /// <param name="destinationPath">The path of the destination file.</param>
+    /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation.
+    /// </returns>
+    /// <remarks>
+    /// <list type="bullet">
+    ///   <item><description>If the file does not exist, it will be created.</description></item>
+    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
+    /// </list>
+    /// </remarks>
+    protected virtual async ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
+    {
+        await using var source = await OpenReadAsync(cancellationToken).ConfigureAwait(false);
+        await FileSystem.WriteFileAsync(destinationPath, source, overwrite, cancellationToken).ConfigureAwait(false);
+    }
 }
