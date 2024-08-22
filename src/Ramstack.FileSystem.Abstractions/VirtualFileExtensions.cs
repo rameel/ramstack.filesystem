@@ -33,7 +33,7 @@ public static class VirtualFileExtensions
     /// </returns>
     public static async ValueTask<StreamReader> OpenTextAsync(this VirtualFile file, Encoding encoding, CancellationToken cancellationToken = default)
     {
-        var stream = await file.OpenReadAsync(cancellationToken);
+        var stream = await file.OpenReadAsync(cancellationToken).ConfigureAwait(false);
         return new StreamReader(stream, encoding);
     }
 
@@ -59,5 +59,5 @@ public static class VirtualFileExtensions
     /// The result is the size of the specified file in bytes, or <c>-1</c> if the file does not exist.
     /// </returns>
     public static async ValueTask<long> GetLengthAsync(this VirtualFile file, CancellationToken cancellationToken = default) =>
-        (await file.GetPropertiesAsync(cancellationToken)).Length;
+        (await file.GetPropertiesAsync(cancellationToken).ConfigureAwait(false)).Length;
 }

@@ -222,7 +222,7 @@ public abstract class VirtualDirectory : VirtualNode
     /// </returns>
     protected virtual async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in GetFileNodesCoreAsync(cancellationToken))
+        await foreach (var node in GetFileNodesCoreAsync(cancellationToken).ConfigureAwait(false))
         {
             if (node is VirtualFile file)
                 yield return file;
@@ -238,7 +238,7 @@ public abstract class VirtualDirectory : VirtualNode
     /// </returns>
     protected virtual async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in GetFileNodesCoreAsync(cancellationToken))
+        await foreach (var node in GetFileNodesCoreAsync(cancellationToken).ConfigureAwait(false))
         {
             if (node is VirtualDirectory directory)
                 yield return directory;

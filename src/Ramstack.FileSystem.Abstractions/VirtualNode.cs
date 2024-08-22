@@ -128,7 +128,7 @@ public abstract class VirtualNode
     /// The task result is <see langword="true"/> if the file or directory exists; otherwise, <see langword="false"/>.
     /// </returns>
     protected virtual async ValueTask<bool> ExistsCoreAsync(CancellationToken cancellationToken) =>
-        (await GetPropertiesAsync(refresh: true, cancellationToken)).Exists;
+        (await GetPropertiesAsync(refresh: true, cancellationToken).ConfigureAwait(false)).Exists;
 
     /// <summary>
     /// Attempts to retrieve the current properties of the file or directory.

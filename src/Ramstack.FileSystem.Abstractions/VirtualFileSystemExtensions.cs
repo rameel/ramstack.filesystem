@@ -189,7 +189,7 @@ public static partial class VirtualFileSystemExtensions
     /// </returns>
     public static async Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string filePath, Encoding encoding, CancellationToken cancellationToken = default)
     {
-        var stream = await fs.OpenReadAsync(filePath, cancellationToken);
+        var stream = await fs.OpenReadAsync(filePath, cancellationToken).ConfigureAwait(false);
         return new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true, bufferSize: -1, leaveOpen: false);
     }
 }
