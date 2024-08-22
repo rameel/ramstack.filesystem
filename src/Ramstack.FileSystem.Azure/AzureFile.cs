@@ -98,6 +98,46 @@ internal sealed class AzureFile : VirtualFile
         return new ValueTask(task);
     }
 
+    /// <inheritdoc />
+    protected override async ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
+    {
+        var destClient = _fileSystem.CreateBlobClient(destinationPath);
+        var conditions = !overwrite
+            ? new BlobRequestConditions { IfNoneMatch = new ETag("*") }
+            : null;
+
+        var operation = await destClient
+            .StartCopyFromUriAsync(
+                GetBlobClient().Uri,
+                destinationConditions: conditions,
+                cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        await operation
+            .WaitForCompletionAsync(
+                pollingInterval: TimeSpan.FromMilliseconds(100),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        var properties = (
+            await destClient
+                .GetPropertiesAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false)
+        ).Value;
+
+        if (properties.CopyStatus != CopyStatus.Success)
+        {
+            var message = $"Error while copying file. {properties.CopyStatus}: {properties.CopyStatusDescription}";
+            throw new InvalidOperationException(message);
+        }
+
+        await destClient
+            .SetHttpHeadersAsync(
+                _fileSystem.GetBlobHeaders(destinationPath),
+                cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     /// <summary>
     /// Returns the <see cref="BlobClient"/> associated with this file.
     /// </summary>
@@ -105,5 +145,5 @@ internal sealed class AzureFile : VirtualFile
     /// The <see cref="BlobClient"/> instance used to manage this blob.
     /// </returns>
     private BlobClient GetBlobClient() =>
-        _client ??= _fileSystem.Container.GetBlobClient(FullName[1..]);
+        _client ??= _fileSystem.CreateBlobClient(FullName);
 }
