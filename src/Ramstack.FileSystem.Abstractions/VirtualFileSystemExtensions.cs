@@ -92,6 +92,40 @@ public static partial class VirtualFileSystemExtensions
         fs.GetFile(path).DeleteAsync(cancellationToken);
 
     /// <summary>
+    /// Asynchronously copies a file within the file system to the specified destination path.
+    /// </summary>
+    /// <param name="fs">The <see cref="IVirtualFileSystem"/> instance.</param>
+    /// <param name="path">The path of the file to copy.</param>
+    /// <param name="destinationPath">The path where the file will be copied to.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
+    /// </returns>
+    public static ValueTask CopyFileAsync(this IVirtualFileSystem fs, string path, string destinationPath, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).CopyAsync(destinationPath, overwrite: false, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously copies a file within the file system to the specified destination path.
+    /// </summary>
+    /// <param name="fs">The <see cref="IVirtualFileSystem"/> instance.</param>
+    /// <param name="path">The path of the file to copy.</param>
+    /// <param name="destinationPath">The path where the file will be copied to.</param>
+    /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
+    /// <param name="cancellationToken">A token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
+    /// </returns>
+    /// <remarks>
+    /// <list type="bullet">
+    ///   <item><description>If the file does not exist, it will be created.</description></item>
+    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
+    /// </list>
+    /// </remarks>
+    public static ValueTask CopyFileAsync(this IVirtualFileSystem fs, string path, string destinationPath, bool overwrite, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).CopyAsync(destinationPath, overwrite, cancellationToken);
+
+    /// <summary>
     /// Asynchronously determines whether the directory exists.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
@@ -189,7 +223,7 @@ public static partial class VirtualFileSystemExtensions
     /// </returns>
     public static async Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string filePath, Encoding encoding, CancellationToken cancellationToken = default)
     {
-        var stream = await fs.OpenReadAsync(filePath, cancellationToken);
+        var stream = await fs.OpenReadAsync(filePath, cancellationToken).ConfigureAwait(false);
         return new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true, bufferSize: -1, leaveOpen: false);
     }
 }

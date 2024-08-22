@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
@@ -50,6 +52,19 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     void IDisposable.Dispose()
     {
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="BlobClient"/> object for the specified path.
+    /// </summary>
+    /// <param name="path">The path of the file.</param>
+    /// <returns>
+    /// The <see cref="BlobClient"/> object.
+    /// </returns>
+    internal BlobClient CreateBlobClient(string path)
+    {
+        Debug.Assert(path == VirtualPath.GetFullPath(path));
+        return Container.GetBlobClient(path[1..]);
     }
 
     /// <summary>

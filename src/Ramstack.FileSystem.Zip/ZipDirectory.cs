@@ -27,7 +27,7 @@ internal sealed class ZipDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
     {
-        var properties = VirtualNodeProperties.Directory(default, default, default);
+        var properties = VirtualNodeProperties.CreateDirectoryProperties(default, default, default);
         return new ValueTask<VirtualNodeProperties?>(properties);
     }
 

@@ -33,7 +33,7 @@ public static class VirtualFileExtensions
     /// </returns>
     public static async ValueTask<StreamReader> OpenTextAsync(this VirtualFile file, Encoding encoding, CancellationToken cancellationToken = default)
     {
-        var stream = await file.OpenReadAsync(cancellationToken);
+        var stream = await file.OpenReadAsync(cancellationToken).ConfigureAwait(false);
         return new StreamReader(stream, encoding);
     }
 
@@ -50,6 +50,49 @@ public static class VirtualFileExtensions
         file.WriteAsync(stream, overwrite: false, cancellationToken);
 
     /// <summary>
+    /// Asynchronously copies the contents of the current <see cref="VirtualFile"/> to the specified destination <see cref="VirtualFile"/>.
+    /// </summary>
+    /// <param name="file">The source <see cref="VirtualFile"/> to copy from.</param>
+    /// <param name="destination">The destination <see cref="VirtualFile"/> where the contents will be copied to.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
+    /// </returns>
+    public static ValueTask CopyToAsync(this VirtualFile file, VirtualFile destination, CancellationToken cancellationToken = default) =>
+        file.CopyToAsync(destination, overwrite: false, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously copies the contents of the current <see cref="VirtualFile"/> to the specified destination <see cref="VirtualFile"/>.
+    /// </summary>
+    /// <param name="file">The source <see cref="VirtualFile"/> to copy from.</param>
+    /// <param name="destination">The destination <see cref="VirtualFile"/> where the contents will be copied to.</param>
+    /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
+    /// <param name="cancellationToken">A token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
+    /// </returns>
+    /// <remarks>
+    /// <list type="bullet">
+    ///   <item><description>If the file does not exist, it will be created.</description></item>
+    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
+    /// </list>
+    /// </remarks>
+    public static async ValueTask CopyToAsync(this VirtualFile file, VirtualFile destination, bool overwrite, CancellationToken cancellationToken = default)
+    {
+        if (file.FileSystem == destination.FileSystem)
+        {
+            await file.CopyAsync(destination.FullName, overwrite, cancellationToken).ConfigureAwait(false);
+            destination.Refresh();
+        }
+        else
+        {
+            await using var stream = await file.OpenReadAsync(cancellationToken).ConfigureAwait(false);
+            await destination.WriteAsync(stream, overwrite, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>
     /// Asynchronously returns the size of the specified file in bytes.
     /// </summary>
     /// <param name="file">The file to get the size of.</param>
@@ -59,5 +102,5 @@ public static class VirtualFileExtensions
     /// The result is the size of the specified file in bytes, or <c>-1</c> if the file does not exist.
     /// </returns>
     public static async ValueTask<long> GetLengthAsync(this VirtualFile file, CancellationToken cancellationToken = default) =>
-        (await file.GetPropertiesAsync(cancellationToken)).Length;
+        (await file.GetPropertiesAsync(cancellationToken).ConfigureAwait(false)).Length;
 }

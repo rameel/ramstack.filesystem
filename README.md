@@ -1,8 +1,10 @@
 # Ramstack.FileSystem
 
-A .NET library that provides a virtual file system abstraction.
+A .NET library providing a virtual file system abstraction.
 
-## Getting Started
+**For current implementations, see [Related Projects](#related-projects)**
+
+## Overview
 
 The primary interface is `IVirtualFileSystem`, which exposes methods to:
 - Access files (`VirtualFile`).
@@ -10,7 +12,7 @@ The primary interface is `IVirtualFileSystem`, which exposes methods to:
 
 ### VirtualFile
 
-The `VirtualFile` class provides properties and methods for creating, deleting, and opening files within the virtual file system.
+The `VirtualFile` class provides properties and methods for creating, deleting, copying and opening files within the virtual file system.
 
 ```csharp
 using Ramstack.FileSystem;
@@ -50,7 +52,6 @@ public class Program
 }
 ```
 
-This checks if the file system is not read-only before attempting to delete a file.
 The `VirtualFile` class provides the following properties to retrieve information about a file:
 - `FileSystem`: Gets the `IVirtualFileSystem` associated with the file.
 - `Directory`: Gets the `VirtualDirectory` representing the parent directory.
@@ -137,6 +138,7 @@ if (!fs.IsReadOnly)
 ```
 
 ## Related Projects
+- [Ramstack.FileSystem.Abstractions](https://www.nuget.org/packages/Ramstack.FileSystem.Abstractions) - Provides a virtual file system abstraction.
 - [Ramstack.FileSystem.Physical](https://www.nuget.org/packages/Ramstack.FileSystem.Physical) - Provides an implementation based on the local file system.
 - [Ramstack.FileSystem.Azure](https://www.nuget.org/packages/Ramstack.FileSystem.Azure) - Provides an implementation based on Azure Blob Storage.
 - [Ramstack.FileSystem.Zip](https://www.nuget.org/packages/Ramstack.FileSystem.Zip) - Provides an implementation based on ZIP archives.

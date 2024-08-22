@@ -187,14 +187,13 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
 
         await foreach (var file in fs.GetAllFilesRecursively(rootPath))
         {
-            var content = $"Automatically generated on {DateTime.Now:s}\n\nNew Id:{Guid.NewGuid()}";
+            var content = $"Id:{Guid.NewGuid()}";
 
             await using (var stream = await file.OpenWriteAsync())
             {
                 Assert.That(stream.CanWrite, Is.True);
 
-                stream.Write(Encoding.UTF8.GetBytes(content));
-                stream.SetLength(stream.Position);
+                await stream.WriteAsync(Encoding.UTF8.GetBytes(content));
             }
 
             Assert.That(
@@ -217,7 +216,7 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
         await using (var stream = await fs.OpenWriteAsync(name))
         {
             Assert.That(stream.CanWrite, Is.True);
-            stream.Write(Encoding.UTF8.GetBytes(content));
+            await stream.WriteAsync(Encoding.UTF8.GetBytes(content));
         }
 
         Assert.That(
@@ -245,7 +244,7 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
 
         await foreach (var file in fs.GetAllFilesRecursively(rootPath))
         {
-            var content = $"Automatically generated on {DateTime.Now:s}\n\nNew Id:{Guid.NewGuid()}";
+            var content = $"Id:{Guid.NewGuid()}";
 
             var ms = new MemoryStream();
             ms.Write(Encoding.UTF8.GetBytes(content));

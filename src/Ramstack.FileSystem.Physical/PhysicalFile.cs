@@ -29,11 +29,11 @@ internal sealed class PhysicalFile : VirtualFile
     {
         var info = new FileInfo(_physicalPath);
         var properties = info.Exists
-            ? VirtualNodeProperties.File(
-                info.CreationTimeUtc,
-                info.LastAccessTime,
-                info.LastWriteTimeUtc,
-                info.Length)
+            ? VirtualNodeProperties.CreateFileProperties(
+                creationTime: info.CreationTimeUtc,
+                lastAccessTime: info.LastAccessTime,
+                lastWriteTime: info.LastWriteTimeUtc,
+                length: info.Length)
             : null;
 
         return new ValueTask<VirtualNodeProperties?>(properties);
@@ -54,7 +54,12 @@ internal sealed class PhysicalFile : VirtualFile
         EnsureDirectoryExists(Path.GetDirectoryName(_physicalPath)!);
 
         const FileOptions options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+
         var stream = new FileStream(_physicalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
+
+        // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
+        // set the file length to zero to remove any leftover data.
+        stream.SetLength(0);
 
         return new ValueTask<Stream>(stream);
     }
@@ -66,19 +71,18 @@ internal sealed class PhysicalFile : VirtualFile
 
         const FileOptions options = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
-        // If the file needs to be overwritten, we use FileMode.OpenOrCreate instead of FileMode.Create.
-        // This is because using FileMode.Create on a file with the FileAttributes.Hidden attribute will
-        // throw a System.UnauthorizedAccessException: Access to the path is denied.
-        //
-        // However, FileMode.OpenOrCreate does not truncate the file, so we manually set the file length
-        // after writing to remove any leftover data.
+        // To overwrite the file, we use FileMode.OpenOrCreate instead of FileMode.Create.
+        // This avoids a System.UnauthorizedAccessException: Access to the path is denied,
+        // which can occur if the file has the FileAttributes.Hidden attribute.
         var fileMode = overwrite ? FileMode.OpenOrCreate : FileMode.CreateNew;
 
         await using var fs = new FileStream(_physicalPath, fileMode, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
-        await stream.CopyToAsync(fs, cancellationToken);
 
-        if (overwrite)
-            fs.SetLength(fs.Position);
+        // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
+        // set the file length to zero to remove any leftover data.
+        fs.SetLength(0);
+
+        await stream.CopyToAsync(fs, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />

@@ -41,10 +41,10 @@ internal sealed class PhysicalDirectory : VirtualDirectory
     {
         var info = new DirectoryInfo(_physicalPath);
         var properties = info.Exists
-            ? VirtualNodeProperties.Directory(
-                info.CreationTimeUtc,
-                info.LastAccessTime,
-                info.LastWriteTimeUtc)
+            ? VirtualNodeProperties.CreateDirectoryProperties(
+                creationTime: info.CreationTimeUtc,
+                lastAccessTime: info.LastAccessTime,
+                lastWriteTime: info.LastWriteTimeUtc)
             : null;
 
         return new ValueTask<VirtualNodeProperties?>(properties);
