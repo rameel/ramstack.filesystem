@@ -37,8 +37,15 @@ internal sealed class AzureFile : VirtualFile
     {
         try
         {
-            var info = (await GetBlobClient().GetPropertiesAsync(cancellationToken: cancellationToken)).Value;
-            return VirtualNodeProperties.File(info.CreatedOn, info.LastAccessed, info.LastModified, info.ContentLength);
+            BlobProperties info = await GetBlobClient()
+                .GetPropertiesAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            return VirtualNodeProperties.File(
+                creationTime: info.CreatedOn,
+                lastAccessTime: info.LastAccessed,
+                lastWriteTime: info.LastModified,
+                length: info.ContentLength);
         }
         catch (RequestFailedException e) when (e.Status == 404)
         {
@@ -61,15 +68,24 @@ internal sealed class AzureFile : VirtualFile
     }
 
     /// <inheritdoc />
-    protected override async ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken)
+    protected override ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken)
     {
-        await GetBlobClient().UploadAsync(
-            stream,
-            _fileSystem.GetBlobHeaders(FullName),
-            conditions: !overwrite
-                ? new BlobRequestConditions { IfNoneMatch = new ETag("*") }
-                : null,
-            cancellationToken: cancellationToken);
+        var options = new BlobUploadOptions
+        {
+            HttpHeaders = _fileSystem.GetBlobHeaders(FullName)
+        };
+
+        if (!overwrite)
+        {
+            options.Conditions = new BlobRequestConditions
+            {
+                IfNoneMatch = new ETag("*")
+            };
+        }
+
+
+        var task = GetBlobClient().UploadAsync(stream, options, cancellationToken);
+        return new ValueTask(task);
     }
 
     /// <inheritdoc />
