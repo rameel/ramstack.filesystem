@@ -52,7 +52,7 @@ internal sealed class ReadonlyDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetFileNodesAsync(cancellationToken))
+        await foreach (var node in _directory.GetFileNodesAsync(cancellationToken).ConfigureAwait(false))
         {
             yield return node switch
             {
@@ -65,14 +65,14 @@ internal sealed class ReadonlyDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetFilesAsync(cancellationToken))
+        await foreach (var node in _directory.GetFilesAsync(cancellationToken).ConfigureAwait(false))
             yield return new ReadonlyFile(_fs, node);
     }
 
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetDirectoriesAsync(cancellationToken))
+        await foreach (var node in _directory.GetDirectoriesAsync(cancellationToken).ConfigureAwait(false))
             yield return new ReadonlyDirectory(_fs, node);
     }
 }

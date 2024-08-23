@@ -47,7 +47,7 @@ internal sealed class SubDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetFileNodesAsync(cancellationToken))
+        await foreach (var node in _directory.GetFileNodesAsync(cancellationToken).ConfigureAwait(false))
         {
             var path = VirtualPath.Join(FullName, node.Name);
 
@@ -62,7 +62,7 @@ internal sealed class SubDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetFilesAsync(cancellationToken))
+        await foreach (var node in _directory.GetFilesAsync(cancellationToken).ConfigureAwait(false))
         {
             var path = VirtualPath.Join(FullName, node.Name);
             yield return new SubFile(_fs, path, node);
@@ -72,7 +72,7 @@ internal sealed class SubDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetDirectoriesAsync(cancellationToken))
+        await foreach (var node in _directory.GetDirectoriesAsync(cancellationToken).ConfigureAwait(false))
         {
             var path = VirtualPath.Join(FullName, node.Name);
             yield return new SubDirectory(_fs, path, node);
