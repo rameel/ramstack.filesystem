@@ -3,28 +3,28 @@
 namespace Ramstack.FileSystem.Composite;
 
 /// <summary>
-/// Represents an implementation of <see cref="IVirtualFileSystem"/> that looks up files
-/// using a collection of <see cref="IVirtualFileSystem"/>.
+/// Represents an implementation of <see cref="IVirtualFileSystem"/> that combines multiple file systems
+/// into a single composite file system.
 /// </summary>
 public sealed class CompositeFileSystem : IVirtualFileSystem
 {
     /// <summary>
-    /// Gets the list of the underlying <see cref="IVirtualFileSystem" /> instances.
+    /// An array of the underlying file systems.
     /// </summary>
-    public readonly IVirtualFileSystem[] InternalFileSystems;
+    internal readonly IVirtualFileSystem[] InternalFileSystems;
 
     /// <inheritdoc />
     public bool IsReadOnly => true;
 
     /// <summary>
-    /// Gets the list of the underlying <see cref="IVirtualFileSystem" /> instances.
+    /// Gets a read-only list of the underlying file systems.
     /// </summary>
     public IReadOnlyList<IVirtualFileSystem> FileSystems => InternalFileSystems;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CompositeFileSystem"/> class.
     /// </summary>
-    /// <param name="fileSystems">The list of the underlying <see cref="IVirtualFileSystem"/> instances.</param>
+    /// <param name="fileSystems">An array of <see cref="IVirtualFileSystem"/> instances.</param>
     public CompositeFileSystem(params IVirtualFileSystem[] fileSystems)
     {
         ArgumentNullException.ThrowIfNull(fileSystems);
@@ -34,7 +34,7 @@ public sealed class CompositeFileSystem : IVirtualFileSystem
     /// <summary>
     /// Initializes a new instance of the <see cref="CompositeFileSystem"/> class.
     /// </summary>
-    /// <param name="fileSystems">The list of the underlying <see cref="IVirtualFileSystem"/> instances.</param>
+    /// <param name="fileSystems">An array of <see cref="IVirtualFileSystem"/> instances.</param>
     public CompositeFileSystem(IEnumerable<IVirtualFileSystem> fileSystems) =>
         InternalFileSystems = fileSystems.ToArray();
 
