@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 
-using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
 using Ramstack.FileSystem.Internal;
@@ -44,17 +43,20 @@ internal sealed class AzureDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async ValueTask DeleteCoreAsync(CancellationToken cancellationToken)
     {
-        var collection = _fs
-            .Container
+        var collection = _fs.Container
             .GetBlobsAsync(
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
         await foreach (var blob in collection.ConfigureAwait(false))
-            await DeleteBlobAsync(_fs.Container, blob, cancellationToken);
-
-        static Task<global::Azure.Response<bool>> DeleteBlobAsync(BlobContainerClient container, BlobItem blob, CancellationToken token) =>
-            container.DeleteBlobIfExistsAsync(blob.Name, DeleteSnapshotsOption.IncludeSnapshots, cancellationToken: token);
+        {
+            await _fs.Container
+                .DeleteBlobIfExistsAsync(
+                    blob.Name,
+                    DeleteSnapshotsOption.IncludeSnapshots,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+        }
     }
 
     /// <inheritdoc />

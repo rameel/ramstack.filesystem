@@ -97,7 +97,7 @@ public abstract class VirtualNode
             : new ValueTask<VirtualNodeProperties>(properties);
 
         async ValueTask<VirtualNodeProperties> GetPropertiesImpl(CancellationToken token) =>
-            _properties = await GetPropertiesCoreAsync(token) ?? VirtualNodeProperties.Unavailable;
+            _properties = await GetPropertiesCoreAsync(token).ConfigureAwait(false) ?? VirtualNodeProperties.Unavailable;
     }
 
     /// <summary>

@@ -64,7 +64,7 @@ internal sealed class GlobbingDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetFileNodesAsync(cancellationToken))
+        await foreach (var node in _directory.GetFileNodesAsync(cancellationToken).ConfigureAwait(false))
         {
             if (!_fs.IsExcluded(node.FullName))
             {
@@ -84,7 +84,7 @@ internal sealed class GlobbingDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var file in _directory.GetFilesAsync(cancellationToken))
+        await foreach (var file in _directory.GetFilesAsync(cancellationToken).ConfigureAwait(false))
         {
             if (_fs.IsFileIncluded(file.FullName))
                 yield return new GlobbingFile(_fs, file, true);
@@ -94,7 +94,7 @@ internal sealed class GlobbingDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var directory in _directory.GetDirectoriesAsync(cancellationToken))
+        await foreach (var directory in _directory.GetDirectoriesAsync(cancellationToken).ConfigureAwait(false))
         {
             if (_fs.IsDirectoryIncluded(directory.FullName))
                 yield return new GlobbingDirectory(_fs, directory, true);
