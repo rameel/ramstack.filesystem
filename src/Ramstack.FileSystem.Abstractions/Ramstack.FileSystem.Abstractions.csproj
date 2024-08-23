@@ -39,6 +39,7 @@
     <InternalsVisibleTo Include="Ramstack.FileSystem.Abstractions.Tests" />
     <InternalsVisibleTo Include="Ramstack.FileSystem.Adapters" />
     <InternalsVisibleTo Include="Ramstack.FileSystem.Azure" />
+    <InternalsVisibleTo Include="Ramstack.FileSystem.Composite" />
     <InternalsVisibleTo Include="Ramstack.FileSystem.Embedded" />
     <InternalsVisibleTo Include="Ramstack.FileSystem.Globbing" />
     <InternalsVisibleTo Include="Ramstack.FileSystem.Physical" />
