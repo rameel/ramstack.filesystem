@@ -7,7 +7,7 @@ using Ramstack.Globbing.Traversal;
 namespace Ramstack.FileSystem;
 
 /// <summary>
-/// Represents a virtual directory within a specified file provider.
+/// Represents a virtual directory within a specified file system.
 /// </summary>
 [DebuggerDisplay("{FullName,nq}")]
 public abstract class VirtualDirectory : VirtualNode
@@ -161,7 +161,7 @@ public abstract class VirtualDirectory : VirtualNode
     }
 
     /// <summary>
-    /// Asynchronously returns an async-enumerable collection of directories within the current directory 
+    /// Asynchronously returns an async-enumerable collection of directories within the current directory
     /// that match any of the specified glob patterns.
     /// </summary>
     /// <param name="patterns">An array of glob patterns to match against the names of directories.</param>
