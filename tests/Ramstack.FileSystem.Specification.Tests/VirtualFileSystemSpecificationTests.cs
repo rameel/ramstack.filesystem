@@ -8,20 +8,20 @@ namespace Ramstack.FileSystem.Specification.Tests;
 /// <summary>
 /// Represents a base class for specification tests of virtual file systems.
 /// </summary>
-/// <param name="rootPath">The root path to be used for the virtual file system. Defaults to "/" if not specified.</param>
+/// <param name="safePath">The safe path for modifications. Defaults to "/".</param>
 /// <remarks>
 /// This class defines common functionality and setup for tests that validate the behavior
 /// of virtual file systems. Derived classes should implement the abstract methods to provide specific
 /// details about the virtual file system being tested.
 /// </remarks>
-public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
+public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 {
     [Test]
     [Order(-1003)]
     public async Task FileTree_MatchesStructure()
     {
         using (var fs = GetFileSystem())
-            await CompareDirectoriesAsync(fs.GetDirectory(rootPath), GetDirectoryInfo());
+            await CompareDirectoriesAsync(fs.GetDirectory("/"), GetDirectoryInfo());
 
         static async Task CompareDirectoriesAsync(VirtualDirectory virtualDir, DirectoryInfo localDir)
         {
@@ -67,10 +67,10 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
         using var fs = GetFileSystem();
 
         Assert.That(
-            await fs.GetAllFilesRecursively(rootPath).CountAsync(),
+            await fs.GetAllFilesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var node in fs.GetAllFileNodesRecursively(rootPath))
+        await foreach (var node in fs.GetAllFileNodesRecursively("/"))
         {
             VirtualNode byPath = node is VirtualFile
                 ? fs.GetFile(node.FullName)
@@ -96,10 +96,10 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
         Assert.Throws<ArgumentException>(() => fs.GetFile("/././.."));
 
         Assert.That(
-            await fs.GetAllFilesRecursively(rootPath).CountAsync(),
+            await fs.GetAllFilesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var node in fs.GetAllFileNodesRecursively(rootPath))
+        await foreach (var node in fs.GetAllFileNodesRecursively("/"))
         {
             foreach (var path in GetPathsAboveRoot(node.FullName))
             {
@@ -120,10 +120,10 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
         using var fs = GetFileSystem();
 
         Assert.That(
-            await fs.GetAllFilesRecursively(rootPath).CountAsync(),
+            await fs.GetAllFilesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var node in fs.GetAllFileNodesRecursively(rootPath))
+        await foreach (var node in fs.GetAllFileNodesRecursively("/"))
         {
             VirtualNode byPath = node is VirtualFile
                 ? node.FileSystem.GetFile(node.FullName)
@@ -139,7 +139,7 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
     {
         using var fs = GetFileSystem();
 
-        var file = fs.GetFile($"{rootPath}/{Guid.NewGuid()}");
+        var file = fs.GetFile($"{safePath}/{Guid.NewGuid()}");
         Assert.That(await file.ExistsAsync(), Is.False);
     }
 
@@ -149,10 +149,10 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
         using var fs = GetFileSystem();
 
         Assert.That(
-            await fs.GetAllFilesRecursively(rootPath).CountAsync(),
+            await fs.GetAllFilesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var file in fs.GetAllFilesRecursively(rootPath))
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
         {
             await using var stream = await file.OpenReadAsync();
             Assert.That(stream.CanRead, Is.True);
@@ -169,8 +169,9 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
 
         var name = Guid.NewGuid().ToString();
 
-        Assert.That(() => fs.OpenReadAsync($"{rootPath}/{name}.txt"), Throws.Exception);
-        Assert.That(() => fs.OpenReadAsync($"{rootPath}/{name}/{name}.txt"), Throws.Exception);
+        Assert.That(() => fs.OpenReadAsync($"/{name}.txt"), Throws.Exception);
+        Assert.That(() => fs.OpenReadAsync($"{safePath}/{name}.txt"), Throws.Exception);
+        Assert.That(() => fs.OpenReadAsync($"{safePath}/{name}/{name}.txt"), Throws.Exception);
     }
 
     [Test]
@@ -182,10 +183,10 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         Assert.That(
-            await fs.GetAllFilesRecursively(rootPath).CountAsync(),
+            await fs.GetAllFilesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var file in fs.GetAllFilesRecursively(rootPath))
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
         {
             var content = $"Id:{Guid.NewGuid()}";
 
@@ -211,7 +212,7 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         var content = $"Automatically generated on {DateTime.Now:s}\n\nNew Id:{Guid.NewGuid()}";
-        var name = $"{rootPath}/{Guid.NewGuid()}";
+        var name = $"{safePath}/{Guid.NewGuid()}";
 
         await using (var stream = await fs.OpenWriteAsync(name))
         {
@@ -239,10 +240,10 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         Assert.That(
-            await fs.GetAllFilesRecursively(rootPath).CountAsync(),
+            await fs.GetAllFilesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var file in fs.GetAllFilesRecursively(rootPath))
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
         {
             var content = $"Id:{Guid.NewGuid()}";
 
@@ -267,10 +268,10 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         Assert.That(
-            await fs.GetAllFilesRecursively(rootPath).CountAsync(),
+            await fs.GetAllFilesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var file in fs.GetAllFilesRecursively(rootPath))
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
         {
             var current = await ReadAllTextAsync(await file.OpenReadAsync());
 
@@ -293,7 +294,7 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         var content = $"Automatically generated on {DateTime.Now:s}\n\nNew Id:{Guid.NewGuid()}";
-        var path = $"{rootPath}/{Guid.NewGuid()}";
+        var path = $"{safePath}/{Guid.NewGuid()}";
 
         var ms = new MemoryStream();
         ms.Write(Encoding.UTF8.GetBytes(content));
@@ -321,7 +322,7 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
         if (fs.IsReadOnly)
             return;
 
-        var path = $"{rootPath}/{Guid.NewGuid()}";
+        var path = $"{safePath}/{Guid.NewGuid()}";
         var file = fs.GetFile(path);
 
         Assert.That(await file.ExistsAsync(), Is.False);
@@ -345,8 +346,9 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
 
         var name = Guid.NewGuid().ToString();
 
-        await fs.DeleteFileAsync($"{rootPath}/{name}.txt");
-        await fs.DeleteFileAsync($"{rootPath}/{name}/{name}.txt");
+        await fs.DeleteFileAsync($"/{name}.txt");
+        await fs.DeleteFileAsync($"{safePath}/{name}.txt");
+        await fs.DeleteFileAsync($"{safePath}/{name}/{name}.txt");
     }
 
     [Test]
@@ -358,10 +360,10 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         Assert.That(
-            await fs.GetAllFilesRecursively(rootPath).CountAsync(),
+            await fs.GetAllFilesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var file in fs.GetAllFilesRecursively(rootPath))
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
         {
             Assert.That(
                 async () => { await using var stream = await file.OpenWriteAsync(); },
@@ -379,7 +381,11 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         Assert.That(
-            () => fs.OpenWriteAsync($"{rootPath}/{Guid.NewGuid()}"),
+            () => fs.OpenWriteAsync($"/{Guid.NewGuid()}"),
+            Throws.Exception);
+
+        Assert.That(
+            () => fs.OpenWriteAsync($"{safePath}/{Guid.NewGuid()}"),
             Throws.Exception);
     }
 
@@ -392,10 +398,10 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         Assert.That(
-            await fs.GetAllFilesRecursively(rootPath).CountAsync(),
+            await fs.GetAllFilesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var file in fs.GetAllFilesRecursively(rootPath))
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
         {
             Assert.That(
                 () => file.WriteAsync(new MemoryStream()),
@@ -412,9 +418,8 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
         if (!fs.IsReadOnly)
             return;
 
-        Assert.That(
-            () => fs.WriteFileAsync($"{rootPath}/{Guid.NewGuid()}", new MemoryStream()),
-            Throws.Exception);
+        Assert.That(() => fs.WriteFileAsync($"/{Guid.NewGuid()}", new MemoryStream()), Throws.Exception);
+        Assert.That(() => fs.WriteFileAsync($"{safePath}/{Guid.NewGuid()}", new MemoryStream()), Throws.Exception);
     }
 
     [Test]
@@ -426,15 +431,11 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         Assert.That(
-            await fs.GetAllFilesRecursively(rootPath).CountAsync(),
+            await fs.GetAllFilesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var file in fs.GetAllFilesRecursively(rootPath))
-        {
-            Assert.That(
-                () => file.DeleteAsync(),
-                Throws.Exception);
-        }
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
+            Assert.That(() => file.DeleteAsync(), Throws.Exception);
     }
 
     [Test]
@@ -446,9 +447,8 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
         if (!fs.IsReadOnly)
             return;
 
-        Assert.That(
-            () => fs.DeleteFileAsync($"{rootPath}/{Guid.NewGuid()}"),
-            Throws.Exception);
+        Assert.That(() => fs.DeleteFileAsync($"/{Guid.NewGuid()}"), Throws.Exception);
+        Assert.That(() => fs.DeleteFileAsync($"{safePath}/{Guid.NewGuid()}"), Throws.Exception);
     }
 
     [Test]
@@ -456,7 +456,7 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
     {
         using var fs = GetFileSystem();
 
-        var directory = fs.GetDirectory($"{rootPath}/{Guid.NewGuid()}");
+        var directory = fs.GetDirectory($"/{Guid.NewGuid()}");
 
         Assert.That(await directory.GetFileNodesAsync().CountAsync(), Is.Zero);
         Assert.That(await directory.GetFilesAsync().CountAsync(), Is.Zero);
@@ -472,10 +472,10 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         Assert.That(
-            await fs.GetAllDirectoriesRecursively(rootPath).CountAsync(),
+            await fs.GetAllDirectoriesRecursively("/").CountAsync(),
             Is.Not.Zero);
 
-        await foreach (var directory in fs.GetAllDirectoriesRecursively(rootPath))
+        await foreach (var directory in fs.GetAllDirectoriesRecursively("/"))
             await directory.CreateAsync();
     }
 
@@ -488,7 +488,7 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
             return;
 
         var name = Guid.NewGuid().ToString();
-        var directory = fs.GetDirectory($"{rootPath}/{name}/{name}");
+        var directory = fs.GetDirectory($"{safePath}/{name}/{name}");
 
         await directory.CreateAsync();
         Assert.That(await directory.ExistsAsync(), Is.True);
@@ -504,7 +504,7 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
 
         var name = Guid.NewGuid().ToString();
 
-        var directory = fs.GetDirectory($"{rootPath}/{name}-dir");
+        var directory = fs.GetDirectory($"{safePath}/{name}-dir");
 
         for (var i = 0; i < 10; i++)
         {
@@ -533,14 +533,20 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
 
         var name = Guid.NewGuid().ToString();
 
-        var dir1 = fs.GetDirectory($"{rootPath}/{name}-1");
-        var dir2 = fs.GetDirectory($"{rootPath}/{name}-2/{name}-3");
+        var dir1 = fs.GetDirectory($"/{name}-1");
+        var dir2 = fs.GetDirectory($"/{name}-2/{name}-3");
+        var dir3 = fs.GetDirectory($"{safePath}/{name}-4");
+        var dir4 = fs.GetDirectory($"{safePath}/{name}-5/{name}-6");
 
         Assert.That(await dir1.GetFileNodesAsync().CountAsync(), Is.Zero);
         Assert.That(await dir2.GetFileNodesAsync().CountAsync(), Is.Zero);
+        Assert.That(await dir3.GetFileNodesAsync().CountAsync(), Is.Zero);
+        Assert.That(await dir4.GetFileNodesAsync().CountAsync(), Is.Zero);
 
         await dir1.DeleteAsync();
         await dir2.DeleteAsync();
+        await dir3.DeleteAsync();
+        await dir4.DeleteAsync();
     }
 
     [Test]
@@ -552,9 +558,8 @@ public abstract class VirtualFileSystemSpecificationTests(string rootPath = "/")
         if (!fs.IsReadOnly)
             return;
 
-        Assert.That(
-            () => fs.DeleteDirectoryAsync($"{rootPath}/{Guid.NewGuid()}"),
-            Throws.Exception);
+        Assert.That(() => fs.DeleteDirectoryAsync($"/{Guid.NewGuid()}"), Throws.Exception);
+        Assert.That(() => fs.DeleteDirectoryAsync($"{safePath}/{Guid.NewGuid()}"), Throws.Exception);
     }
 
     /// <summary>
