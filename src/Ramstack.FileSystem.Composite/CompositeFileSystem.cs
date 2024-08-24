@@ -41,7 +41,8 @@ public sealed class CompositeFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualFile GetFile(string path)
     {
-        throw new NotImplementedException();
+        path = VirtualPath.GetFullPath(path);
+        return new CompositeFile(this, path);
     }
 
     /// <inheritdoc />

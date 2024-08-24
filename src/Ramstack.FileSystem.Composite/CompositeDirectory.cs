@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 using Ramstack.FileSystem.Null;
@@ -11,7 +10,6 @@ namespace Ramstack.FileSystem.Composite;
 internal sealed class CompositeDirectory : VirtualDirectory
 {
     private readonly CompositeFileSystem _fs;
-    private VirtualDirectory[]? _directories;
 
     /// <inheritdoc />
     public override IVirtualFileSystem FileSystem => _fs;
@@ -42,32 +40,22 @@ internal sealed class CompositeDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        EnsureInitialized();
-
         var set = new HashSet<string>();
 
-        foreach (var directory in _directories)
+        foreach (var fs in _fs.InternalFileSystems)
         {
-            await foreach (var node in directory.GetFileNodesAsync(cancellationToken).ConfigureAwait(false))
+            await foreach (var node in fs.GetFileNodesAsync(FullName, cancellationToken).ConfigureAwait(false))
             {
+                if (node is NotFoundFile or NotFoundDirectory)
+                    continue;
+
                 if (!set.Add(node.FullName))
                     continue;
 
                 yield return node is VirtualFile file
-                    ? new CompositeFile(_fs, file)
-                    : new CompositeDirectory(_fs, FullName);
+                    ? new CompositeFile(_fs, node.FullName, file)
+                    : new CompositeDirectory(_fs, node.FullName);
             }
         }
-    }
-
-    [MemberNotNull(nameof(_directories))]
-    private void EnsureInitialized()
-    {
-        var directories = _fs
-            .InternalFileSystems
-            .Select(fs => fs.GetDirectory(FullName))
-            .Where(dir => dir is not NotFoundDirectory);
-
-        _directories = directories.ToArray();
     }
 }
