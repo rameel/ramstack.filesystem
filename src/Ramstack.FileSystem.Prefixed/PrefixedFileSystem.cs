@@ -14,6 +14,7 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
 {
     private readonly string _prefix;
     private readonly IVirtualFileSystem _fs;
+    private readonly VirtualDirectory[] _directories;
 
     /// <inheritdoc />
     public bool IsReadOnly => _fs.IsReadOnly;
@@ -23,8 +24,32 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
     /// </summary>
     /// <param name="prefix">The prefix to be applied to the file paths managed by this instance.</param>
     /// <param name="fileSystem">The underlying file system that manages the files to which the prefix will be applied.</param>
-    public PrefixedFileSystem(string prefix, IVirtualFileSystem fileSystem) =>
-        (_prefix, _fs) = (VirtualPath.GetFullPath(prefix), fileSystem);
+    public PrefixedFileSystem(string prefix, IVirtualFileSystem fileSystem)
+    {
+        prefix = VirtualPath.GetFullPath(prefix);
+        (_prefix, _fs) = (prefix, fileSystem);
+
+        // Create artificial directory list
+        _directories = CreateArtificialDirectories(this, prefix);
+
+        static VirtualDirectory[] CreateArtificialDirectories(PrefixedFileSystem fs, string path)
+        {
+            var directories = new List<VirtualDirectory>();
+            VirtualDirectory? directory = null;
+
+            while (!string.IsNullOrEmpty(path))
+            {
+                directory = directory is null
+                    ? new PrefixedDirectory(fs, path, fs._fs.GetDirectory("/"))
+                    : new ArtificialDirectory(fs, path, directory);
+
+                directories.Add(directory);
+                path = VirtualPath.GetDirectoryName(path);
+            }
+
+            return directories.ToArray();
+        }
+    }
 
     /// <inheritdoc />
     public VirtualFile GetFile(string path)
@@ -42,6 +67,10 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
     public VirtualDirectory GetDirectory(string path)
     {
         path = VirtualPath.GetFullPath(path);
+
+        foreach (var directory in _directories)
+            if (directory.FullName == path)
+                return directory;
 
         var underlying = TryGetPath(path, _prefix);
         if (underlying is not null)
@@ -77,4 +106,48 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
 
         return null;
     }
+
+    #region Inner type: ArtificialDirectory
+
+    /// <summary>
+    /// Represents an artificial directory within a file system.
+    /// </summary>
+    private sealed class ArtificialDirectory : VirtualDirectory
+    {
+        private readonly PrefixedFileSystem _fs;
+        private readonly VirtualDirectory _directory;
+
+        /// <inheritdoc />
+        public override IVirtualFileSystem FileSystem => _fs;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ArtificialDirectory"/> class.
+        /// </summary>
+        /// <param name="fileSystem">The file system associated with this directory.</param>
+        /// <param name="path">The path of the directory.</param>
+        /// <param name="directory">The child directory.</param>
+        public ArtificialDirectory(PrefixedFileSystem fileSystem, string path, VirtualDirectory directory) : base(path) =>
+            (_fs, _directory) = (fileSystem, directory);
+
+        /// <inheritdoc />
+        protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
+        {
+            var properties = VirtualNodeProperties.CreateDirectoryProperties(default, default, default);
+            return new ValueTask<VirtualNodeProperties?>(properties);
+        }
+
+        /// <inheritdoc />
+        protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken) =>
+            default;
+
+        /// <inheritdoc />
+        protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
+            _fs.GetDirectory(_fs._prefix).DeleteAsync(cancellationToken);
+
+        /// <inheritdoc />
+        protected override IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(CancellationToken cancellationToken) =>
+            new VirtualNode[] { _directory }.ToAsyncEnumerable();
+    }
+
+    #endregion
 }
