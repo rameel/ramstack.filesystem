@@ -5,14 +5,16 @@ using Ramstack.FileSystem.Specification.Tests.Utilities;
 namespace Ramstack.FileSystem.Prefixed;
 
 [TestFixture]
-public class PrefixedFileSystemSpecificationTests() : VirtualFileSystemSpecificationTests("/solution/app")
+public class PrefixedFileSystemSpecificationTests() : VirtualFileSystemSpecificationTests(Prefix)
 {
-    private readonly TempFileStorage _storage = new();
+    private const string Prefix = "solution/app";
+
+    private readonly TempFileStorage _storage = new TempFileStorage(Prefix);
 
     protected override IVirtualFileSystem GetFileSystem() =>
-        new PrefixedFileSystem("/solution/app", new PhysicalFileSystem(_storage.Root));
+        new PrefixedFileSystem(Prefix, new PhysicalFileSystem(_storage.PrefixedPath));
 
     /// <inheritdoc />
     protected override DirectoryInfo GetDirectoryInfo() =>
-        new(_storage.Root);
+        new DirectoryInfo(_storage.Root);
 }

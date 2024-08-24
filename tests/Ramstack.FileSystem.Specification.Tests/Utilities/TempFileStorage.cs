@@ -2,12 +2,18 @@ namespace Ramstack.FileSystem.Specification.Tests.Utilities;
 
 public sealed class TempFileStorage : IDisposable
 {
-    public string Root { get; }
-    public IReadOnlyList<string> FileList { get; }
+    public string Root { get; } = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+    public string PrefixedPath { get; }
 
-    public TempFileStorage()
+    public TempFileStorage(string prefix = "")
     {
-        var root = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        var path = Root;
+
+        if (!string.IsNullOrEmpty(prefix))
+            path = Path.GetFullPath(Path.Join(Root, prefix));
+
+        PrefixedPath = path;
+
         var list = new[]
         {
             "project/docs/user_manual.pdf",
@@ -85,28 +91,26 @@ public sealed class TempFileStorage : IDisposable
             "project/global.json",
             "project/nuget.config",
         }
-            .Select(p => Path.Combine(root, p))
+            .Select(p => Path.Combine(path, p))
             .ToArray();
 
         var directories = list
-            .Select(p => Path.GetDirectoryName(p)!)
+            .Select(p =>
+                Path.GetDirectoryName(p)!)
             .Distinct()
             .ToArray();
 
-        foreach (var path in directories)
-            Directory.CreateDirectory(path);
+        foreach (var d in directories)
+            Directory.CreateDirectory(d);
 
-        foreach (var path in list)
-            File.WriteAllText(path, $"Automatically generated on {DateTime.Now:s}\n\nId:{Guid.NewGuid()}");
+        foreach (var f in list)
+            File.WriteAllText(f, $"Automatically generated on {DateTime.Now:s}\n\nId:{Guid.NewGuid()}");
 
         var hiddenFolder = directories.First(p => p.Contains("hidden-folder"));
         File.SetAttributes(hiddenFolder, FileAttributes.Hidden);
 
         foreach (var hiddenFile in list.Where(p => p.Contains("temp_hidden")))
             File.SetAttributes(hiddenFile, FileAttributes.Hidden);
-
-        Root = root;
-        FileList = list;
     }
 
     public void Dispose() =>
