@@ -91,7 +91,7 @@ internal sealed class AzureDirectory : VirtualDirectory
 
             static bool Processed(ReadOnlyCollection<Exception> exceptions)
             {
-                for (var i = 0; i < exceptions.Count; i++)
+                for (int count = exceptions.Count, i = 0; i < count; i++)
                     if (exceptions[i] is not RequestFailedException { Status: 404 })
                         return false;
 
@@ -109,7 +109,8 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var item in collection.ConfigureAwait(false))
+        await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
+        foreach (var item in page.Values)
             yield return item.Prefix is not null
                 ? new AzureDirectory(_fs, VirtualPath.Normalize(item.Prefix))
                 : CreateVirtualFile(item.Blob);
@@ -124,7 +125,8 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var item in collection.ConfigureAwait(false))
+        await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
+        foreach (var item in page.Values)
             if (item.Prefix is null)
                 yield return CreateVirtualFile(item.Blob);
     }
@@ -138,7 +140,8 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var item in collection.ConfigureAwait(false))
+        await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
+        foreach (var item in page.Values)
             if (item.Prefix is not null)
                 yield return new AzureDirectory(_fs, VirtualPath.Normalize(item.Prefix));
     }
