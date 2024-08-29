@@ -5,33 +5,46 @@ using Amazon.S3.Model;
 
 namespace Ramstack.FileSystem.Amazon;
 
+/// <summary>
+/// Represents an implementation of <see cref="VirtualFile"/> that maps a file to an object in Amazon S3.
+/// </summary>
 internal sealed class AmazonFile : VirtualFile
 {
     private readonly AmazonS3FileSystem _fs;
+    private readonly string _key;
 
+    /// <inheritdoc />
     public override IVirtualFileSystem FileSystem => _fs;
 
-    internal string Key => FullName[1..];
-
-    public AmazonFile(AmazonS3FileSystem fileSystem, string path) : base(path)
-    {
-        _fs = fileSystem;
-    }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AmazonFile"/> class.
+    /// </summary>
+    /// <param name="fileSystem">The file system associated with this file.</param>
+    /// <param name="path">The path to the file.</param>
+    public AmazonFile(AmazonS3FileSystem fileSystem, string path) : base(path) =>
+        (_fs, _key) = (fileSystem, path[1..]);
 
     /// <inheritdoc />
     protected override async ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
     {
-        var metadata = await _fs.AmazonClient
-            .GetObjectMetadataAsync(
-                new GetObjectMetadataRequest { BucketName = _fs.BucketName, Key = Key },
-                cancellationToken)
-            .ConfigureAwait(false);
+        try
+        {
+            var metadata = await _fs.AmazonClient
+                .GetObjectMetadataAsync(
+                    new GetObjectMetadataRequest { BucketName = _fs.BucketName, Key = _key },
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-        return VirtualNodeProperties.CreateFileProperties(
-            creationTime: default,
-            lastAccessTime: default,
-            lastWriteTime: metadata.LastModified,
-            length: metadata.ContentLength);
+            return VirtualNodeProperties.CreateFileProperties(
+                creationTime: default,
+                lastAccessTime: default,
+                lastWriteTime: metadata.LastModified,
+                length: metadata.ContentLength);
+        }
+        catch (AmazonS3Exception e) when (e.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
     }
 
     /// <inheritdoc />
@@ -39,7 +52,7 @@ internal sealed class AmazonFile : VirtualFile
     {
         var response = await _fs.AmazonClient
             .GetObjectAsync(
-                new GetObjectRequest { BucketName = _fs.BucketName, Key = Key },
+                new GetObjectRequest { BucketName = _fs.BucketName, Key = _key },
                 cancellationToken)
             .ConfigureAwait(false);
 
@@ -47,9 +60,13 @@ internal sealed class AmazonFile : VirtualFile
     }
 
     /// <inheritdoc />
-    protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken)
+    protected override async ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var response = await _fs.AmazonClient
+            .InitiateMultipartUploadAsync(_fs.BucketName, _key, cancellationToken)
+            .ConfigureAwait(false);
+
+        return new AmazonS3UploadStream(_fs.AmazonClient, _fs.BucketName, _key, response.UploadId);
     }
 
     /// <inheritdoc />
@@ -58,7 +75,7 @@ internal sealed class AmazonFile : VirtualFile
         var request = new PutObjectRequest
         {
             BucketName = _fs.BucketName,
-            Key = Key,
+            Key = _key,
             InputStream = stream,
             AutoCloseStream = false
         };
@@ -78,7 +95,7 @@ internal sealed class AmazonFile : VirtualFile
         {
             await _fs.AmazonClient
                 .DeleteObjectAsync(
-                    new DeleteObjectRequest { BucketName = _fs.BucketName, Key = Key },
+                    new DeleteObjectRequest { BucketName = _fs.BucketName, Key = _key },
                     cancellationToken)
                 .ConfigureAwait(false);
         }

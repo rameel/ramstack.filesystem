@@ -6,16 +6,27 @@ using Ramstack.FileSystem.Internal;
 
 namespace Ramstack.FileSystem.Amazon;
 
+/// <summary>
+/// Represents an implementation of <see cref="VirtualDirectory"/> that maps a directory
+/// to a path within a specified Amazon S3 bucket.
+/// </summary>
 internal sealed class AmazonDirectory : VirtualDirectory
 {
     private readonly AmazonS3FileSystem _fs;
+    private readonly string _prefix;
 
     /// <inheritdoc />
     public override IVirtualFileSystem FileSystem => _fs;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AmazonDirectory"/> class.
+    /// </summary>
+    /// <param name="fileSystem">The file system associated with this directory.</param>
+    /// <param name="path">The path to the directory within the specified Amazon S3 bucket.</param>
     public AmazonDirectory(AmazonS3FileSystem fileSystem, string path) : base(path)
     {
         _fs = fileSystem;
+        _prefix = FullName == "/" ? "" : $"{FullName[1..]}/";
     }
 
     /// <inheritdoc />
@@ -35,7 +46,7 @@ internal sealed class AmazonDirectory : VirtualDirectory
         var lr = new ListObjectsV2Request
         {
             BucketName = _fs.BucketName,
-            Prefix = GetPrefix(FullName)
+            Prefix = _prefix
         };
 
         var dr = new DeleteObjectsRequest
@@ -57,9 +68,10 @@ internal sealed class AmazonDirectory : VirtualDirectory
             foreach (var obj in response.S3Objects)
                 dr.Objects.Add(new KeyVersion { Key = obj.Key });
 
-            await _fs.AmazonClient
-                .DeleteObjectsAsync(dr, cancellationToken)
-                .ConfigureAwait(false);
+            if (dr.Objects.Count != 0)
+                await _fs.AmazonClient
+                    .DeleteObjectsAsync(dr, cancellationToken)
+                    .ConfigureAwait(false);
 
             dr.Objects.Clear();
             lr.ContinuationToken = response.NextContinuationToken;
@@ -73,7 +85,7 @@ internal sealed class AmazonDirectory : VirtualDirectory
         var request = new ListObjectsV2Request
         {
             BucketName = _fs.BucketName,
-            Prefix = GetPrefix(FullName),
+            Prefix = _prefix,
             Delimiter = "/"
         };
 
@@ -93,14 +105,4 @@ internal sealed class AmazonDirectory : VirtualDirectory
         }
         while (request.ContinuationToken is not null && !cancellationToken.IsCancellationRequested);
     }
-
-    /// <summary>
-    /// Returns the prefix for the specified directory path.
-    /// </summary>
-    /// <param name="directoryPath">The directory path for which to get the prefix.</param>
-    /// <returns>
-    /// The prefix associated with the directory path.
-    /// </returns>
-    private static string GetPrefix(string directoryPath) =>
-        directoryPath == "/" ? "" : $"{directoryPath[1..]}/";
 }
