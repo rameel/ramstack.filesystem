@@ -28,13 +28,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Wait LocalStack
-        run: |
-          until curl -s http://localhost:4566/health | grep "\"s3\": \"running\""; do
-            echo "Waiting for LocalStack S3 to be ready..."
-            sleep 5
-          done
-
       - name: Setup AWS CLI
         run: |
           sudo apt-get update && sudo apt-get install -y awscli
