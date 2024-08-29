@@ -1,0 +1,52 @@
+name: Test AmazonS3FileSystem
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+
+    name: Runs on ubuntu-latest using LocalStack
+    runs-on: ubuntu-latest
+
+    services:
+      localstack:
+        image: localstack/localstack
+        ports:
+          - 4566:4566 # LocalStack edge port
+        env:
+          SERVICES: s3
+          DEFAULT_REGION: us-east-1
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Wait LocalStack
+        run: |
+          until curl -s http://localhost:4566/health | grep "\"s3\": \"running\""; do
+            echo "Waiting for LocalStack S3 to be ready..."
+            sleep 5
+          done
+
+      - name: Setup AWS CLI
+        run: |
+          sudo apt-get update && sudo apt-get install -y awscli
+          aws configure set aws_access_key_id test
+          aws configure set aws_secret_access_key test
+          aws configure set default.region us-east-1
+
+      - name: Create S3 bucket
+        run: aws --endpoint-url=http://localhost:4566 s3 mb s3://storage
+
+      - name: Build
+        run: dotnet build -c Debug
+
+      - name: Test
+        run: dotnet test --no-build --filter TestCategory=Cloud:Amazon
