@@ -1,0 +1,64 @@
+﻿using Amazon;
+using Amazon.Runtime;
+using Amazon.S3;
+
+using Ramstack.FileSystem.Specification.Tests;
+using Ramstack.FileSystem.Specification.Tests.Utilities;
+
+namespace Ramstack.FileSystem.Amazon;
+
+[TestFixture]
+[Category("Cloud:Amazon")]
+public class ReadonlyAmazonFileSystemTests : VirtualFileSystemSpecificationTests
+{
+    private readonly TempFileStorage _storage = new TempFileStorage();
+
+    [OneTimeSetUp]
+    public async Task Setup()
+    {
+        using var fs = CreateFileSystem(isReadOnly: false);
+        await fs.CreateBucketAsync();
+
+        foreach (var path in Directory.EnumerateFiles(_storage.Root, "*", SearchOption.AllDirectories))
+        {
+            await using var stream = File.OpenRead(path);
+            await fs.WriteFileAsync(path[_storage.Root.Length..], stream, overwrite: true);
+        }
+
+        await fs.CreateBucketAsync();
+
+        var count = await fs.GetFilesAsync("/", "**").CountAsync();
+        if (count != 62) throw new InvalidOperationException();
+    }
+
+    [OneTimeTearDown]
+    public async Task Cleanup()
+    {
+        _storage.Dispose();
+
+        using var fs = CreateFileSystem(isReadOnly: false);
+        await fs.DeleteDirectoryAsync("/");
+    }
+
+    protected override AmazonS3FileSystem GetFileSystem() =>
+        CreateFileSystem(isReadOnly: true);
+
+    protected override DirectoryInfo GetDirectoryInfo() =>
+        new DirectoryInfo(_storage.Root);
+
+    private AmazonS3FileSystem CreateFileSystem(bool isReadOnly)
+    {
+        var credentials = new BasicAWSCredentials("test", "test");
+        var config = new AmazonS3Config
+        {
+            RegionEndpoint = RegionEndpoint.USEast1,
+            ServiceURL = "http://localhost:4566",
+            ForcePathStyle = true,
+        };
+
+        return new AmazonS3FileSystem(credentials, config, bucketName: "storage")
+        {
+            IsReadOnly = isReadOnly
+        };
+    }
+}
