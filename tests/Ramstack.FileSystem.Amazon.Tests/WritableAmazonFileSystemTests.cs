@@ -36,7 +36,6 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     }
 
     [Test]
-    [Order(1000)]
     public async Task File_WriteHugeFile()
     {
         const int TotalLines = 500;
@@ -89,7 +88,6 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     }
 
     [Test]
-    [Order(1500)]
     public async Task Directory_BatchDeleting()
     {
         // 1. The maximum list page size is 1000 items.
