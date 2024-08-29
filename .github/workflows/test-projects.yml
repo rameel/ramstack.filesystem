@@ -1,4 +1,4 @@
-name: Non-cloud-based projects
+name: Test non-cloud-based projects
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-test:
 
-    name: Run on (${{ matrix.os }})
+    name: Runs on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
