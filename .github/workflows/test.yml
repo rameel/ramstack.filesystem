@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-test:
 
-    name: build-and-test-${{ matrix.os }}
+    name: Test non-cloud-based projects (${{ matrix.os.name }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
