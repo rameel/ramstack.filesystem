@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 
 using Azure;
-using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 
@@ -52,41 +51,42 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        var blobs = new List<Uri>();
-        var builder = new BlobUriBuilder(_fs.Container.Uri);
-        var batch = _fs.Container.GetBlobBatchClient();
+        var client = _fs.Container.GetBlobBatchClient();
+        var batch = client.CreateBatch();
 
-        await foreach (var blob in collection.ConfigureAwait(false))
+        // https://learn.microsoft.com/en-us/rest/api/storageservices/blob-batch#remarks
+        // Each batch request supports a maximum of 256 sub requests.
+        const int MaxSubRequests = 256;
+
+        await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
         {
-            blobs.Add(GenerateBlobUri(builder, blob.Name));
+            foreach (var blob in page.Values)
+            {
+                batch.DeleteBlob(_fs.Container.Name, blob.Name, DeleteSnapshotsOption.IncludeSnapshots, conditions: null);
 
-            // https://learn.microsoft.com/en-us/rest/api/storageservices/blob-batch#remarks
-            // Each batch request supports a maximum of 256 sub requests.
-            const int MaxSubRequests = 256;
+                if (batch.RequestCount != MaxSubRequests)
+                    continue;
 
-            if (blobs.Count != MaxSubRequests)
-                continue;
-
-            await DeleteBlobsAsync(batch, blobs, cancellationToken).ConfigureAwait(false);
-            blobs.Clear();
+                await DeleteBlobsAsync(client, batch, cancellationToken).ConfigureAwait(false);
+                batch = client.CreateBatch();
+            }
         }
 
-        if (blobs.Count != 0)
-            await DeleteBlobsAsync(batch, blobs, cancellationToken).ConfigureAwait(false);
+        if (batch.RequestCount != 0)
+            await DeleteBlobsAsync(client, batch, cancellationToken).ConfigureAwait(false);
 
-        static async ValueTask DeleteBlobsAsync(BlobBatchClient batch, List<Uri> blobs, CancellationToken cancellationToken)
+        static async ValueTask DeleteBlobsAsync(BlobBatchClient client, BlobBatch batch, CancellationToken cancellationToken)
         {
             try
             {
-                await batch
-                    .DeleteBlobsAsync(
-                        blobs,
-                        DeleteSnapshotsOption.IncludeSnapshots,
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                await client.SubmitBatchAsync(batch, throwOnAnyFailure: true, cancellationToken).ConfigureAwait(false);
             }
             catch (AggregateException e) when (Processed(e.InnerExceptions))
             {
+            }
+            finally
+            {
+                batch.Dispose();
             }
 
             static bool Processed(ReadOnlyCollection<Exception> exceptions)
@@ -97,12 +97,6 @@ internal sealed class AzureDirectory : VirtualDirectory
 
                 return true;
             }
-        }
-
-        static Uri GenerateBlobUri(BlobUriBuilder builder, string blobName)
-        {
-            builder.BlobName = blobName;
-            return builder.ToUri();
         }
     }
 
