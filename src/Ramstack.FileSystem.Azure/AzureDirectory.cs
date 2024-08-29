@@ -1,6 +1,9 @@
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 
+using Azure;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
 
 using Ramstack.FileSystem.Internal;
 
@@ -48,14 +51,52 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var blob in collection.ConfigureAwait(false))
+        var client = _fs.Container.GetBlobBatchClient();
+        var batch = client.CreateBatch();
+
+        // https://learn.microsoft.com/en-us/rest/api/storageservices/blob-batch#remarks
+        // Each batch request supports a maximum of 256 sub requests.
+        const int MaxSubRequests = 256;
+
+        await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
         {
-            await _fs.Container
-                .DeleteBlobIfExistsAsync(
-                    blob.Name,
-                    DeleteSnapshotsOption.IncludeSnapshots,
-                    cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            foreach (var blob in page.Values)
+            {
+                batch.DeleteBlob(_fs.Container.Name, blob.Name, DeleteSnapshotsOption.IncludeSnapshots, conditions: null);
+
+                if (batch.RequestCount != MaxSubRequests)
+                    continue;
+
+                await DeleteBlobsAsync(client, batch, cancellationToken).ConfigureAwait(false);
+                batch = client.CreateBatch();
+            }
+        }
+
+        if (batch.RequestCount != 0)
+            await DeleteBlobsAsync(client, batch, cancellationToken).ConfigureAwait(false);
+
+        static async ValueTask DeleteBlobsAsync(BlobBatchClient client, BlobBatch batch, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await client.SubmitBatchAsync(batch, throwOnAnyFailure: true, cancellationToken).ConfigureAwait(false);
+            }
+            catch (AggregateException e) when (Processed(e.InnerExceptions))
+            {
+            }
+            finally
+            {
+                batch.Dispose();
+            }
+
+            static bool Processed(ReadOnlyCollection<Exception> exceptions)
+            {
+                for (int count = exceptions.Count, i = 0; i < count; i++)
+                    if (exceptions[i] is not RequestFailedException { Status: 404 })
+                        return false;
+
+                return true;
+            }
         }
     }
 
@@ -68,7 +109,8 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var item in collection.ConfigureAwait(false))
+        await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
+        foreach (var item in page.Values)
             yield return item.Prefix is not null
                 ? new AzureDirectory(_fs, VirtualPath.Normalize(item.Prefix))
                 : CreateVirtualFile(item.Blob);
@@ -83,7 +125,8 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var item in collection.ConfigureAwait(false))
+        await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
+        foreach (var item in page.Values)
             if (item.Prefix is null)
                 yield return CreateVirtualFile(item.Blob);
     }
@@ -97,7 +140,8 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        await foreach (var item in collection.ConfigureAwait(false))
+        await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
+        foreach (var item in page.Values)
             if (item.Prefix is not null)
                 yield return new AzureDirectory(_fs, VirtualPath.Normalize(item.Prefix));
     }

@@ -4,6 +4,7 @@ using Ramstack.FileSystem.Specification.Tests.Utilities;
 namespace Ramstack.FileSystem.Azure;
 
 [TestFixture]
+[Category("Cloud")]
 public class WritableAzureFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
 {
     private readonly TempFileStorage _storage = new TempFileStorage();
@@ -27,6 +28,30 @@ public class WritableAzureFileSystemSpecificationTests : VirtualFileSystemSpecif
 
         using var fs = GetFileSystem();
         await fs.DeleteDirectoryAsync("/");
+    }
+
+    [Test]
+    public async Task Directory_BatchDeleting()
+    {
+        // 1. Page size is a maximum of 5000 items.
+        // 2. Each batch request supports a maximum of 256 sub-requests.
+        //
+        // We'll set it slightly higher to test pagination and batching functionality.
+        const int Count = 5100;
+
+        using var fs = GetFileSystem();
+        for (var i = 0; i < Count; i++)
+            await fs.WriteFileAsync($"/temp/{i:0000}", Stream.Null);
+
+        Assert.That(
+            await fs.GetFilesAsync("/temp", "**").CountAsync(),
+            Is.EqualTo(Count));
+
+        await fs.DeleteDirectoryAsync("/temp");
+
+        Assert.That(
+            await fs.GetFilesAsync("/temp", "**").CountAsync(),
+            Is.EqualTo(0));
     }
 
     protected override IVirtualFileSystem GetFileSystem()
