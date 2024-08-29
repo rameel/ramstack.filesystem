@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" />
+    <PackageReference Include="Azure.Storage.Blobs.Batch" />
     <PackageReference Include="Microsoft.SourceLink.GitHub">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

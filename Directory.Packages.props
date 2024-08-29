@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.21.2" />
+    <PackageVersion Include="Azure.Storage.Blobs.Batch" Version="12.18.1" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="8.0.0" />

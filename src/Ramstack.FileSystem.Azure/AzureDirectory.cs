@@ -1,6 +1,10 @@
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 
+using Azure;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
 
 using Ramstack.FileSystem.Internal;
 
@@ -48,14 +52,57 @@ internal sealed class AzureDirectory : VirtualDirectory
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
+        var blobs = new List<Uri>();
+        var builder = new BlobUriBuilder(_fs.Container.Uri);
+        var batch = _fs.Container.GetBlobBatchClient();
+
         await foreach (var blob in collection.ConfigureAwait(false))
         {
-            await _fs.Container
-                .DeleteBlobIfExistsAsync(
-                    blob.Name,
-                    DeleteSnapshotsOption.IncludeSnapshots,
-                    cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            blobs.Add(GenerateBlobUri(builder, blob.Name));
+
+            // https://learn.microsoft.com/en-us/rest/api/storageservices/blob-batch#remarks
+            // Each batch request supports a maximum of 256 sub requests.
+            const int MaxSubRequests = 256;
+
+            if (blobs.Count != MaxSubRequests)
+                continue;
+
+            await DeleteBlobsAsync(batch, blobs, cancellationToken).ConfigureAwait(false);
+            blobs.Clear();
+        }
+
+        if (blobs.Count != 0)
+            await DeleteBlobsAsync(batch, blobs, cancellationToken).ConfigureAwait(false);
+
+        static async ValueTask DeleteBlobsAsync(BlobBatchClient batch, List<Uri> blobs, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await batch
+                    .DeleteBlobsAsync(
+                        blobs,
+                        DeleteSnapshotsOption.IncludeSnapshots,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (AggregateException e) when (Processed(e.InnerExceptions))
+            {
+            }
+
+            static bool Processed(ReadOnlyCollection<Exception> exceptions)
+            {
+                for (var i = 0; i < exceptions.Count; i++)
+                    if (exceptions[i] is not RequestFailedException { Status: 404 })
+                        return false;
+
+                return true;
+            }
+        }
+
+        static Uri GenerateBlobUri(BlobUriBuilder builder, string blobName)
+        {
+            builder.BlobName = blobName;
+            return builder.ToUri();
         }
     }
 
