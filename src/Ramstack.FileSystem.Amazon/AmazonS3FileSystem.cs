@@ -19,6 +19,8 @@ public sealed class AmazonS3FileSystem : IVirtualFileSystem
 
     public AmazonS3FileSystem(AmazonS3Options options, string bucketName)
     {
+        ArgumentNullException.ThrowIfNull(bucketName);
+
         AmazonClient = new AmazonS3Client(
             awsAccessKeyId: options.AccessKeyId,
             awsSecretAccessKey: options.AccessKeySecret,

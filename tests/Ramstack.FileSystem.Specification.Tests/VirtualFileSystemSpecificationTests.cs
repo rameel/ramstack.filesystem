@@ -563,18 +563,18 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
     }
 
     /// <summary>
-    /// Retrieves the instance of the virtual file system to be used in the tests.
+    /// Returns an instance of the virtual file system.
     /// </summary>
     /// <returns>
-    /// An instance of <see cref="IVirtualFileSystem"/> representing the virtual file system.
+    /// An instance of <see cref="IVirtualFileSystem"/>.
     /// </returns>
     protected abstract IVirtualFileSystem GetFileSystem();
 
     /// <summary>
-    /// Retrieves the <see cref="DirectoryInfo"/> object representing the root directory of the file system.
+    /// Returns a <see cref="DirectoryInfo"/> object representing the root of the test directory.
     /// </summary>
     /// <returns>
-    /// A <see cref="DirectoryInfo"/> object that points to the root directory of the virtual file system.
+    /// A <see cref="DirectoryInfo"/> object that points to the root of the test directory.
     /// </returns>
     protected abstract DirectoryInfo GetDirectoryInfo();
 
