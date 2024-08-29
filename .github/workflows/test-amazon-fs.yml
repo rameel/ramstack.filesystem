@@ -18,7 +18,8 @@ jobs:
         env:
           MINIO_ACCESS_KEY: minioadmin
           MINIO_SECRET_KEY: minioadmin
-        command: server /data
+        options: >
+          server /data
 
     steps:
       - name: Setup .NET
