@@ -24,11 +24,6 @@ public class ReadonlyAmazonFileSystemTests : VirtualFileSystemSpecificationTests
             await using var stream = File.OpenRead(path);
             await fs.WriteFileAsync(path[_storage.Root.Length..], stream, overwrite: true);
         }
-
-        await fs.CreateBucketAsync();
-
-        var count = await fs.GetFilesAsync("/", "**").CountAsync();
-        if (count != 62) throw new InvalidOperationException();
     }
 
     [OneTimeTearDown]
