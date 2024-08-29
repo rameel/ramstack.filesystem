@@ -62,7 +62,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 
             Assert.That(
                 await file.GetLengthAsync(),
-                Is.EqualTo(51_201_000));
+                Is.EqualTo(TotalLines * value.Length + TotalLines * Environment.NewLine.Length));
 
             await using var stream = await file.OpenReadAsync();
             using var reader = new StreamReader(stream);
