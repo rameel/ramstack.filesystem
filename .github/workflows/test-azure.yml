@@ -1,4 +1,4 @@
-name: Azure Blobs
+name: Test Azure-based project
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-test:
 
-    name: Runs on ubuntu-latest
+    name: Runs on ubuntu-latest using Azurite
     runs-on: ubuntu-latest
 
     services:
@@ -17,6 +17,7 @@ jobs:
           - 10000:10000
           - 10001:10001
           - 10002:10002
+
     steps:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
