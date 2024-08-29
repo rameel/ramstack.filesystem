@@ -19,7 +19,7 @@ jobs:
           MINIO_ACCESS_KEY: minioadmin
           MINIO_SECRET_KEY: minioadmin
         options: >
-          server /data
+          --entrypoint "/usr/bin/minio" --command "server /data"
 
     steps:
       - name: Setup .NET
