@@ -43,11 +43,11 @@ public class ReadonlyAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 
     private AmazonS3FileSystem CreateFileSystem(bool isReadOnly)
     {
-        var credentials = new BasicAWSCredentials("test", "test");
+        var credentials = new BasicAWSCredentials("minioadmin", "minioadmin");
         var config = new AmazonS3Config
         {
             RegionEndpoint = RegionEndpoint.USEast1,
-            ServiceURL = "http://localhost:4566",
+            ServiceURL = "http://localhost:9000",
             ForcePathStyle = true,
         };
 

@@ -117,11 +117,11 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     protected override AmazonS3FileSystem GetFileSystem()
     {
         return new AmazonS3FileSystem(
-            new BasicAWSCredentials("test", "test"),
+            new BasicAWSCredentials("minioadmin", "minioadmin"),
             new AmazonS3Config
             {
                 RegionEndpoint = RegionEndpoint.USEast1,
-                ServiceURL = "http://localhost:4566",
+                ServiceURL = "http://localhost:9000",
                 ForcePathStyle = true,
             },
             bucketName: "storage");

@@ -11,13 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      localstack:
-        image: localstack/localstack
+      minio:
+        image: minio/minio
         ports:
-          - 4566:4566 # LocalStack edge port
+          - 9000:9000
         env:
-          SERVICES: s3
-          DEFAULT_REGION: us-east-1
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
+        command: server /data
 
     steps:
       - name: Setup .NET
