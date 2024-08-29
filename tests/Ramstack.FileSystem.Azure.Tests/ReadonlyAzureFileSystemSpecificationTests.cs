@@ -4,6 +4,7 @@ using Ramstack.FileSystem.Specification.Tests.Utilities;
 namespace Ramstack.FileSystem.Azure;
 
 [TestFixture]
+[Category("Cloud")]
 public class ReadonlyAzureFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
 {
     private readonly TempFileStorage _storage = new TempFileStorage();
