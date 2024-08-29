@@ -58,6 +58,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramstack.FileSystem.Composi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramstack.FileSystem.Composite.Tests", "tests\Ramstack.FileSystem.Composite.Tests\Ramstack.FileSystem.Composite.Tests.csproj", "{7EC7E717-F5B0-448B-A8AB-5C1385F432D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramstack.FileSystem.Amazon", "src\Ramstack.FileSystem.Amazon\Ramstack.FileSystem.Amazon.csproj", "{A989B94C-94D5-43C0-A4E9-C62287B50A85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ramstack.FileSystem.Amazon.Tests", "tests\Ramstack.FileSystem.Amazon.Tests\Ramstack.FileSystem.Amazon.Tests.csproj", "{FCD52644-C99C-4AE7-A52A-3D326D42FCAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -148,6 +152,14 @@ Global
 		{7EC7E717-F5B0-448B-A8AB-5C1385F432D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EC7E717-F5B0-448B-A8AB-5C1385F432D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EC7E717-F5B0-448B-A8AB-5C1385F432D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A989B94C-94D5-43C0-A4E9-C62287B50A85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A989B94C-94D5-43C0-A4E9-C62287B50A85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A989B94C-94D5-43C0-A4E9-C62287B50A85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A989B94C-94D5-43C0-A4E9-C62287B50A85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCD52644-C99C-4AE7-A52A-3D326D42FCAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCD52644-C99C-4AE7-A52A-3D326D42FCAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCD52644-C99C-4AE7-A52A-3D326D42FCAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCD52644-C99C-4AE7-A52A-3D326D42FCAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -174,6 +186,8 @@ Global
 		{8C0124E9-94A4-4255-A6F4-5D8F061D70E9} = {FDD0140D-CFCB-4875-990F-BF1227CD3CF6}
 		{FE1F0EA6-526E-4922-9133-8408C8110344} = {778473B7-67CD-4F46-93B8-B2FF5046E492}
 		{7EC7E717-F5B0-448B-A8AB-5C1385F432D9} = {FDD0140D-CFCB-4875-990F-BF1227CD3CF6}
+		{A989B94C-94D5-43C0-A4E9-C62287B50A85} = {778473B7-67CD-4F46-93B8-B2FF5046E492}
+		{FCD52644-C99C-4AE7-A52A-3D326D42FCAA} = {FDD0140D-CFCB-4875-990F-BF1227CD3CF6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B4B772EB-04D5-46D8-81E5-A77BE4E9AAB0}
