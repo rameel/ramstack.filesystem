@@ -28,16 +28,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup AWS CLI
-        run: |
-          sudo apt-get update && sudo apt-get install -y awscli
-          aws configure set aws_access_key_id test
-          aws configure set aws_secret_access_key test
-          aws configure set default.region us-east-1
-
-      - name: Create S3 bucket
-        run: aws --endpoint-url=http://localhost:4566 s3 mb s3://storage
-
       - name: Build
         run: dotnet build -c Debug
 
