@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-test:
 
-    name: Runs on ubuntu-latest using LocalStack
+    name: Runs on ubuntu-latest using MinIO
     runs-on: ubuntu-latest
 
     services:
