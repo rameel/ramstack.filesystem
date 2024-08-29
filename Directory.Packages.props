@@ -4,6 +4,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="AWSSDK.S3" Version="3.7.402.2" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.21.2" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="8.0.0" />
