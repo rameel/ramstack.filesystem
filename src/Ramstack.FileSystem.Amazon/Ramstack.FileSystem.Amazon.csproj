@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Description>Provides adapters for integrating Ramstack.FileSystem with Microsoft.Extensions.FileProviders.</Description>
+    <Description>Provides an implementation of Ramstack.FileSystem using Amazon S3 storage.</Description>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
@@ -55,6 +55,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ramstack.FileSystem.Abstractions\Ramstack.FileSystem.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Link>Properties\README.md</Link>
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
