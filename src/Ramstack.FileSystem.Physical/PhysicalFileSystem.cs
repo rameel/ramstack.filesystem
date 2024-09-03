@@ -44,7 +44,7 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
         path = VirtualPath.GetFullPath(path);
         var physicalPath = GetPhysicalPath(path);
 
-        if (!IsFullyExcluded(physicalPath))
+        if (!IsExcluded(physicalPath))
             return new PhysicalFile(this, path, physicalPath);
 
         return new NotFoundFile(this, path);
@@ -56,7 +56,7 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
         path = VirtualPath.GetFullPath(path);
         var physicalPath = GetPhysicalPath(path);
 
-        if (!IsFullyExcluded(physicalPath))
+        if (!IsExcluded(physicalPath))
             return new PhysicalDirectory(this, path, physicalPath);
 
         return new NotFoundDirectory(this, path);
@@ -79,12 +79,19 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
     /// </remarks>
     internal bool IsExcluded(ref FileSystemEntry entry)
     {
-        if ((_exclusionFilters & ExclusionFilters.DotPrefixed) != 0)
+        if (_exclusionFilters != ExclusionFilters.None)
+        {
             if (!entry.FileName.StartsWith("."))
                 return true;
 
-        const int Mask = (int)(ExclusionFilters.Hidden | ExclusionFilters.System);
-        return ((int)_exclusionFilters & (int)entry.Attributes & Mask) != 0;
+            if (Path.DirectorySeparatorChar == '\\')
+            {
+                const FileAttributes Mask = FileAttributes.Hidden | FileAttributes.System;
+                return (entry.Attributes & Mask) != 0;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -98,13 +105,13 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
     /// This method traverses up the directory hierarchy from the specified path to the root path,
     /// checking each directory against the exclusion filters.
     /// </remarks>
-    private bool IsFullyExcluded(string physicalPath)
+    private bool IsExcluded(string physicalPath)
     {
         if (_exclusionFilters != ExclusionFilters.None)
         {
             while (physicalPath != _root)
             {
-                if (IsExcluded(physicalPath))
+                if (IsEntryExcluded(physicalPath))
                     return true;
 
                 physicalPath = Path.GetDirectoryName(physicalPath)!;
@@ -112,40 +119,29 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
         }
 
         return false;
-    }
 
-    /// <summary>
-    /// Determines whether the specified path is excluded based on the configured exclusion filters.
-    /// </summary>
-    /// <param name="physicalPath">The physical path to check for exclusion.</param>
-    /// <returns>
-    /// <see langword="true" /> if the specified path is excluded; otherwise, <see langword="false" />.
-    /// </returns>
-    private bool IsExcluded(string physicalPath)
-    {
-        try
+        static bool IsEntryExcluded(string physicalPath)
         {
-            const int Mask = (int)(ExclusionFilters.Hidden | ExclusionFilters.System);
+            if (Path.GetFileName(physicalPath.AsSpan()).StartsWith("."))
+                return true;
 
-            var filters = (int)_exclusionFilters;
-            if ((filters & (int)ExclusionFilters.DotPrefixed) != 0)
-                if (Path.GetFileName(physicalPath.AsSpan()).StartsWith("."))
-                    return true;
-
-            filters &= Mask;
-
-            if (filters != 0)
+            if (Path.DirectorySeparatorChar == '\\')
             {
-                var attributes = File.GetAttributes(physicalPath);
-                if (((int)attributes & filters) != 0)
-                    return true;
-            }
-        }
-        catch (IOException)
-        {
-        }
+                try
+                {
+                    const FileAttributes Mask = FileAttributes.Hidden | FileAttributes.System;
 
-        return false;
+                    var attributes = File.GetAttributes(physicalPath);
+                    if ((attributes & Mask) != 0)
+                        return true;
+                }
+                catch (IOException)
+                {
+                }
+            }
+
+            return false;
+        }
     }
 
     /// <summary>

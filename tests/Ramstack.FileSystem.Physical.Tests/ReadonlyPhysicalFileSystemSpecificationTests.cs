@@ -13,43 +13,28 @@ public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpe
     public void Cleanup() =>
         _storage.Dispose();
 
-    [TestCase(".dot/", ExclusionFilters.DotPrefixed)]
-    [TestCase(".dot/00/", ExclusionFilters.DotPrefixed)]
-    [TestCase(".dot/00/data.txt", ExclusionFilters.DotPrefixed)]
-    [TestCase(".editorconfig", ExclusionFilters.DotPrefixed)]
-
-    [TestCase("system/", ExclusionFilters.System)]
-    [TestCase("system/00/", ExclusionFilters.System)]
-    [TestCase("system/00/data.txt", ExclusionFilters.System)]
-    [TestCase("system.bin", ExclusionFilters.System)]
-
-    [TestCase("hidden/", ExclusionFilters.Hidden)]
-    [TestCase("hidden/00/", ExclusionFilters.Hidden)]
-    [TestCase("hidden/00/data.txt", ExclusionFilters.Hidden)]
-    [TestCase("hidden.bin", ExclusionFilters.Hidden)]
-
-    [TestCase(".dot/", ExclusionFilters.Sensitive)]
-    [TestCase(".dot/00/", ExclusionFilters.Sensitive)]
-    [TestCase(".dot/00/data.txt", ExclusionFilters.Sensitive)]
-    [TestCase(".editorconfig", ExclusionFilters.Sensitive)]
-    [TestCase("system/", ExclusionFilters.Sensitive)]
-    [TestCase("system/00/", ExclusionFilters.Sensitive)]
-    [TestCase("system/00/data.txt", ExclusionFilters.Sensitive)]
-    [TestCase("system.bin", ExclusionFilters.Sensitive)]
-    [TestCase("hidden/", ExclusionFilters.Sensitive)]
-    [TestCase("hidden/00/", ExclusionFilters.Sensitive)]
-    [TestCase("hidden/00/data.txt", ExclusionFilters.Sensitive)]
-    [TestCase("hidden.bin", ExclusionFilters.Sensitive)]
-    public void ExclusionFilters_Exclude_Matching(string path, ExclusionFilters exclusionFilters)
+    [TestCase(".dot/")]
+    [TestCase(".dot/00/")]
+    [TestCase(".dot/00/data.txt")]
+    [TestCase(".editorconfig")]
+    [TestCase("system/")]
+    [TestCase("system/00/")]
+    [TestCase("system/00/data.txt")]
+    [TestCase("system.bin")]
+    [TestCase("hidden/")]
+    [TestCase("hidden/00/")]
+    [TestCase("hidden/00/data.txt")]
+    [TestCase("hidden.bin")]
+    public void ExclusionFilters_Exclude_Matching(string path)
     {
-        if (Path.DirectorySeparatorChar == '/'
-            && exclusionFilters != ExclusionFilters.DotPrefixed)
+        if (Path.DirectorySeparatorChar == '/' && !path.StartsWith('.'))
             return;
 
         var root = InitializeSensitiveFiles();
         try
         {
-            var fs = new PhysicalFileSystem(root, exclusionFilters);
+            // ReSharper disable once RedundantArgumentDefaultValue
+            var fs = new PhysicalFileSystem(root, ExclusionFilters.Sensitive);
             if (path.EndsWith('/'))
             {
                 var directory = fs.GetDirectory(path);
@@ -59,47 +44,6 @@ public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpe
             {
                 var file = fs.GetFile(path);
                 Assert.That(file, Is.InstanceOf<NotFoundFile>());
-            }
-        }
-        finally
-        {
-            Directory.Delete(root, recursive: true);
-        }
-    }
-
-    [TestCase(".dot/", ExclusionFilters.Hidden)]
-    [TestCase(".dot/00/", ExclusionFilters.Hidden)]
-    [TestCase(".dot/00/data.txt", ExclusionFilters.Hidden)]
-    [TestCase(".editorconfig", ExclusionFilters.Hidden)]
-
-    [TestCase("system/", ExclusionFilters.DotPrefixed)]
-    [TestCase("system/00/", ExclusionFilters.DotPrefixed)]
-    [TestCase("system/00/data.txt", ExclusionFilters.DotPrefixed)]
-    [TestCase("system.bin", ExclusionFilters.DotPrefixed)]
-
-    [TestCase("hidden/", ExclusionFilters.System)]
-    [TestCase("hidden/00/", ExclusionFilters.System)]
-    [TestCase("hidden/00/data.txt", ExclusionFilters.System)]
-    [TestCase("hidden.bin", ExclusionFilters.System)]
-    public void ExclusionFilters_NotExclude_NonMatching(string path, ExclusionFilters exclusionFilters)
-    {
-        if (Path.DirectorySeparatorChar == '/'
-            && exclusionFilters != ExclusionFilters.DotPrefixed)
-            return;
-
-        var root = InitializeSensitiveFiles();
-        try
-        {
-            var fs = new PhysicalFileSystem(root, exclusionFilters);
-            if (path.EndsWith('/'))
-            {
-                var directory = fs.GetDirectory(path);
-                Assert.That(directory, Is.Not.InstanceOf<NotFoundDirectory>());
-            }
-            else
-            {
-                var file = fs.GetFile(path);
-                Assert.That(file, Is.Not.InstanceOf<NotFoundFile>());
             }
         }
         finally
