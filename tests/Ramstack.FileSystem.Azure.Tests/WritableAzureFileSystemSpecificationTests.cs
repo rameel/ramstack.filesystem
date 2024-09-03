@@ -14,6 +14,8 @@ public class WritableAzureFileSystemSpecificationTests : VirtualFileSystemSpecif
     {
         using var fs = GetFileSystem();
 
+        await fs.CreateContainerAsync();
+
         foreach (var path in Directory.EnumerateFiles(_storage.Root, "*", SearchOption.AllDirectories))
         {
             await using var stream = File.OpenRead(path);
@@ -54,7 +56,7 @@ public class WritableAzureFileSystemSpecificationTests : VirtualFileSystemSpecif
             Is.EqualTo(0));
     }
 
-    protected override IVirtualFileSystem GetFileSystem()
+    protected override AzureFileSystem GetFileSystem()
     {
         return new AzureFileSystem("storage", new AzureFileSystemOptions
         {

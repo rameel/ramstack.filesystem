@@ -14,6 +14,8 @@ public class ReadonlyAzureFileSystemSpecificationTests : VirtualFileSystemSpecif
     {
         using var fs = CreateFileSystem(isReadonly: false);
 
+        await fs.CreateContainerAsync();
+
         foreach (var path in Directory.EnumerateFiles(_storage.Root, "*", SearchOption.AllDirectories))
         {
             await using var stream = File.OpenRead(path);
@@ -36,7 +38,7 @@ public class ReadonlyAzureFileSystemSpecificationTests : VirtualFileSystemSpecif
     protected override DirectoryInfo GetDirectoryInfo() =>
         new DirectoryInfo(_storage.Root);
 
-    private static IVirtualFileSystem CreateFileSystem(bool isReadonly)
+    private static AzureFileSystem CreateFileSystem(bool isReadonly)
     {
         var options = new AzureFileSystemOptions
         {

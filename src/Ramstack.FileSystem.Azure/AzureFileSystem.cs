@@ -36,9 +36,6 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     {
         Options = options;
         Container = new BlobContainerClient(options.ConnectionString, containerName);
-
-        Container.CreateIfNotExists();
-        Container.SetAccessPolicy(options.Public ? PublicAccessType.Blob : PublicAccessType.None);
     }
 
     /// <inheritdoc />
@@ -48,6 +45,21 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualFile GetFile(string path) =>
         new AzureFile(this, VirtualPath.GetFullPath(path));
+
+    /// <summary>
+    /// Asynchronously creates the container in Azure Blob Storage if it does not already exist.
+    /// </summary>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public ValueTask CreateContainerAsync(CancellationToken cancellationToken = default)
+    {
+        var task = Container.CreateIfNotExistsAsync(
+            Options.Public ? PublicAccessType.Blob : PublicAccessType.None,
+            cancellationToken: cancellationToken);
+        return new ValueTask(task);
+    }
 
     /// <inheritdoc />
     void IDisposable.Dispose()
