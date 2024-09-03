@@ -46,13 +46,13 @@ public class WritableAzureFileSystemSpecificationTests : VirtualFileSystemSpecif
             await fs.WriteFileAsync($"/temp/{i:0000}", Stream.Null);
 
         Assert.That(
-            await fs.GetFilesAsync("/temp", "**").CountAsync(),
+            await fs.GetFilesAsync("/temp").CountAsync(),
             Is.EqualTo(Count));
 
         await fs.DeleteDirectoryAsync("/temp");
 
         Assert.That(
-            await fs.GetFilesAsync("/temp", "**").CountAsync(),
+            await fs.GetFilesAsync("/temp").CountAsync(),
             Is.EqualTo(0));
     }
 
