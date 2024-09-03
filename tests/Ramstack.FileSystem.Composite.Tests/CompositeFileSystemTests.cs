@@ -1,4 +1,4 @@
-﻿using Ramstack.FileSystem.Physical;
+using Ramstack.FileSystem.Physical;
 using Ramstack.FileSystem.Prefixed;
 using Ramstack.FileSystem.Specification.Tests;
 using Ramstack.FileSystem.Specification.Tests.Utilities;
@@ -24,7 +24,7 @@ public class CompositeFileSystemTests : VirtualFileSystemSpecificationTests
             var fileName = Path.GetFileName(directory);
             Console.WriteLine(fileName);
 
-            var fs = new PrefixedFileSystem(fileName, new PhysicalFileSystem(directory));
+            var fs = new PrefixedFileSystem(fileName, new PhysicalFileSystem(directory, ExclusionFilters.None));
             list.Add(fs);
         }
 

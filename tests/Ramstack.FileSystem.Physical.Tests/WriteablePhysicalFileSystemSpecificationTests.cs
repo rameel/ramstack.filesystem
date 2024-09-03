@@ -6,7 +6,7 @@ namespace Ramstack.FileSystem.Physical;
 [TestFixture]
 public class WriteablePhysicalFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
 {
-    private readonly TempFileStorage _storage = new();
+    private readonly TempFileStorage _storage = new TempFileStorage();
 
     [OneTimeTearDown]
     public void Cleanup() =>
@@ -14,7 +14,7 @@ public class WriteablePhysicalFileSystemSpecificationTests : VirtualFileSystemSp
 
     /// <inheritdoc />
     protected override IVirtualFileSystem GetFileSystem() =>
-        new PhysicalFileSystem(_storage.Root);
+        new PhysicalFileSystem(_storage.Root, ExclusionFilters.None);
 
     /// <inheritdoc />
     protected override DirectoryInfo GetDirectoryInfo() =>

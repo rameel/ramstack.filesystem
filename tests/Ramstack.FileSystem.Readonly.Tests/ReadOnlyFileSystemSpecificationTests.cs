@@ -7,7 +7,7 @@ namespace Ramstack.FileSystem.Readonly;
 [TestFixture]
 public class ReadOnlyFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
 {
-    private readonly TempFileStorage _storage = new();
+    private readonly TempFileStorage _storage = new TempFileStorage();
 
     [OneTimeTearDown]
     public void Cleanup() =>
@@ -15,7 +15,7 @@ public class ReadOnlyFileSystemSpecificationTests : VirtualFileSystemSpecificati
 
     /// <inheritdoc />
     protected override IVirtualFileSystem GetFileSystem() =>
-        new ReadonlyFileSystem(new PhysicalFileSystem(_storage.Root));
+        new ReadonlyFileSystem(new PhysicalFileSystem(_storage.Root, ExclusionFilters.None));
 
     /// <inheritdoc />
     protected override DirectoryInfo GetDirectoryInfo() =>

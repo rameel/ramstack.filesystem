@@ -10,30 +10,31 @@ internal sealed class PhysicalFile : VirtualFile
     /// </summary>
     private const int DefaultBufferSize = 4096;
 
-    private readonly PhysicalFileSystem _fileSystem;
+    private readonly PhysicalFileSystem _fs;
     private readonly string _physicalPath;
 
     /// <inheritdoc/>
-    public override IVirtualFileSystem FileSystem => _fileSystem;
+    public override IVirtualFileSystem FileSystem => _fs;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PhysicalFile"/> class.
     /// </summary>
     /// <param name="fileSystem">The file system associated with this file.</param>
     /// <param name="path">The path of the file.</param>
-    internal PhysicalFile(PhysicalFileSystem fileSystem, string path) : base(path) =>
-        (_fileSystem, _physicalPath) = (fileSystem, fileSystem.GetPhysicalPath(path));
+    /// <param name="physicalPath">The physical path of the file.</param>
+    internal PhysicalFile(PhysicalFileSystem fileSystem, string path, string physicalPath) : base(path) =>
+        (_fs, _physicalPath) = (fileSystem, physicalPath);
 
     /// <inheritdoc />
     protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
     {
-        var info = new FileInfo(_physicalPath);
-        var properties = info.Exists
+        var file = new FileInfo(_physicalPath);
+        var properties = file.Exists
             ? VirtualNodeProperties.CreateFileProperties(
-                creationTime: info.CreationTimeUtc,
-                lastAccessTime: info.LastAccessTime,
-                lastWriteTime: info.LastWriteTimeUtc,
-                length: info.Length)
+                creationTime: file.CreationTimeUtc,
+                lastAccessTime: file.LastAccessTime,
+                lastWriteTime: file.LastWriteTimeUtc,
+                length: file.Length)
             : null;
 
         return new ValueTask<VirtualNodeProperties?>(properties);
@@ -42,8 +43,8 @@ internal sealed class PhysicalFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken)
     {
-        const FileOptions options = FileOptions.Asynchronous | FileOptions.SequentialScan;
-        var stream = new FileStream(_physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, options);
+        const FileOptions Options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+        var stream = new FileStream(_physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, Options);
 
         return new ValueTask<Stream>(stream);
     }
@@ -51,11 +52,11 @@ internal sealed class PhysicalFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken)
     {
-        EnsureDirectoryExists(Path.GetDirectoryName(_physicalPath)!);
+        EnsureDirectoryExists();
 
-        const FileOptions options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+        const FileOptions Options = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
-        var stream = new FileStream(_physicalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
+        var stream = new FileStream(_physicalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, DefaultBufferSize, Options);
 
         // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
         // set the file length to zero to remove any leftover data.
@@ -67,16 +68,16 @@ internal sealed class PhysicalFile : VirtualFile
     /// <inheritdoc />
     protected override async ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken)
     {
-        EnsureDirectoryExists(Path.GetDirectoryName(_physicalPath)!);
+        EnsureDirectoryExists();
 
-        const FileOptions options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+        const FileOptions Options = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
         // To overwrite the file, we use FileMode.OpenOrCreate instead of FileMode.Create.
         // This avoids a System.UnauthorizedAccessException: Access to the path is denied,
         // which can occur if the file has the FileAttributes.Hidden attribute.
         var fileMode = overwrite ? FileMode.OpenOrCreate : FileMode.CreateNew;
 
-        await using var fs = new FileStream(_physicalPath, fileMode, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
+        await using var fs = new FileStream(_physicalPath, fileMode, FileAccess.Write, FileShare.None, DefaultBufferSize, Options);
 
         // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
         // set the file length to zero to remove any leftover data.
@@ -107,9 +108,9 @@ internal sealed class PhysicalFile : VirtualFile
     /// <remarks>
     /// This method is used to prevent errors when attempting to write to a non-existing directory.
     /// </remarks>
-    /// <param name="directoryPath">The path of the directory to check and create if necessary.</param>
-    private static void EnsureDirectoryExists(string directoryPath)
+    private void EnsureDirectoryExists()
     {
+        var directoryPath = Path.GetDirectoryName(_physicalPath)!;
         if (!System.IO.Directory.Exists(directoryPath))
             System.IO.Directory.CreateDirectory(directoryPath);
     }

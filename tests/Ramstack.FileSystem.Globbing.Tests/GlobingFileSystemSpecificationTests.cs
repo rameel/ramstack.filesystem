@@ -7,7 +7,7 @@ namespace Ramstack.FileSystem.Globbing;
 [TestFixture]
 public class GlobingFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
 {
-    private readonly TempFileStorage _storage = new();
+    private readonly TempFileStorage _storage = new TempFileStorage();
 
     [OneTimeSetUp]
     public void Setup()
@@ -31,7 +31,7 @@ public class GlobingFileSystemSpecificationTests : VirtualFileSystemSpecificatio
 
     protected override IVirtualFileSystem GetFileSystem()
     {
-        var fs = new PhysicalFileSystem(_storage.Root);
+        var fs = new PhysicalFileSystem(_storage.Root, ExclusionFilters.None);
         return new GlobbingFileSystem(fs, "project/docs/**", exclude: "**/*.txt");
     }
 
