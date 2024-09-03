@@ -5,7 +5,7 @@ namespace Ramstack.FileSystem.Azure;
 
 [TestFixture]
 [Category("Cloud:Azure")]
-public class ReadonlyAzureFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
+public class ReadonlyAzureFileSystemTests : VirtualFileSystemSpecificationTests
 {
     private readonly TempFileStorage _storage = new TempFileStorage();
 
@@ -13,6 +13,8 @@ public class ReadonlyAzureFileSystemSpecificationTests : VirtualFileSystemSpecif
     public async Task Setup()
     {
         using var fs = CreateFileSystem(isReadonly: false);
+
+        await fs.CreateContainerAsync();
 
         foreach (var path in Directory.EnumerateFiles(_storage.Root, "*", SearchOption.AllDirectories))
         {
@@ -36,15 +38,11 @@ public class ReadonlyAzureFileSystemSpecificationTests : VirtualFileSystemSpecif
     protected override DirectoryInfo GetDirectoryInfo() =>
         new DirectoryInfo(_storage.Root);
 
-    private static IVirtualFileSystem CreateFileSystem(bool isReadonly)
+    private static AzureFileSystem CreateFileSystem(bool isReadonly)
     {
-        var options = new AzureFileSystemOptions
-        {
-            ConnectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
-            Public = false
-        };
+        const string ConnectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;";
 
-        return new AzureFileSystem("storage", options)
+        return new AzureFileSystem(ConnectionString, "storage")
         {
             IsReadOnly = isReadonly
         };

@@ -7,9 +7,9 @@ using Ramstack.FileSystem.Specification.Tests.Utilities;
 namespace Ramstack.FileSystem.Adapters;
 
 [TestFixture]
-public class VirtualFileSystemAdapterSpecificationTests : VirtualFileSystemSpecificationTests
+public class VirtualFileSystemAdapterTests : VirtualFileSystemSpecificationTests
 {
-    private readonly TempFileStorage _storage = new();
+    private readonly TempFileStorage _storage = new TempFileStorage();
 
     [OneTimeTearDown]
     public void Cleanup() =>

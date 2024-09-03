@@ -5,7 +5,7 @@ namespace Ramstack.FileSystem.Azure;
 
 [TestFixture]
 [Category("Cloud:Azure")]
-public class WritableAzureFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
+public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
 {
     private readonly TempFileStorage _storage = new TempFileStorage();
 
@@ -13,6 +13,8 @@ public class WritableAzureFileSystemSpecificationTests : VirtualFileSystemSpecif
     public async Task Setup()
     {
         using var fs = GetFileSystem();
+
+        await fs.CreateContainerAsync();
 
         foreach (var path in Directory.EnumerateFiles(_storage.Root, "*", SearchOption.AllDirectories))
         {
@@ -44,23 +46,24 @@ public class WritableAzureFileSystemSpecificationTests : VirtualFileSystemSpecif
             await fs.WriteFileAsync($"/temp/{i:0000}", Stream.Null);
 
         Assert.That(
-            await fs.GetFilesAsync("/temp", "**").CountAsync(),
+            await fs.GetFilesAsync("/temp").CountAsync(),
             Is.EqualTo(Count));
 
         await fs.DeleteDirectoryAsync("/temp");
 
         Assert.That(
-            await fs.GetFilesAsync("/temp", "**").CountAsync(),
+            await fs.GetFilesAsync("/temp").CountAsync(),
             Is.EqualTo(0));
     }
 
-    protected override IVirtualFileSystem GetFileSystem()
+    protected override AzureFileSystem GetFileSystem()
     {
-        return new AzureFileSystem("storage", new AzureFileSystemOptions
+        const string ConnectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;";
+
+        return new AzureFileSystem(ConnectionString, "storage")
         {
-            ConnectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
-            Public = false
-        });
+            IsReadOnly = false
+        };
     }
 
     protected override DirectoryInfo GetDirectoryInfo() =>

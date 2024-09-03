@@ -21,8 +21,8 @@ internal static class ThrowHelper
     [DoesNotReturn]
     public static void PathMappingFailed()
     {
-        const string message = "The virtual path could not be mapped to a physical path. The parent directory may not exist or be accessible.";
-        throw new InvalidOperationException(message);
+        const string Message = "The virtual path could not be mapped to a physical path. The parent directory may not exist or be accessible.";
+        throw new InvalidOperationException(Message);
     }
 
     /// <summary>

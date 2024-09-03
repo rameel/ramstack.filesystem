@@ -5,7 +5,7 @@ using Ramstack.FileSystem.Specification.Tests.Utilities;
 namespace Ramstack.FileSystem.Globbing;
 
 [TestFixture]
-public class GlobingFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
+public class GlobingFileSystemTests : VirtualFileSystemSpecificationTests
 {
     private readonly TempFileStorage _storage = new TempFileStorage();
 

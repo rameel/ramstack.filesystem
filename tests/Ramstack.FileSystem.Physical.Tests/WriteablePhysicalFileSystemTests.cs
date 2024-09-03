@@ -1,11 +1,10 @@
-using Ramstack.FileSystem.Physical;
 using Ramstack.FileSystem.Specification.Tests;
 using Ramstack.FileSystem.Specification.Tests.Utilities;
 
-namespace Ramstack.FileSystem.Readonly;
+namespace Ramstack.FileSystem.Physical;
 
 [TestFixture]
-public class ReadOnlyFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
+public class WriteablePhysicalFileSystemTests : VirtualFileSystemSpecificationTests
 {
     private readonly TempFileStorage _storage = new TempFileStorage();
 
@@ -15,9 +14,9 @@ public class ReadOnlyFileSystemSpecificationTests : VirtualFileSystemSpecificati
 
     /// <inheritdoc />
     protected override IVirtualFileSystem GetFileSystem() =>
-        new ReadonlyFileSystem(new PhysicalFileSystem(_storage.Root, ExclusionFilters.None));
+        new PhysicalFileSystem(_storage.Root, ExclusionFilters.None);
 
     /// <inheritdoc />
     protected override DirectoryInfo GetDirectoryInfo() =>
-        new(_storage.Root);
+        new DirectoryInfo(_storage.Root);
 }

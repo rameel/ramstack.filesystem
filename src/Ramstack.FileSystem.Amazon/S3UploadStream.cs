@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 using Amazon.S3;
 using Amazon.S3.Model;
@@ -12,7 +12,7 @@ namespace Ramstack.FileSystem.Amazon;
 /// This stream accumulates data in a temporary buffer and uploads it to S3 in parts
 /// once the buffer reaches a predefined size.
 /// </summary>
-internal sealed class AmazonS3UploadStream : Stream
+internal sealed class S3UploadStream : Stream
 {
     private const long PartSize = 5 * 1024 * 1024;
 
@@ -57,37 +57,30 @@ internal sealed class AmazonS3UploadStream : Stream
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AmazonS3UploadStream"/> class.
+    /// Initializes a new instance of the <see cref="S3UploadStream"/> class.
     /// </summary>
     /// <param name="client">The Amazon S3 client used for uploading parts.</param>
     /// <param name="bucketName">The name of the S3 bucket where the data will be uploaded.</param>
     /// <param name="key">The key (path) in the S3 bucket where the data will be stored.</param>
-    /// <param name="uploadId">The ID of the multipart upload session.</param>
-    public AmazonS3UploadStream(IAmazonS3 client, string bucketName, string key, string uploadId)
+    /// <param name="uploadId">The multipart upload session identifier.</param>
+    public S3UploadStream(IAmazonS3 client, string bucketName, string key, string uploadId)
     {
         _client = client;
         _bucketName = bucketName;
         _key = key;
         _uploadId = uploadId;
-        _stream = CreateTempStream();
         _partETags = [];
 
-        static FileStream CreateTempStream()
-        {
-            const FileOptions Options =
-                FileOptions.DeleteOnClose |
-                FileOptions.Asynchronous;
-
-            return new FileStream(
-                Path.Combine(
-                    Path.GetTempPath(),
-                    Path.GetRandomFileName()),
-                FileMode.CreateNew,
-                FileAccess.ReadWrite,
-                FileShare.None,
-                bufferSize: 4096,
-                Options);
-        }
+        _stream = new FileStream(
+            Path.Combine(
+                Path.GetTempPath(),
+                Path.GetRandomFileName()),
+            FileMode.CreateNew,
+            FileAccess.ReadWrite,
+            FileShare.None,
+            bufferSize: 4096,
+            FileOptions.DeleteOnClose
+            | FileOptions.Asynchronous);
     }
 
     /// <inheritdoc />
@@ -118,12 +111,8 @@ internal sealed class AmazonS3UploadStream : Stream
     }
 
     /// <inheritdoc />
-    public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-    {
-        await _stream.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-        if (_stream.Length >= PartSize)
-            await UploadPartAsync(cancellationToken).ConfigureAwait(false);
-    }
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
+        WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
 
     /// <inheritdoc />
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new CancellationToken())
@@ -185,19 +174,9 @@ internal sealed class AmazonS3UploadStream : Stream
                 .CompleteMultipartUploadAsync(request)
                 .ConfigureAwait(false);
         }
-        catch (Exception)
+        catch
         {
-            var request = new AbortMultipartUploadRequest
-            {
-                BucketName = _bucketName,
-                Key = _key,
-                UploadId = _uploadId
-            };
-
-            await _client
-                .AbortMultipartUploadAsync(request)
-                .ConfigureAwait(false);
-
+            await AbortAsync(CancellationToken.None).ConfigureAwait(false);
             throw;
         }
         finally
@@ -232,33 +211,69 @@ internal sealed class AmazonS3UploadStream : Stream
 
         if (_stream.Length != 0 || _partETags.Count == 0)
         {
-            _stream.Position = 0;
-
-            // TODO: Check limit
-            // https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
-            // The maximum allowed part size is 5 gigabytes.
-            // Perhaps we should split a file exceeding this limit
-            // into smaller parts and upload them separately.
-
-            var request = new UploadPartRequest
+            try
             {
-                BucketName = _bucketName,
-                Key = _key,
-                UploadId = _uploadId,
-                PartNumber = _partETags.Count + 1,
-                InputStream = _stream,
-                PartSize = _stream.Length
-            };
+                _stream.Position = 0;
 
-            var response = await _client
-                .UploadPartAsync(request, cancellationToken)
-                .ConfigureAwait(false);
+                // https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
+                // The maximum allowed part size is 5 gigabytes.
 
-            _partETags.Add(new PartETag(response));
+                var request = new UploadPartRequest
+                {
+                    BucketName = _bucketName,
+                    Key = _key,
+                    UploadId = _uploadId,
+                    PartNumber = _partETags.Count + 1,
+                    InputStream = _stream,
+                    PartSize = _stream.Length
+                };
 
-            _stream.Position = 0;
-            _stream.SetLength(0);
+                var response = await _client
+                    .UploadPartAsync(request, cancellationToken)
+                    .ConfigureAwait(false);
+
+                _partETags.Add(new PartETag(response));
+
+                _stream.Position = 0;
+                _stream.SetLength(0);
+            }
+            catch
+            {
+                await AbortAsync(cancellationToken).ConfigureAwait(false);
+                throw;
+            }
         }
+    }
+
+    /// <summary>
+    /// Aborts the multipart upload session.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> that represents the asynchronous abort operation.
+    /// </returns>
+    /// <remarks>
+    /// This method sends a request to Amazon S3 to abort the multipart upload identified by the
+    /// <see cref="_uploadId"/>. Once aborted, the upload cannot be resumed, and any uploaded parts
+    /// will be deleted.
+    /// </remarks>
+    private async ValueTask AbortAsync(CancellationToken cancellationToken)
+    {
+        var request = new AbortMultipartUploadRequest
+        {
+            BucketName = _bucketName,
+            Key = _key,
+            UploadId = _uploadId
+        };
+
+        await _client
+            .AbortMultipartUploadAsync(request, cancellationToken)
+            .ConfigureAwait(false);
+
+        // Prevent subsequent writes to the stream.
+        await _stream
+            .DisposeAsync()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

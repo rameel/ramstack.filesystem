@@ -196,4 +196,58 @@ public abstract class VirtualFile : VirtualNode
         await using var source = await OpenReadAsync(cancellationToken).ConfigureAwait(false);
         await FileSystem.WriteFileAsync(destinationPath, source, overwrite, cancellationToken).ConfigureAwait(false);
     }
+
+    /// <summary>
+    /// Asynchronously copies the contents of the current <see cref="VirtualFile"/> to the specified destination <see cref="VirtualFile"/>.
+    /// </summary>
+    /// <param name="destination">The destination <see cref="VirtualFile"/> where the contents will be copied to.</param>
+    /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
+    /// </returns>
+    /// <remarks>
+    /// <list type="bullet">
+    ///   <item><description>If the file does not exist, it will be created.</description></item>
+    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
+    /// </list>
+    /// </remarks>
+    public ValueTask CopyToAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken = default)
+    {
+        if (destination.IsReadOnly)
+            ThrowHelper.ChangesNotSupported();
+
+        return CopyToCoreAsync(destination, overwrite, cancellationToken);
+    }
+
+    /// <summary>
+    /// Core implementation for asynchronously copying the contents of the current <see cref="VirtualFile"/> to the specified destination <see cref="VirtualFile"/>.
+    /// </summary>
+    /// <param name="destination">The destination <see cref="VirtualFile"/> where the contents will be copied to.</param>
+    /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
+    /// </returns>
+    /// <remarks>
+    /// <list type="bullet">
+    ///   <item><description>If the file does not exist, it will be created.</description></item>
+    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
+    /// </list>
+    /// </remarks>
+    protected virtual async ValueTask CopyToCoreAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken)
+    {
+        if (FileSystem == destination.FileSystem)
+        {
+            await CopyAsync(destination.FullName, overwrite, cancellationToken).ConfigureAwait(false);
+            destination.Refresh();
+        }
+        else
+        {
+            await using var stream = await OpenReadAsync(cancellationToken).ConfigureAwait(false);
+            await destination.WriteAsync(stream, overwrite, cancellationToken).ConfigureAwait(false);
+        }
+    }
 }

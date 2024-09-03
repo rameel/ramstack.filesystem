@@ -6,7 +6,7 @@ using Ramstack.FileSystem.Specification.Tests.Utilities;
 namespace Ramstack.FileSystem.Zip;
 
 [TestFixture]
-public class ZipFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
+public class ZipFileSystemTests : VirtualFileSystemSpecificationTests
 {
     private readonly string _path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
     private readonly TempFileStorage _storage = new();
