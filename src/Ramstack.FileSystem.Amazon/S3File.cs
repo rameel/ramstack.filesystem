@@ -8,7 +8,7 @@ namespace Ramstack.FileSystem.Amazon;
 /// <summary>
 /// Represents an implementation of <see cref="VirtualFile"/> that maps a file to an object in Amazon S3.
 /// </summary>
-internal sealed class AmazonFile : VirtualFile
+internal sealed class S3File : VirtualFile
 {
     private readonly AmazonS3FileSystem _fs;
     private readonly string _key;
@@ -17,11 +17,11 @@ internal sealed class AmazonFile : VirtualFile
     public override IVirtualFileSystem FileSystem => _fs;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AmazonFile"/> class.
+    /// Initializes a new instance of the <see cref="S3File"/> class.
     /// </summary>
     /// <param name="fileSystem">The file system associated with this file.</param>
     /// <param name="path">The path to the file.</param>
-    public AmazonFile(AmazonS3FileSystem fileSystem, string path) : base(path) =>
+    public S3File(AmazonS3FileSystem fileSystem, string path) : base(path) =>
         (_fs, _key) = (fileSystem, path[1..]);
 
     /// <inheritdoc />
@@ -66,7 +66,7 @@ internal sealed class AmazonFile : VirtualFile
             .InitiateMultipartUploadAsync(_fs.BucketName, _key, cancellationToken)
             .ConfigureAwait(false);
 
-        return new AmazonS3UploadStream(_fs.AmazonClient, _fs.BucketName, _key, response.UploadId);
+        return new S3UploadStream(_fs.AmazonClient, _fs.BucketName, _key, response.UploadId);
     }
 
     /// <inheritdoc />
@@ -113,7 +113,7 @@ internal sealed class AmazonFile : VirtualFile
     {
         return destination switch
         {
-            AmazonFile destinationFile => CopyObjectAsync(_fs.BucketName, _key, destinationFile._fs.BucketName, destinationFile._key, overwrite, cancellationToken),
+            S3File destinationFile => CopyObjectAsync(_fs.BucketName, _key, destinationFile._fs.BucketName, destinationFile._key, overwrite, cancellationToken),
             _ => base.CopyToCoreAsync(destination, overwrite, cancellationToken)
         };
     }
@@ -134,7 +134,7 @@ internal sealed class AmazonFile : VirtualFile
     {
         // Unfortunately, Amazon S3 does not support destination conditions,
         // so we make a separate request to check for the destination object existence.
-        
+
         if (!overwrite)
         {
             try
@@ -142,7 +142,7 @@ internal sealed class AmazonFile : VirtualFile
                 await _fs.AmazonClient
                     .GetObjectMetadataAsync(destinationBucket, destinationKey, cancellationToken)
                     .ConfigureAwait(false);
-                
+
                 throw new AmazonS3Exception($"An object already exists at destination: {destinationKey}");
             }
             catch (AmazonS3Exception e) when (e.StatusCode == HttpStatusCode.NotFound)

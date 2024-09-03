@@ -10,7 +10,7 @@ namespace Ramstack.FileSystem.Amazon;
 /// Represents an implementation of <see cref="VirtualDirectory"/> that maps a directory
 /// to a path within a specified Amazon S3 bucket.
 /// </summary>
-internal sealed class AmazonDirectory : VirtualDirectory
+internal sealed class S3Directory : VirtualDirectory
 {
     private readonly AmazonS3FileSystem _fs;
     private readonly string _prefix;
@@ -19,11 +19,11 @@ internal sealed class AmazonDirectory : VirtualDirectory
     public override IVirtualFileSystem FileSystem => _fs;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AmazonDirectory"/> class.
+    /// Initializes a new instance of the <see cref="S3Directory"/> class.
     /// </summary>
     /// <param name="fileSystem">The file system associated with this directory.</param>
     /// <param name="path">The path to the directory within the specified Amazon S3 bucket.</param>
-    public AmazonDirectory(AmazonS3FileSystem fileSystem, string path) : base(path)
+    public S3Directory(AmazonS3FileSystem fileSystem, string path) : base(path)
     {
         _fs = fileSystem;
         _prefix = FullName == "/" ? "" : $"{FullName[1..]}/";
@@ -96,10 +96,10 @@ internal sealed class AmazonDirectory : VirtualDirectory
                 .ConfigureAwait(false);
 
             foreach (var prefix in response.CommonPrefixes)
-                yield return new AmazonDirectory(_fs, VirtualPath.Normalize(prefix));
+                yield return new S3Directory(_fs, VirtualPath.Normalize(prefix));
 
             foreach (var obj in response.S3Objects)
-                yield return new AmazonFile(_fs, VirtualPath.Normalize(obj.Key));
+                yield return new S3File(_fs, VirtualPath.Normalize(obj.Key));
 
             request.ContinuationToken = response.NextContinuationToken;
         }
