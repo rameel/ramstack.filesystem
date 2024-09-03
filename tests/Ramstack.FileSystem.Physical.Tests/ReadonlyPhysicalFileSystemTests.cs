@@ -5,7 +5,7 @@ using Ramstack.FileSystem.Specification.Tests.Utilities;
 namespace Ramstack.FileSystem.Physical;
 
 [TestFixture]
-public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
+public class ReadonlyPhysicalFileSystemTests : VirtualFileSystemSpecificationTests
 {
     private readonly TempFileStorage _storage = new TempFileStorage();
 

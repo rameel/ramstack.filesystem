@@ -5,7 +5,7 @@ using Ramstack.FileSystem.Specification.Tests.Utilities;
 namespace Ramstack.FileSystem.Prefixed;
 
 [TestFixture]
-public class PrefixedFileSystemSpecificationTests() : VirtualFileSystemSpecificationTests(Prefix)
+public class PrefixedFileSystemTests() : VirtualFileSystemSpecificationTests(Prefix)
 {
     private const string Prefix = "solution/app";
 
