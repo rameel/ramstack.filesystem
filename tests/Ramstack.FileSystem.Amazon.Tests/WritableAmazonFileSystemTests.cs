@@ -120,7 +120,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
             {
                 RegionEndpoint = RegionEndpoint.USEast1,
                 ServiceURL = "http://localhost:9000",
-                ForcePathStyle = true,
+                ForcePathStyle = true
             },
             bucketName: "storage");
     }
