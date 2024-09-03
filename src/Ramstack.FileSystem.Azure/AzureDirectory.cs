@@ -46,12 +46,12 @@ internal sealed class AzureDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async ValueTask DeleteCoreAsync(CancellationToken cancellationToken)
     {
-        var collection = _fs.Container
+        var collection = _fs.AzureClient
             .GetBlobsAsync(
                 prefix: GetPrefix(FullName),
                 cancellationToken: cancellationToken);
 
-        var client = _fs.Container.GetBlobBatchClient();
+        var client = _fs.AzureClient.GetBlobBatchClient();
         var batch = client.CreateBatch();
 
         // https://learn.microsoft.com/en-us/rest/api/storageservices/blob-batch#remarks
@@ -62,7 +62,7 @@ internal sealed class AzureDirectory : VirtualDirectory
         {
             foreach (var blob in page.Values)
             {
-                batch.DeleteBlob(_fs.Container.Name, blob.Name, DeleteSnapshotsOption.IncludeSnapshots, conditions: null);
+                batch.DeleteBlob(_fs.AzureClient.Name, blob.Name, DeleteSnapshotsOption.IncludeSnapshots, conditions: null);
 
                 if (batch.RequestCount != MaxSubRequests)
                     continue;
@@ -103,7 +103,7 @@ internal sealed class AzureDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var collection = _fs.Container
+        var collection = _fs.AzureClient
             .GetBlobsByHierarchyAsync(
                 delimiter: "/",
                 prefix: GetPrefix(FullName),
@@ -119,7 +119,7 @@ internal sealed class AzureDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var collection = _fs.Container
+        var collection = _fs.AzureClient
             .GetBlobsByHierarchyAsync(
                 delimiter: "/",
                 prefix: GetPrefix(FullName),
@@ -134,7 +134,7 @@ internal sealed class AzureDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var collection = _fs.Container
+        var collection = _fs.AzureClient
             .GetBlobsByHierarchyAsync(
                 delimiter: "/",
                 prefix: GetPrefix(FullName),

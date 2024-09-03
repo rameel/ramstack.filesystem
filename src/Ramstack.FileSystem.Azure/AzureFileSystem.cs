@@ -22,7 +22,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// <summary>
     /// Gets the <see cref="BlobContainerClient"/> instance.
     /// </summary>
-    internal BlobContainerClient Container { get; }
+    internal BlobContainerClient AzureClient { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureFileSystem"/> class.
@@ -35,7 +35,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// </param>
     /// <param name="containerName">The name of the blob container in the storage account to reference.</param>
     public AzureFileSystem(string connectionString, string containerName) =>
-        Container = new BlobContainerClient(connectionString, containerName);
+        AzureClient = new BlobContainerClient(connectionString, containerName);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureFileSystem"/> class.
@@ -50,7 +50,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// <param name="options">Optional client options that define the transport pipeline policies
     /// for authentication, retries, etc., that are applied to every request.</param>
     public AzureFileSystem(string connectionString, string containerName, BlobClientOptions? options) =>
-        Container = new BlobContainerClient(connectionString, containerName, options);
+        AzureClient = new BlobContainerClient(connectionString, containerName, options);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureFileSystem"/> class.
@@ -61,7 +61,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// <param name="options">Optional client options that define the transport pipeline policies
     /// for authentication, retries, etc., that are applied to every request.</param>
     public AzureFileSystem(Uri containerUri, BlobClientOptions? options = null) =>
-        Container = new BlobContainerClient(containerUri, options);
+        AzureClient = new BlobContainerClient(containerUri, options);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureFileSystem"/> class.
@@ -73,7 +73,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// <param name="options">Optional client options that define the transport pipeline policies
     /// for authentication, retries, etc., that are applied to every request.</param>
     public AzureFileSystem(Uri containerUri, StorageSharedKeyCredential credential, BlobClientOptions? options = null) =>
-        Container = new BlobContainerClient(containerUri, credential, options);
+        AzureClient = new BlobContainerClient(containerUri, credential, options);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureFileSystem"/> class.
@@ -85,14 +85,14 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// <param name="options">Optional client options that define the transport pipeline policies
     /// for authentication, retries, etc., that are applied to every request.</param>
     public AzureFileSystem(Uri containerUri, TokenCredential credential, BlobClientOptions? options = null) =>
-        Container = new BlobContainerClient(containerUri, credential, options);
+        AzureClient = new BlobContainerClient(containerUri, credential, options);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureFileSystem"/> class.
     /// </summary>
     /// <param name="client">The <see cref="BlobContainerClient"/> instance used to interact with the Azure Blob storage container.</param>
     public AzureFileSystem(BlobContainerClient client) =>
-        Container = client;
+        AzureClient = client;
 
     /// <inheritdoc />
     public VirtualDirectory GetDirectory(string path) =>
@@ -142,7 +142,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// </returns>
     public ValueTask CreateContainerAsync(PublicAccessType accessType, CancellationToken cancellationToken = default)
     {
-        var task = Container.CreateIfNotExistsAsync(accessType, cancellationToken: cancellationToken);
+        var task = AzureClient.CreateIfNotExistsAsync(accessType, cancellationToken: cancellationToken);
         return new ValueTask(task);
     }
 
@@ -161,6 +161,6 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     internal BlobClient CreateBlobClient(string path)
     {
         Debug.Assert(path == VirtualPath.GetFullPath(path));
-        return Container.GetBlobClient(path[1..]);
+        return AzureClient.GetBlobClient(path[1..]);
     }
 }
