@@ -78,18 +78,4 @@ public sealed class AzureFileSystem : IVirtualFileSystem
         Debug.Assert(path == VirtualPath.GetFullPath(path));
         return Container.GetBlobClient(path[1..]);
     }
-
-    /// <summary>
-    /// Returns the <see cref="BlobHttpHeaders"/> for the blob located at the specified path.
-    /// </summary>
-    /// <param name="path">The path to the blob.</param>
-    /// <returns>
-    /// The <see cref="BlobHttpHeaders"/> associated with the blob at the specified path.
-    /// </returns>
-    internal BlobHttpHeaders GetBlobHeaders(string path)
-    {
-        var headers = new BlobHttpHeaders();
-        Options.HeadersUpdate(this, new HeadersUpdateEventArgs(path, headers));
-        return headers;
-    }
 }

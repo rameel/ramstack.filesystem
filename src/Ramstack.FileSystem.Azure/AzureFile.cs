@@ -70,10 +70,7 @@ internal sealed class AzureFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken)
     {
-        var options = new BlobUploadOptions
-        {
-            HttpHeaders = _fs.GetBlobHeaders(FullName)
-        };
+        var options = new BlobUploadOptions();
 
         if (!overwrite)
         {
@@ -82,7 +79,6 @@ internal sealed class AzureFile : VirtualFile
                 IfNoneMatch = new ETag("*")
             };
         }
-
 
         var task = GetBlobClient().UploadAsync(stream, options, cancellationToken);
         return new ValueTask(task);
