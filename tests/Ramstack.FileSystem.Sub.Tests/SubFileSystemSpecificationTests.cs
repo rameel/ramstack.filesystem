@@ -7,14 +7,14 @@ namespace Ramstack.FileSystem.Sub;
 [TestFixture]
 public class SubFileSystemSpecificationTests : VirtualFileSystemSpecificationTests
 {
-    private readonly TempFileStorage _storage = new();
+    private readonly TempFileStorage _storage = new TempFileStorage();
 
     [OneTimeTearDown]
     public void Cleanup() =>
         _storage.Dispose();
 
     protected override IVirtualFileSystem GetFileSystem() =>
-        new SubFileSystem("project/docs", new PhysicalFileSystem(_storage.Root));
+        new SubFileSystem("project/docs", new PhysicalFileSystem(_storage.Root, ExclusionFilters.None));
 
     protected override DirectoryInfo GetDirectoryInfo() =>
         new(Path.Join(_storage.Root, "project", "docs"));
