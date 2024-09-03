@@ -102,7 +102,18 @@ public sealed class AmazonS3FileSystem : IVirtualFileSystem
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
-    public async ValueTask CreateBucketAsync(CancellationToken cancellationToken = default)
+    public ValueTask CreateBucketAsync(CancellationToken cancellationToken = default) =>
+        CreateBucketAsync(AccessControl.NoAcl, cancellationToken);
+
+    /// <summary>
+    /// Creates the S3 bucket if it does not already exist.
+    /// </summary>
+    /// <param name="accessControl">The ACL to apply to the bucket.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public async ValueTask CreateBucketAsync(AccessControl accessControl, CancellationToken cancellationToken = default)
     {
         var exists = AmazonS3Util
             .DoesS3BucketExistV2Async(AmazonClient, BucketName)
@@ -114,7 +125,20 @@ public sealed class AmazonS3FileSystem : IVirtualFileSystem
         var request = new PutBucketRequest
         {
             BucketName = BucketName,
-            UseClientRegion = true
+            UseClientRegion = true,
+            CannedACL = accessControl switch
+            {
+                AccessControl.NoAcl => S3CannedACL.NoACL,
+                AccessControl.Private => S3CannedACL.Private,
+                AccessControl.PublicRead => S3CannedACL.PublicRead,
+                AccessControl.PublicReadWrite => S3CannedACL.PublicReadWrite,
+                AccessControl.AuthenticatedRead => S3CannedACL.AuthenticatedRead,
+                AccessControl.AwsExecRead => S3CannedACL.AWSExecRead,
+                AccessControl.BucketOwnerRead => S3CannedACL.BucketOwnerRead,
+                AccessControl.BucketOwnerFullControl => S3CannedACL.BucketOwnerFullControl,
+                AccessControl.LogDeliveryWrite => S3CannedACL.LogDeliveryWrite,
+                _ => throw new ArgumentOutOfRangeException(nameof(accessControl))
+            }
         };
 
         await AmazonClient
