@@ -42,8 +42,9 @@ public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpe
     [TestCase("hidden.bin", ExclusionFilters.Sensitive)]
     public void ExclusionFilters_Exclude_Matching(string path, ExclusionFilters exclusionFilters)
     {
-        // if (Path.DirectorySeparatorChar == '/')
-        //     return;
+        if (Path.DirectorySeparatorChar == '/'
+            && exclusionFilters == ExclusionFilters.System)
+            return;
 
         var root = InitializeSensitiveFiles();
         try
@@ -82,8 +83,9 @@ public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpe
     [TestCase("hidden.bin", ExclusionFilters.System)]
     public void ExclusionFilters_NotExclude_NonMatching(string path, ExclusionFilters exclusionFilters)
     {
-        // if (Path.DirectorySeparatorChar == '/')
-        //     return;
+        if (Path.DirectorySeparatorChar == '/'
+            && exclusionFilters == ExclusionFilters.System)
+            return;
 
         var root = InitializeSensitiveFiles();
         try
