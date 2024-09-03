@@ -58,11 +58,12 @@ public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
 
     protected override AzureFileSystem GetFileSystem()
     {
-        return new AzureFileSystem("storage", new AzureFileSystemOptions
+        const string ConnectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;";
+
+        return new AzureFileSystem(ConnectionString, "storage")
         {
-            ConnectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
-            Public = false
-        });
+            IsReadOnly = false
+        };
     }
 
     protected override DirectoryInfo GetDirectoryInfo() =>
