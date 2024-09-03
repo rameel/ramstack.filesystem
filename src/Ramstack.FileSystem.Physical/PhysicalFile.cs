@@ -43,8 +43,8 @@ internal sealed class PhysicalFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken)
     {
-        const FileOptions options = FileOptions.Asynchronous | FileOptions.SequentialScan;
-        var stream = new FileStream(_physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, options);
+        const FileOptions Options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+        var stream = new FileStream(_physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, Options);
 
         return new ValueTask<Stream>(stream);
     }
@@ -54,9 +54,9 @@ internal sealed class PhysicalFile : VirtualFile
     {
         EnsureDirectoryExists();
 
-        const FileOptions options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+        const FileOptions Options = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
-        var stream = new FileStream(_physicalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
+        var stream = new FileStream(_physicalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, DefaultBufferSize, Options);
 
         // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
         // set the file length to zero to remove any leftover data.
@@ -70,14 +70,14 @@ internal sealed class PhysicalFile : VirtualFile
     {
         EnsureDirectoryExists();
 
-        const FileOptions options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+        const FileOptions Options = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
         // To overwrite the file, we use FileMode.OpenOrCreate instead of FileMode.Create.
         // This avoids a System.UnauthorizedAccessException: Access to the path is denied,
         // which can occur if the file has the FileAttributes.Hidden attribute.
         var fileMode = overwrite ? FileMode.OpenOrCreate : FileMode.CreateNew;
 
-        await using var fs = new FileStream(_physicalPath, fileMode, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
+        await using var fs = new FileStream(_physicalPath, fileMode, FileAccess.Write, FileShare.None, DefaultBufferSize, Options);
 
         // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
         // set the file length to zero to remove any leftover data.

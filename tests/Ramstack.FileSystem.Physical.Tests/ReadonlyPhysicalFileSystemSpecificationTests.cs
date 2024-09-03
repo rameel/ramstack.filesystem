@@ -144,13 +144,20 @@ public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpe
             File.WriteAllText(path, "");
         }
 
-        foreach (var path in Directory.GetFileSystemEntries(root))
+        if (Path.DirectorySeparatorChar != '/')
         {
-            var name = Path.GetFileNameWithoutExtension(path);
-            switch (name)
+            foreach (var path in Directory.GetFileSystemEntries(root))
             {
-                case "system": File.SetAttributes(path, FileAttributes.System); break;
-                case "hidden": File.SetAttributes(path, FileAttributes.Hidden); break;
+                var name = Path.GetFileNameWithoutExtension(path);
+                switch (name)
+                {
+                    case "system":
+                        File.SetAttributes(path, FileAttributes.System);
+                        break;
+                    case "hidden":
+                        File.SetAttributes(path, FileAttributes.Hidden);
+                        break;
+                }
             }
         }
 
