@@ -202,7 +202,7 @@ public abstract class VirtualFile : VirtualNode
     /// </summary>
     /// <param name="destination">The destination <see cref="VirtualFile"/> where the contents will be copied to.</param>
     /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
-    /// <param name="cancellationToken">A token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
     /// </returns>
@@ -217,16 +217,16 @@ public abstract class VirtualFile : VirtualNode
     {
         if (destination.IsReadOnly)
             ThrowHelper.ChangesNotSupported();
-        
+
         return CopyToCoreAsync(destination, overwrite, cancellationToken);
     }
-    
+
     /// <summary>
     /// Core implementation for asynchronously copying the contents of the current <see cref="VirtualFile"/> to the specified destination <see cref="VirtualFile"/>.
     /// </summary>
     /// <param name="destination">The destination <see cref="VirtualFile"/> where the contents will be copied to.</param>
     /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
-    /// <param name="cancellationToken">A token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
     /// </returns>
