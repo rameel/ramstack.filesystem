@@ -62,7 +62,7 @@ internal sealed class AmazonS3UploadStream : Stream
     /// <param name="client">The Amazon S3 client used for uploading parts.</param>
     /// <param name="bucketName">The name of the S3 bucket where the data will be uploaded.</param>
     /// <param name="key">The key (path) in the S3 bucket where the data will be stored.</param>
-    /// <param name="uploadId">The multipart upload session identfier.</param>
+    /// <param name="uploadId">The multipart upload session identifier.</param>
     public AmazonS3UploadStream(IAmazonS3 client, string bucketName, string key, string uploadId)
     {
         _client = client;
