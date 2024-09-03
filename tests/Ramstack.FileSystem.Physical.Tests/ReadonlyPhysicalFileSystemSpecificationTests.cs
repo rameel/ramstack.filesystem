@@ -43,7 +43,7 @@ public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpe
     public void ExclusionFilters_Exclude_Matching(string path, ExclusionFilters exclusionFilters)
     {
         if (Path.DirectorySeparatorChar == '/'
-            && exclusionFilters == ExclusionFilters.System)
+            && exclusionFilters != ExclusionFilters.DotPrefixed)
             return;
 
         var root = InitializeSensitiveFiles();
@@ -84,7 +84,7 @@ public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpe
     public void ExclusionFilters_NotExclude_NonMatching(string path, ExclusionFilters exclusionFilters)
     {
         if (Path.DirectorySeparatorChar == '/'
-            && exclusionFilters == ExclusionFilters.System)
+            && exclusionFilters != ExclusionFilters.DotPrefixed)
             return;
 
         var root = InitializeSensitiveFiles();
