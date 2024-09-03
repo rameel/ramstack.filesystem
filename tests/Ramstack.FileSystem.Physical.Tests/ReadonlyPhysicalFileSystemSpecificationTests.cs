@@ -42,8 +42,8 @@ public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpe
     [TestCase("hidden.bin", ExclusionFilters.Sensitive)]
     public void ExclusionFilters_Exclude_Matching(string path, ExclusionFilters exclusionFilters)
     {
-        if (Path.DirectorySeparatorChar == '/')
-            return;
+        // if (Path.DirectorySeparatorChar == '/')
+        //     return;
 
         var root = InitializeSensitiveFiles();
         try
@@ -82,8 +82,8 @@ public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpe
     [TestCase("hidden.bin", ExclusionFilters.System)]
     public void ExclusionFilters_NotExclude_NonMatching(string path, ExclusionFilters exclusionFilters)
     {
-        if (Path.DirectorySeparatorChar == '/')
-            return;
+        // if (Path.DirectorySeparatorChar == '/')
+        //     return;
 
         var root = InitializeSensitiveFiles();
         try
@@ -147,8 +147,8 @@ public class ReadonlyPhysicalFileSystemSpecificationTests : VirtualFileSystemSpe
             var name = Path.GetFileNameWithoutExtension(path);
             switch (name)
             {
-                case "system": File.SetAttributes(path, File.GetAttributes(path) | FileAttributes.System); break;
-                case "hidden": File.SetAttributes(path, File.GetAttributes(path) | FileAttributes.Hidden); break;
+                case "system": File.SetAttributes(path, FileAttributes.System); break;
+                case "hidden": File.SetAttributes(path, FileAttributes.Hidden); break;
             }
         }
 
