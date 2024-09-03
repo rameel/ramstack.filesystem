@@ -99,16 +99,42 @@ internal sealed class AzureFile : VirtualFile
     }
 
     /// <inheritdoc />
-    protected override async ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
+    protected override ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
     {
-        var destClient = _fs.CreateBlobClient(destinationPath);
+        var source = GetBlobClient();
+        var destination = _fs.CreateBlobClient(destinationPath);
+        return CopyBlobAsync(source, destination, overwrite, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    protected override ValueTask CopyToCoreAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken)
+    {
+        return destination switch
+        {
+            AzureFile destinationFile => CopyBlobAsync(GetBlobClient(), destinationFile.GetBlobClient(), overwrite, cancellationToken),
+            _ => base.CopyToCoreAsync(destination, overwrite, cancellationToken)
+        };
+    }
+
+    /// <summary>
+    /// Asynchronously copies a source blob to the specified destination.
+    /// </summary>
+    /// <param name="source">The source blob client.</param>
+    /// <param name="destination">The destination blob client.</param>
+    /// <param name="overwrite">A boolean value indicating whether to overwrite the destination blob if it already exists.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    private static async ValueTask CopyBlobAsync(BlobClient source, BlobClient destination, bool overwrite, CancellationToken cancellationToken)
+    {
         var conditions = !overwrite
             ? new BlobRequestConditions { IfNoneMatch = new ETag("*") }
             : null;
 
-        var operation = await destClient
+        var operation = await destination
             .StartCopyFromUriAsync(
-                GetBlobClient().Uri,
+                source.Uri,
                 destinationConditions: conditions,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
@@ -119,23 +145,15 @@ internal sealed class AzureFile : VirtualFile
                 cancellationToken)
             .ConfigureAwait(false);
 
-        var properties = (
-            await destClient
-                .GetPropertiesAsync(cancellationToken: cancellationToken)
-                .ConfigureAwait(false)
-        ).Value;
+        BlobProperties properties = await destination
+            .GetPropertiesAsync(cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         if (properties.CopyStatus != CopyStatus.Success)
         {
             var message = $"Error while copying file. {properties.CopyStatus}: {properties.CopyStatusDescription}";
             throw new InvalidOperationException(message);
         }
-
-        await destClient
-            .SetHttpHeadersAsync(
-                _fs.GetBlobHeaders(destinationPath),
-                cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
     }
 
     /// <summary>
