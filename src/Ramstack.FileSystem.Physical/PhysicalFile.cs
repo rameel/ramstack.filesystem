@@ -43,8 +43,13 @@ internal sealed class PhysicalFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken)
     {
-        const FileOptions Options = FileOptions.Asynchronous | FileOptions.SequentialScan;
-        var stream = new FileStream(_physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, Options);
+        // SequentialScan is a performance hint that requires extra sys-call on non-Windows systems.
+        // https://github.com/dotnet/runtime/blob/46c9a4fff83f35ec659e6659050440aadccf3201/src/libraries/System.Private.CoreLib/src/System/IO/File.cs#L694
+        var options = Path.DirectorySeparatorChar == '\\'
+            ? FileOptions.Asynchronous | FileOptions.SequentialScan
+            : FileOptions.Asynchronous;
+
+        var stream = new FileStream(_physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, options);
 
         return new ValueTask<Stream>(stream);
     }
@@ -54,9 +59,11 @@ internal sealed class PhysicalFile : VirtualFile
     {
         EnsureDirectoryExists();
 
-        const FileOptions Options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+        var options = Path.DirectorySeparatorChar == '\\'
+            ? FileOptions.Asynchronous | FileOptions.SequentialScan
+            : FileOptions.Asynchronous;
 
-        var stream = new FileStream(_physicalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, DefaultBufferSize, Options);
+        var stream = new FileStream(_physicalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
 
         // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
         // set the file length to zero to remove any leftover data.
@@ -70,14 +77,16 @@ internal sealed class PhysicalFile : VirtualFile
     {
         EnsureDirectoryExists();
 
-        const FileOptions Options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+        var options = Path.DirectorySeparatorChar == '\\'
+            ? FileOptions.Asynchronous | FileOptions.SequentialScan
+            : FileOptions.Asynchronous;
 
         // To overwrite the file, we use FileMode.OpenOrCreate instead of FileMode.Create.
         // This avoids a System.UnauthorizedAccessException: Access to the path is denied,
         // which can occur if the file has the FileAttributes.Hidden attribute.
         var fileMode = overwrite ? FileMode.OpenOrCreate : FileMode.CreateNew;
 
-        await using var fs = new FileStream(_physicalPath, fileMode, FileAccess.Write, FileShare.None, DefaultBufferSize, Options);
+        await using var fs = new FileStream(_physicalPath, fileMode, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
 
         // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
         // set the file length to zero to remove any leftover data.
