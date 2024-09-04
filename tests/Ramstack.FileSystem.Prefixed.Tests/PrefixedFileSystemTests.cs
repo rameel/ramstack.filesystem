@@ -12,7 +12,7 @@ public class PrefixedFileSystemTests() : VirtualFileSystemSpecificationTests(Pre
     private readonly TempFileStorage _storage = new TempFileStorage(Prefix);
 
     protected override IVirtualFileSystem GetFileSystem() =>
-        new PrefixedFileSystem(Prefix, new PhysicalFileSystem(_storage.PrefixedPath, ExclusionFilters.None));
+        new PrefixedFileSystem(Prefix, new PhysicalFileSystem(_storage.PrefixedPath));
 
     /// <inheritdoc />
     protected override DirectoryInfo GetDirectoryInfo() =>

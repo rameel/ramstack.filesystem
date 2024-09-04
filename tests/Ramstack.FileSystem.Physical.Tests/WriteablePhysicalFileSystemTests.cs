@@ -14,7 +14,7 @@ public class WriteablePhysicalFileSystemTests : VirtualFileSystemSpecificationTe
 
     /// <inheritdoc />
     protected override IVirtualFileSystem GetFileSystem() =>
-        new PhysicalFileSystem(_storage.Root, ExclusionFilters.None);
+        new PhysicalFileSystem(_storage.Root);
 
     /// <inheritdoc />
     protected override DirectoryInfo GetDirectoryInfo() =>

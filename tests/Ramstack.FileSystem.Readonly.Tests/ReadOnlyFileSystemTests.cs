@@ -15,7 +15,7 @@ public class ReadOnlyFileSystemTests : VirtualFileSystemSpecificationTests
 
     /// <inheritdoc />
     protected override IVirtualFileSystem GetFileSystem() =>
-        new ReadonlyFileSystem(new PhysicalFileSystem(_storage.Root, ExclusionFilters.None));
+        new ReadonlyFileSystem(new PhysicalFileSystem(_storage.Root));
 
     /// <inheritdoc />
     protected override DirectoryInfo GetDirectoryInfo() =>

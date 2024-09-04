@@ -84,15 +84,9 @@ internal sealed class PhysicalDirectory : VirtualDirectory
         // the directory becomes unavailable, such as being deleted after
         // its existence was checked.
 
-        var nodes = Enumerable.Empty<VirtualNode>();
-        
-        if (Directory.Exists(_physicalPath))
-        {
-            nodes = new FileSystemEnumerable<VirtualNode>(_physicalPath, FindTransform, DefaultOptions)
-            {
-                ShouldIncludePredicate = (ref FileSystemEntry entry) => !_fs.IsExcluded(ref entry)
-            };
-        }
+        var nodes = Directory.Exists(_physicalPath)
+            ? new FileSystemEnumerable<VirtualNode>(_physicalPath, FindTransform, DefaultOptions)
+            : Enumerable.Empty<VirtualNode>();
 
         return nodes.ToAsyncEnumerable();
 
@@ -100,7 +94,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
         {
             var fullName = VirtualPath.Join(FullName, entry.FileName);
             var physicalPath = entry.ToFullPath();
-            
+
             return entry.IsDirectory
                 ? new PhysicalDirectory(_fs, fullName, physicalPath)
                 : new PhysicalFile(_fs, fullName, physicalPath);
@@ -116,7 +110,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
         {
             nodes = new FileSystemEnumerable<VirtualFile>(_physicalPath, FindTransform, DefaultOptions)
             {
-                ShouldIncludePredicate = (ref FileSystemEntry entry) => !entry.IsDirectory && !_fs.IsExcluded(ref entry)
+                ShouldIncludePredicate = (ref FileSystemEntry entry) => !entry.IsDirectory
             };
         }
 
@@ -142,7 +136,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
         {
             nodes = new FileSystemEnumerable<VirtualDirectory>(_physicalPath, FindTransform, DefaultOptions)
             {
-                ShouldIncludePredicate = (ref FileSystemEntry entry) => entry.IsDirectory && !_fs.IsExcluded(ref entry)
+                ShouldIncludePredicate = (ref FileSystemEntry entry) => entry.IsDirectory
             };
         }
 

@@ -24,7 +24,7 @@ public class CompositeFileSystemTests : VirtualFileSystemSpecificationTests
             var fileName = Path.GetFileName(directory);
             Console.WriteLine(fileName);
 
-            var fs = new PrefixedFileSystem(fileName, new PhysicalFileSystem(directory, ExclusionFilters.None));
+            var fs = new PrefixedFileSystem(fileName, new PhysicalFileSystem(directory));
             list.Add(fs);
         }
 
