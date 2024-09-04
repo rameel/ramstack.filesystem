@@ -9,6 +9,39 @@ in your project, run the following command:
 ```console
 dotnet add package Ramstack.FileSystem.Amazon
 ```
+
+## Usage
+
+```csharp
+using Ramstack.FileSystem.Amazon;
+
+AmazonS3FileSystem fs = new AmazonS3FileSystem(
+    accessKeyId: "...",
+    secretAccessKey: "...",
+    region: RegionEndpoint.USEast1,
+    bucketName: "my-storage");
+
+// Create S3 bucket if it doesn't exist
+await fs.CreateBucketAsync(AccessControl.Private);
+
+await foreach (VirtualFile file in fs.GetFilesAsync("/"))
+{
+    Console.WriteLine(node.Name);
+}
+```
+
+You can also configure the file system to be read-only:
+```csharp
+AmazonS3FileSystem fs = new AmazonS3FileSystem(
+    accessKeyId: "...",
+    secretAccessKey: "...",
+    region: RegionEndpoint.USEast1,
+    bucketName: "my-storage")
+{
+    IsReadOnly = true
+};
+```
+
 ## Supported versions
 
 |      | Version |

@@ -14,13 +14,11 @@ dotnet add package Ramstack.FileSystem.Azure
 ```csharp
 using Ramstack.FileSystem.Azure;
 
-AzureFileSystemOptions options = new AzureFileSystemOptions()
-{
-    ConnectionString = "...",
-    Public = true
-};
+string connectionString = "...";
+AzureFileSystem fs = new AzureFileSystem(connectionString, containerName: "storage");
 
-AzureFileSystem fs = new AzureFileSystem(containerName: "data", options);
+// Create Azure container if it doesn't exist
+await fs.CreateContainerAsync(PublicAccessType.None);
 
 await foreach (VirtualFile file in fs.GetFilesAsync("/"))
 {
@@ -30,9 +28,7 @@ await foreach (VirtualFile file in fs.GetFilesAsync("/"))
 
 You can also configure the file system to be read-only:
 ```csharp
-using Ramstack.FileSystem.Physical;
-
-AzureFileSystem fs = new AzureFileSystem(containerName: "data", options)
+AzureFileSystem fs = new AzureFileSystem(connectionString, containerName: "storage")
 {
     IsReadOnly = true
 };
