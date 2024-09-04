@@ -6,7 +6,7 @@ namespace Ramstack.FileSystem.Composite;
 /// Represents an implementation of <see cref="IVirtualFileSystem"/> that combines multiple file systems
 /// into a single composite file system.
 /// </summary>
-public sealed class CompositeFileSystem : IVirtualFileSystem
+public sealed partial class CompositeFileSystem : IVirtualFileSystem
 {
     /// <summary>
     /// An array of the underlying file systems.
