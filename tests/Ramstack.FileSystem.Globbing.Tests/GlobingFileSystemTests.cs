@@ -31,7 +31,7 @@ public class GlobingFileSystemTests : VirtualFileSystemSpecificationTests
 
     protected override IVirtualFileSystem GetFileSystem()
     {
-        var fs = new PhysicalFileSystem(_storage.Root, ExclusionFilters.None);
+        var fs = new PhysicalFileSystem(_storage.Root);
         return new GlobbingFileSystem(fs, "project/docs/**", exclude: "**/*.txt");
     }
 

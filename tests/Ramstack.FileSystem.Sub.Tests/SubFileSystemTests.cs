@@ -14,7 +14,7 @@ public class SubFileSystemTests : VirtualFileSystemSpecificationTests
         _storage.Dispose();
 
     protected override IVirtualFileSystem GetFileSystem() =>
-        new SubFileSystem("project/docs", new PhysicalFileSystem(_storage.Root, ExclusionFilters.None));
+        new SubFileSystem("project/docs", new PhysicalFileSystem(_storage.Root));
 
     protected override DirectoryInfo GetDirectoryInfo() =>
         new(Path.Join(_storage.Root, "project", "docs"));
