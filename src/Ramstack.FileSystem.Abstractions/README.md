@@ -32,12 +32,6 @@ public class Program
     {
         var file = fs.GetFile("/sample/hello.txt");
 
-        if (await file.ExistsAsync())
-        {
-            Console.WriteLine($"Deleting file '{file.FullName}'");
-            await file.DeleteAsync();
-        }
-
         Console.WriteLine($"Writing 'Hello, World!' to '{file.FullName}'");
 
         await using (Stream stream = await file.OpenWriteAsync())
@@ -57,6 +51,9 @@ public class Program
         await file.WriteAsync(input, overwrite: true);
 
         Console.WriteLine($"The file '{file.Name}' has a length of {await file.GetLengthAsync()} bytes");
+
+        Console.WriteLine($"Deleting file '{file.FullName}'");
+        await file.DeleteAsync();
     }
 }
 ```
