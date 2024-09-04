@@ -1,4 +1,6 @@
-﻿namespace Ramstack.FileSystem.Composite;
+﻿using Ramstack.FileSystem.Null;
+
+namespace Ramstack.FileSystem.Composite;
 
 [TestFixture]
 public class CompositionHelperTests
@@ -48,7 +50,25 @@ public class CompositionHelperTests
     }
 
     [Test]
-    public void Flatten_ReturnsCompositeFileSystem_WhenNothingReturn()
+    public void Flatten_RemovesNullFileSystem()
+    {
+        var provider = new CompositeFileSystem(
+            new TestFileSystem(),
+            new CompositeFileSystem(
+                new TestFileSystem(),
+                new NullFileSystem(),
+                new TestFileSystem()),
+            new NullFileSystem());
+
+        var result = CompositeFileSystem.Flatten(provider);
+
+        Assert.That(result, Is.InstanceOf<CompositeFileSystem>());
+        Assert.That(((CompositeFileSystem)result).FileSystems.Count, Is.EqualTo(3));
+        Assert.That(((CompositeFileSystem)result).FileSystems, Is.All.InstanceOf<TestFileSystem>());
+    }
+
+    [Test]
+    public void Flatten_ReturnsNullFileSystem_WhenNothingReturn()
     {
         var fs = new CompositeFileSystem(
             new CompositeFileSystem(
@@ -64,7 +84,12 @@ public class CompositionHelperTests
                     new CompositeFileSystem(),
                     new CompositeFileSystem(
                         new CompositeFileSystem(
-                            new CompositeFileSystem(),
+                            new CompositeFileSystem(
+                                new NullFileSystem(),
+                                new NullFileSystem(),
+                                new NullFileSystem(),
+                                new NullFileSystem(),
+                                new NullFileSystem()),
                             new CompositeFileSystem()),
                         new CompositeFileSystem()))),
             new CompositeFileSystem(),
@@ -85,8 +110,7 @@ public class CompositionHelperTests
                 new CompositeFileSystem()));
 
         var result = CompositeFileSystem.Flatten(fs);
-        Assert.That(result, Is.InstanceOf<CompositeFileSystem>());
-        Assert.That(((CompositeFileSystem)result).FileSystems.Count, Is.Zero);
+        Assert.That(result, Is.InstanceOf<NullFileSystem>());
     }
 
     [Test]
@@ -108,7 +132,10 @@ public class CompositionHelperTests
                         new CompositeFileSystem(
                             new CompositeFileSystem(
                                 new TestFileSystem()),
-                            new CompositeFileSystem()),
+                            new CompositeFileSystem(
+                                new NullFileSystem(),
+                                new NullFileSystem(),
+                                new NullFileSystem())),
                         new CompositeFileSystem()))),
             new CompositeFileSystem(),
             new CompositeFileSystem(),
@@ -118,7 +145,8 @@ public class CompositionHelperTests
                 new CompositeFileSystem(
                     new CompositeFileSystem(
                         new CompositeFileSystem(),
-                        new CompositeFileSystem()),
+                        new CompositeFileSystem(
+                            new NullFileSystem())),
                     new CompositeFileSystem())),
             new CompositeFileSystem(),
             new CompositeFileSystem(
@@ -155,7 +183,11 @@ public class CompositionHelperTests
                         new CompositeFileSystem(),
                         fs3),
                     fs4,
-                    new CompositeFileSystem()),
+                    new CompositeFileSystem(
+                        new NullFileSystem(),
+                        new NullFileSystem(),
+                        new NullFileSystem()
+                        )),
                 fs5,
                 new CompositeFileSystem(
                     new CompositeFileSystem(),
@@ -163,6 +195,10 @@ public class CompositionHelperTests
                     new CompositeFileSystem(
                         new CompositeFileSystem(
                             new CompositeFileSystem(),
+                            new NullFileSystem(),
+                            new NullFileSystem(),
+                            new NullFileSystem(),
+                            new NullFileSystem(),
                             fs6),
                         new CompositeFileSystem())),
                 fs7),

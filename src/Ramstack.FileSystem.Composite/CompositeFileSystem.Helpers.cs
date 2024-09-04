@@ -1,4 +1,6 @@
-﻿namespace Ramstack.FileSystem.Composite;
+﻿using Ramstack.FileSystem.Null;
+
+namespace Ramstack.FileSystem.Composite;
 
 partial class CompositeFileSystem
 {
@@ -64,7 +66,7 @@ partial class CompositeFileSystem
                     foreach (var v in composite.InternalFileSystems)
                         queue.Enqueue(v);
                 }
-                else
+                else if (current is not NullFileSystem)
                 {
                     collection.Add(current);
                 }
@@ -73,6 +75,7 @@ partial class CompositeFileSystem
 
         return collection.Count switch
         {
+            0 => new NullFileSystem(),
             1 => collection[0],
             _ => new CompositeFileSystem(collection.ToArray())
         };
