@@ -4,7 +4,7 @@ namespace Ramstack.FileSystem.Null;
 /// Represents a virtual file system that does not provide any actual file or directory functionality.
 /// All operations on this file system result in a <see cref="NotFoundFile"/> or <see cref="NotFoundDirectory"/>.
 /// </summary>
-public sealed class NullVirtualFileSystem : IVirtualFileSystem
+public sealed class NullFileSystem : IVirtualFileSystem
 {
     /// <inheritdoc />
     public bool IsReadOnly => true;
