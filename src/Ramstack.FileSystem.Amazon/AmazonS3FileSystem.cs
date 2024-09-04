@@ -56,24 +56,36 @@ public sealed class AmazonS3FileSystem : IVirtualFileSystem
     /// <summary>
     /// Initializes a new instance of the <see cref="AmazonS3FileSystem"/> class using AWS access keys and region name.
     /// </summary>
-    /// <param name="awsAccessKeyId">The AWS access key ID.</param>
-    /// <param name="awsSecretAccessKey">The AWS secret access key.</param>
+    /// <param name="accessKeyId">The AWS access key ID.</param>
+    /// <param name="secretAccessKey">The AWS secret access key.</param>
     /// <param name="regionName">The name of the AWS region.</param>
     /// <param name="bucketName">The name of the S3 bucket.</param>
-    public AmazonS3FileSystem(string awsAccessKeyId, string awsSecretAccessKey, string regionName, string bucketName)
-        : this(awsAccessKeyId, awsSecretAccessKey, RegionEndpoint.GetBySystemName(regionName), bucketName)
+    public AmazonS3FileSystem(string accessKeyId, string secretAccessKey, string regionName, string bucketName)
+        : this(accessKeyId, secretAccessKey, RegionEndpoint.GetBySystemName(regionName), bucketName)
     {
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AmazonS3FileSystem"/> class using AWS access keys and region endpoint.
     /// </summary>
-    /// <param name="awsAccessKeyId">The AWS access key ID.</param>
-    /// <param name="awsSecretAccessKey">The AWS secret access key.</param>
+    /// <param name="accessKeyId">The AWS access key ID.</param>
+    /// <param name="secretAccessKey">The AWS secret access key.</param>
     /// <param name="region">The AWS region endpoint.</param>
     /// <param name="bucketName">The name of the S3 bucket.</param>
-    public AmazonS3FileSystem(string awsAccessKeyId, string awsSecretAccessKey, RegionEndpoint region, string bucketName)
-        : this(new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey), new AmazonS3Config { RegionEndpoint = region }, bucketName)
+    public AmazonS3FileSystem(string accessKeyId, string secretAccessKey, RegionEndpoint region, string bucketName)
+        : this(new BasicAWSCredentials(accessKeyId, secretAccessKey), new AmazonS3Config { RegionEndpoint = region }, bucketName)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AmazonS3FileSystem"/> class using AWS access keys and region endpoint.
+    /// </summary>
+    /// <param name="accessKeyId">The AWS access key ID.</param>
+    /// <param name="secretAccessKey">The AWS secret access key.</param>
+    /// <param name="config">The Amazon S3 configuration settings.</param>
+    /// <param name="bucketName">The name of the S3 bucket.</param>
+    public AmazonS3FileSystem(string accessKeyId, string secretAccessKey, AmazonS3Config config, string bucketName)
+        : this(new BasicAWSCredentials(accessKeyId, secretAccessKey), config, bucketName)
     {
     }
 
