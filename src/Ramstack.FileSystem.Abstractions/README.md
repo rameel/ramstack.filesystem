@@ -32,12 +32,6 @@ public class Program
     {
         var file = fs.GetFile("/sample/hello.txt");
 
-        if (await file.ExistsAsync())
-        {
-            Console.WriteLine($"Deleting file '{file.FullName}'");
-            await file.DeleteAsync();
-        }
-
         Console.WriteLine($"Writing 'Hello, World!' to '{file.FullName}'");
 
         await using (Stream stream = await file.OpenWriteAsync())
@@ -57,6 +51,9 @@ public class Program
         await file.WriteAsync(input, overwrite: true);
 
         Console.WriteLine($"The file '{file.Name}' has a length of {await file.GetLengthAsync()} bytes");
+
+        Console.WriteLine($"Deleting file '{file.FullName}'");
+        await file.DeleteAsync();
     }
 }
 ```
@@ -148,13 +145,15 @@ if (!fs.IsReadOnly)
 
 ## Related Projects
 - [Ramstack.FileSystem.Physical](https://www.nuget.org/packages/Ramstack.FileSystem.Physical) - Provides an implementation based on the local file system.
-- [Ramstack.FileSystem.Azure](https://www.nuget.org/packages/Ramstack.FileSystem.Azure) - Provides an implementation based on Azure Blob Storage.
+- [Ramstack.FileSystem.Azure](https://www.nuget.org/packages/Ramstack.FileSystem.Azure) - Provides an implementation using Azure Blob storage.
+- [Ramstack.FileSystem.Amazon](https://www.nuget.org/packages/Ramstack.FileSystem.Amazon) - Provides an implementation using Amazon S3 storage.
 - [Ramstack.FileSystem.Zip](https://www.nuget.org/packages/Ramstack.FileSystem.Zip) - Provides an implementation based on ZIP archives.
 - [Ramstack.FileSystem.Readonly](https://www.nuget.org/packages/Ramstack.FileSystem.Readonly) - Provides a read-only wrapper for the underlying file system.
 - [Ramstack.FileSystem.Globbing](https://www.nuget.org/packages/Ramstack.FileSystem.Globbing) - Wraps the file system, filtering files and directories using glob patterns.
 - [Ramstack.FileSystem.Prefixed](https://www.nuget.org/packages/Ramstack.FileSystem.Prefixed) - Adds a prefix to file paths within the underlying file system.
 - [Ramstack.FileSystem.Sub](https://www.nuget.org/packages/Ramstack.FileSystem.Sub) - Wraps the underlying file system, restricting access to a specific subpath.
 - [Ramstack.FileSystem.Adapters](https://www.nuget.org/packages/Ramstack.FileSystem.Adapters) - Provides integration with `Microsoft.Extensions.FileProviders`.
+- [Ramstack.FileSystem.Composite](https://www.nuget.org/packages/Ramstack.FileSystem.Composite) - Provides an implementation that combines multiple file systems into a single composite file system.
 
 ## Supported Versions
 
