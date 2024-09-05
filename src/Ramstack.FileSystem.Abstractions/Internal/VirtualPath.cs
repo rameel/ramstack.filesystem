@@ -211,21 +211,21 @@ internal static class VirtualPath
     /// <see langword="true" /> if the path in a normalized form;
     /// otherwise, <see langword="false" />.
     /// </returns>
-    public static bool IsNormalized(string path)
+    public static bool IsNormalized(ReadOnlySpan<char> path)
     {
-        if (path.Length == 0 || string.IsNullOrWhiteSpace(path))
+        if (path.Length == 0)
             return false;
 
         if (path[0] != '/')
             return false;
 
-        if (path.Length > 1 && path.EndsWith('/'))
+        if (path.Length > 1 && HasTrailingSlash(path))
             return false;
 
-        if (path.AsSpan().Contains('\\'))
+        if (path.Contains('\\'))
             return false;
 
-        return path.AsSpan().IndexOf("//") < 0;
+        return path.IndexOf("//") < 0;
     }
 
     /// <summary>
@@ -236,7 +236,7 @@ internal static class VirtualPath
     /// <see langword="true" /> if the path in a normalized form;
     /// otherwise, <see langword="false" />.
     /// </returns>
-    public static bool IsFullyNormalized(string path)
+    public static bool IsFullyNormalized(ReadOnlySpan<char> path)
     {
         if (path is ['/', ..])
         {
@@ -406,6 +406,22 @@ internal static class VirtualPath
         return string.Concat(path1, "/", path2);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool HasLeadingSlash(string path) =>
+        path.StartsWith('/') || path.StartsWith('\\');
+
+    /// <summary>
+    /// Determines whether the specified path string ends in a directory separator.
+    /// </summary>
+    /// <param name="path">The path to test.</param>
+    /// <returns>
+    /// <see langword="true" /> if the path has a trailing directory separator;
+    /// otherwise, <see langword="false" />.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool HasTrailingSlash(string path) =>
+        path.EndsWith('/') || path.EndsWith('\\');
+
     /// <summary>
     /// Determines whether the specified path string starts with a directory separator.
     /// </summary>
@@ -437,22 +453,6 @@ internal static class VirtualPath
 
         return false;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasLeadingSlash(string path) =>
-        path.StartsWith('/') || path.StartsWith('\\');
-
-    /// <summary>
-    /// Determines whether the specified path string ends in a directory separator.
-    /// </summary>
-    /// <param name="path">The path to test.</param>
-    /// <returns>
-    /// <see langword="true" /> if the path has a trailing directory separator;
-    /// otherwise, <see langword="false" />.
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasTrailingSlash(string path) =>
-        path.EndsWith('/') || path.EndsWith('\\');
 
     private static int GetDirectoryNameOffset(ReadOnlySpan<char> path)
     {
