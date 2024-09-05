@@ -192,7 +192,7 @@ internal static class VirtualPath
                         return false;
 
                     var nch = path[j + 1];
-                    if (nch is '/' or '\\')
+                    if (nch == '/' || nch == '\\')
                         return false;
 
                     if (nch == '.')
@@ -201,7 +201,7 @@ internal static class VirtualPath
                             return false;
 
                         var sch = path[j + 2];
-                        if (sch is '/' or '\\')
+                        if (sch == '/' || sch == '\\')
                             return false;
                     }
                 }
@@ -370,7 +370,7 @@ internal static class VirtualPath
         if (path.Length != 0)
         {
             var ch = Unsafe.Add(ref MemoryMarshal.GetReference(path), (nint)(uint)path.Length - 1);
-            return ch is '/' or '\\';
+            return ch == '/' || ch == '\\';
         }
 
         return false;
