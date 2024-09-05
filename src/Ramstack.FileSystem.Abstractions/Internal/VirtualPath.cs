@@ -12,13 +12,17 @@ namespace Ramstack.FileSystem.Internal;
 /// <para>
 ///   For compatibility across different implementations of <see cref="IVirtualFileSystem"/>
 ///   and operating systems, directory separators are unified to use both "/" and "\".
+///   <strong>This approach will be reviewed once a better solution is found.</strong>
 /// </para>
 /// <para>
 ///   When normalizing paths (e.g., using the methods <see cref="Normalize" /> and <see cref="GetFullPath" />),
 ///   "\" separators will be replaced with "/" forcibly.
 /// </para>
 /// <para>
-///   This approach will be reviewed once a better solution is found.
+///   Highly recommended to call <see cref="Normalize" /> or <see cref="GetFullPath" /> when using virtual paths
+///   in the context of <see cref="IVirtualFileSystem" /> to normalize separators and remove relative segments
+///   such as "." and "..", since the underlying subsystem for which <see cref="IVirtualFileSystem" />
+///   is implemented may not support these capabilities.
 /// </para>
 /// </remarks>
 public static class VirtualPath
