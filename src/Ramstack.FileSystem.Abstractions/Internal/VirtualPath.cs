@@ -126,7 +126,8 @@ internal static class VirtualPath
                 index++;
             }
 
-            while (index > 1 && buffer[index - 1] == '/')
+            // There can be only one trailing slash at most
+            if (index > 1 && buffer[index - 1] == '/')
                 index--;
 
             var result = index > 1
