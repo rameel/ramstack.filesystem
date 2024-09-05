@@ -21,7 +21,7 @@ namespace Ramstack.FileSystem.Internal;
 ///   This approach will be reviewed once a better solution is found.
 /// </para>
 /// </remarks>
-internal static class VirtualPath
+public static class VirtualPath
 {
     /// <summary>
     /// The threshold size in characters for using stack allocation.
