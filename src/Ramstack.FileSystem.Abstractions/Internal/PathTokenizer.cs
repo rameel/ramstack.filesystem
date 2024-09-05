@@ -18,7 +18,7 @@ internal readonly struct PathTokenizer(string path)
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Enumerator GetEnumerator() =>
-        new(path);
+        new Enumerator(path);
 
     /// <summary>
     /// Tokenizes the specified path into a collection of the path components.
@@ -28,7 +28,7 @@ internal readonly struct PathTokenizer(string path)
     /// The <see cref="PathTokenizer"/>.
     /// </returns>
     public static PathTokenizer Tokenize(string path) =>
-        new(path);
+        new PathTokenizer(path);
 
     #region Inner type: Enumerator
 
