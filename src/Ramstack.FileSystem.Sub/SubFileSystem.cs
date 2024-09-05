@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem.Sub;
 
 /// <summary>

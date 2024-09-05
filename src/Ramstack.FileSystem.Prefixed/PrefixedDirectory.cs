@@ -1,7 +1,5 @@
 using System.Runtime.CompilerServices;
 
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem.Prefixed;
 
 /// <summary>

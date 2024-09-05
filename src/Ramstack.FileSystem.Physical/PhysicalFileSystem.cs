@@ -1,7 +1,5 @@
 using System.Diagnostics;
 
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem.Physical;
 
 /// <summary>

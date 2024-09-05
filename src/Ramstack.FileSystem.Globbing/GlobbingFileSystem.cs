@@ -1,5 +1,4 @@
 using Ramstack.Globbing;
-using Ramstack.FileSystem.Internal;
 
 namespace Ramstack.FileSystem.Globbing;
 

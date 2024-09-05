@@ -4,8 +4,6 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Util;
 
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem.Amazon;
 
 /// <summary>

@@ -1,7 +1,5 @@
 using Microsoft.Extensions.FileProviders;
 
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem.Adapters;
 
 /// <summary>

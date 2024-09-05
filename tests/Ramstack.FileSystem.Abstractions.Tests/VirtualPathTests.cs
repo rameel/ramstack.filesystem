@@ -1,63 +1,82 @@
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem;
 
 [TestFixture]
 public class VirtualPathTests
 {
-    [TestCase("", ExpectedResult = "")]
-    [TestCase(".", ExpectedResult = ".")]
-    [TestCase("/", ExpectedResult = "")]
-    [TestCase("/.", ExpectedResult = ".")]
-    [TestCase("file.txt", ExpectedResult = ".txt")]
-    [TestCase("/path/to/file.txt", ExpectedResult = ".txt")]
-    [TestCase("/path/to/.hidden", ExpectedResult = ".hidden")]
-    [TestCase("/path/to/file", ExpectedResult = "")]
-    [TestCase("/path.with.dots/to/file.txt", ExpectedResult = ".txt")]
-    [TestCase("/path/with.dots/file.", ExpectedResult = ".")]
-    [TestCase("/path.with.dots/to/.hidden.ext", ExpectedResult = ".ext")]
-    [TestCase("file.with.multiple.dots.ext", ExpectedResult = ".ext")]
-    [TestCase("/path/to/file.with.multiple.dots.ext", ExpectedResult = ".ext")]
-    [TestCase("/.hidden", ExpectedResult = ".hidden")]
-    public string GetExtension(string path) =>
-        VirtualPath.GetExtension(path);
+    [TestCase("", "")]
+    [TestCase(".", "")]
+    [TestCase("/", "")]
+    [TestCase("/.", "")]
+    [TestCase("file.txt", ".txt")]
+    [TestCase("/path/to/file.txt", ".txt")]
+    [TestCase("/path/to/.hidden", ".hidden")]
+    [TestCase("/path/to/file", "")]
+    [TestCase("/path.with.dots/to/file.txt", ".txt")]
+    [TestCase("/path/with.dots/file.", "")]
+    [TestCase("/path.with.dots/to/.hidden.ext", ".ext")]
+    [TestCase("file.with.multiple.dots.ext", ".ext")]
+    [TestCase("/path/to/file.with.multiple.dots.ext", ".ext")]
+    [TestCase("/.hidden", ".hidden")]
+    public void GetExtension(string path, string expected)
+    {
+        foreach (var p in GetPathVariations(path))
+        {
+            Assert.That(VirtualPath.GetExtension(p), Is.EqualTo(expected));
+            Assert.That(VirtualPath.GetExtension(p.AsSpan()).ToString(), Is.EqualTo(expected));
+        }
+    }
 
-    [TestCase("", ExpectedResult = "")]
-    [TestCase(".", ExpectedResult = ".")]
-    [TestCase(".hidden", ExpectedResult = ".hidden")]
-    [TestCase("file.txt", ExpectedResult = "file.txt")]
-    [TestCase("/path/to/file.txt", ExpectedResult = "file.txt")]
-    [TestCase("/path/to/.hidden", ExpectedResult = ".hidden")]
-    [TestCase("/path/to/file", ExpectedResult = "file")]
-    [TestCase("/path/with.dots/file.txt", ExpectedResult = "file.txt")]
-    [TestCase("/path/with.dots/file.", ExpectedResult = "file.")]
-    [TestCase("/path/to/file.with.multiple.dots.ext", ExpectedResult = "file.with.multiple.dots.ext")]
-    [TestCase("/path/to/.hidden.ext", ExpectedResult = ".hidden.ext")]
-    [TestCase("/.hidden", ExpectedResult = ".hidden")]
-    [TestCase("/path/to/", ExpectedResult = "")]
-    [TestCase("/path/to/directory/", ExpectedResult = "")]
-    public string GetFileName(string path) =>
-        VirtualPath.GetFileName(path);
+    [TestCase("", "")]
+    [TestCase(".", ".")]
+    [TestCase(".hidden", ".hidden")]
+    [TestCase("file.txt", "file.txt")]
+    [TestCase("/path/to/file.txt", "file.txt")]
+    [TestCase("/path/to/.hidden", ".hidden")]
+    [TestCase("/path/to/file", "file")]
+    [TestCase("/path/with.dots/file.txt", "file.txt")]
+    [TestCase("/path/with.dots/file.", "file.")]
+    [TestCase("/path/to/file.with.multiple.dots.ext", "file.with.multiple.dots.ext")]
+    [TestCase("/path/to/.hidden.ext", ".hidden.ext")]
+    [TestCase("/.hidden", ".hidden")]
+    [TestCase("/path/to/", "")]
+    [TestCase("/path/to/directory/", "")]
+    public void GetFileName(string path, string expected)
+    {
+        foreach (var p in GetPathVariations(path))
+        {
+            Assert.That(VirtualPath.GetFileName(p), Is.EqualTo(expected));
+            Assert.That(VirtualPath.GetFileName(p.AsSpan()).ToString(), Is.EqualTo(expected));
+        }
+    }
 
-    [TestCase("", ExpectedResult = "")]
-    [TestCase("/", ExpectedResult = "")]
-    [TestCase("/dir", ExpectedResult = "/")]
-    [TestCase("/dir/file", ExpectedResult = "/dir")]
-    [TestCase("/dir/dir/", ExpectedResult = "/dir/dir")]
-    [TestCase("dir/dir", ExpectedResult = "dir")]
-    [TestCase("dir/dir/", ExpectedResult = "dir/dir")]
+    [TestCase("", "")]
+    [TestCase("/", "")]
+    [TestCase("/dir", "/")]
+    [TestCase("/dir/file", "/dir")]
+    [TestCase("/dir/dir/", "/dir/dir")]
+    [TestCase("dir/dir", "dir")]
+    [TestCase("dir/dir/", "dir/dir")]
 
-    [TestCase("//", ExpectedResult = "")]
-    [TestCase("///", ExpectedResult = "")]
-    [TestCase("//dir", ExpectedResult = "/")]
-    [TestCase("///dir", ExpectedResult = "/")]
-    [TestCase("////dir", ExpectedResult = "/")]
-    [TestCase("/dir///dir", ExpectedResult = "/dir")]
-    [TestCase("/dir///dir///", ExpectedResult = "/dir///dir")]
-    [TestCase("//dir///dir///", ExpectedResult = "//dir///dir")]
-    [TestCase("dir///dir", ExpectedResult = "dir")]
-    public string GetDirectoryName(string path) =>
-        VirtualPath.GetDirectoryName(path);
+    [TestCase("//", "")]
+    [TestCase("///", "")]
+    [TestCase("//dir", "/")]
+    [TestCase("///dir", "/")]
+    [TestCase("////dir", "/")]
+    [TestCase("/dir///dir", "/dir")]
+    [TestCase("/dir///dir///", "/dir///dir")]
+    [TestCase("//dir///dir///", "//dir///dir")]
+    [TestCase("dir///dir", "dir")]
+    public void GetDirectoryName(string path, string expected)
+    {
+        foreach (var p in GetPathVariations(path))
+        {
+            if (p.Contains('\\') && expected != "/")
+                expected = expected.Replace("/", "\\");
+
+            Assert.That(VirtualPath.GetDirectoryName(p), Is.EqualTo(expected));
+            Assert.That(VirtualPath.GetDirectoryName(p.AsSpan()).ToString(), Is.EqualTo(expected));
+        }
+    }
 
     [TestCase("/", ExpectedResult = true)]
     [TestCase("/a/b/c", ExpectedResult = true)]
@@ -152,4 +171,7 @@ public class VirtualPathTests
     [TestCase("/a/./../b/c/", ExpectedResult = "/a/./../b/c")]
     public string Normalize(string path) =>
         VirtualPath.Normalize(path);
+
+    private static string[] GetPathVariations(string path) =>
+        [path, path.Replace('/', '\\')];
 }
