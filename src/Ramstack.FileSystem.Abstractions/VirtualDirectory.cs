@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-using Ramstack.FileSystem.Internal;
 using Ramstack.Globbing.Traversal;
 
 namespace Ramstack.FileSystem;

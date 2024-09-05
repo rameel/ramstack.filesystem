@@ -5,8 +5,6 @@ using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem.Azure;
 
 /// <summary>

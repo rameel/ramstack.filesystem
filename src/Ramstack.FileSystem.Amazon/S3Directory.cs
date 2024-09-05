@@ -1,8 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 using Amazon.S3.Model;
-
-using Ramstack.FileSystem.Internal;
 
 namespace Ramstack.FileSystem.Amazon;
 

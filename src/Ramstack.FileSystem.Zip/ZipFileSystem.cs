@@ -1,6 +1,5 @@
 using System.IO.Compression;
 
-using Ramstack.FileSystem.Internal;
 using Ramstack.FileSystem.Null;
 
 namespace Ramstack.FileSystem.Zip;

@@ -1,5 +1,3 @@
-﻿using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem.Composite;
 
 /// <summary>

@@ -3,7 +3,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Ramstack.FileSystem.Internal;
+using Ramstack.FileSystem.Internal;
+
+namespace Ramstack.FileSystem;
 
 /// <summary>
 /// Provides utility methods for working with virtual paths.
