@@ -1,7 +1,5 @@
 using Microsoft.Extensions.FileProviders;
 
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem.Adapters;
 
 /// <summary>
@@ -40,7 +38,7 @@ internal sealed class VirtualFileAdapter : VirtualFile
 
     /// <inheritdoc />
     protected override ValueTask<bool> ExistsCoreAsync(CancellationToken cancellationToken) =>
-        new(_file.Exists);
+        new ValueTask<bool>(_file.Exists);
 
     /// <inheritdoc />
     protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken)
@@ -50,23 +48,14 @@ internal sealed class VirtualFileAdapter : VirtualFile
     }
 
     /// <inheritdoc />
-    protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
-    protected override ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
-    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
+        default;
 }

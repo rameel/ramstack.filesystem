@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem;
 
 /// <summary>
@@ -154,6 +152,6 @@ public abstract class VirtualNode
     protected void EnsureWritable()
     {
         if (FileSystem.IsReadOnly)
-            ThrowHelper.ChangesNotSupported();
+            throw new NotSupportedException("Write operations are not supported on a read-only instance.");
     }
 }

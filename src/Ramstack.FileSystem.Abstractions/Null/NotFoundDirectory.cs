@@ -27,22 +27,12 @@ public class NotFoundDirectory : VirtualDirectory
         default;
 
     /// <inheritdoc />
-    protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken)
-    {
-        if (IsReadOnly)
-            ThrowHelper.ChangesNotSupported();
-
-        return default;
-    }
+    protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
-    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken)
-    {
-        if (IsReadOnly)
-            ThrowHelper.ChangesNotSupported();
-
-        return default;
-    }
+    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
     protected override IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(CancellationToken cancellationToken) =>

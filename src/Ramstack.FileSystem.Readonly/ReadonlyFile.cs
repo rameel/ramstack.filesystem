@@ -1,5 +1,3 @@
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem.Readonly;
 
 /// <summary>
@@ -38,23 +36,14 @@ internal sealed class ReadonlyFile : VirtualFile
         _file.OpenReadAsync(cancellationToken);
 
     /// <inheritdoc />
-    protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
-    protected override ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
-    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
+        default;
 }

@@ -36,18 +36,12 @@ internal sealed class ZipDirectory : VirtualDirectory
         new ValueTask<bool>(true);
 
     /// <inheritdoc />
-    protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
-    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
     protected override IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(CancellationToken cancellationToken) =>
