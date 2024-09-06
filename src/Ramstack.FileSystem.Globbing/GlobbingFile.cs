@@ -1,4 +1,4 @@
-using Ramstack.FileSystem.Internal;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ramstack.FileSystem.Globbing;
 
@@ -49,7 +49,7 @@ internal sealed class GlobbingFile : VirtualFile
     protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken)
     {
         if (!_included)
-            ThrowHelper.FileNotFound(FullName);
+            Error_FileNotFound(FullName);
 
         return _file.OpenReadAsync(cancellationToken);
     }
@@ -65,4 +65,8 @@ internal sealed class GlobbingFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
         default;
+
+    [DoesNotReturn]
+    private static void Error_FileNotFound(string path) =>
+        throw new FileNotFoundException($"Unable to find file '{path}'.", path);
 }

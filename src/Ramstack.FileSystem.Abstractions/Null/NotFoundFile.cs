@@ -1,4 +1,4 @@
-using Ramstack.FileSystem.Internal;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ramstack.FileSystem.Null;
 
@@ -29,36 +29,29 @@ public sealed class NotFoundFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken)
     {
-        ThrowHelper.FileNotFound(FullName);
+        Error_FileNotFound(FullName);
         return default;
     }
 
     /// <inheritdoc />
     protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken)
     {
-        if (IsReadOnly)
-            ThrowHelper.ChangesNotSupported();
-
-        ThrowHelper.FileNotFound(FullName);
+        Error_FileNotFound(FullName);
         return default;
     }
 
     /// <inheritdoc />
     protected override ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken)
     {
-        if (IsReadOnly)
-            ThrowHelper.ChangesNotSupported();
-
-        ThrowHelper.FileNotFound(FullName);
+        Error_FileNotFound(FullName);
         return default;
     }
 
     /// <inheritdoc />
-    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken)
-    {
-        if (IsReadOnly)
-            ThrowHelper.ChangesNotSupported();
+    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
-        return default;
-    }
+    [DoesNotReturn]
+    private static void Error_FileNotFound(string path) =>
+        throw new FileNotFoundException($"Unable to find file '{path}'.", path);
 }
