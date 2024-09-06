@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-using Ramstack.FileSystem.Internal;
+using Ramstack.FileSystem.Utilities;
 
 namespace Ramstack.FileSystem;
 

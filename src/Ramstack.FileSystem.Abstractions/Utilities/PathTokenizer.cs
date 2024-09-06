@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Ramstack.FileSystem.Internal;
+namespace Ramstack.FileSystem.Utilities;
 
 /// <summary>
 /// Tokenizes a file path into its constituent components.
