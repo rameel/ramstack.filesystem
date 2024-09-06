@@ -65,13 +65,6 @@ public sealed class SubFileSystem : IVirtualFileSystem
         if (path.Length == 0 || path == "/")
             return _path;
 
-        if (VirtualPath.IsNavigatesAboveRoot(path))
-            Error_InvalidPath();
-
         return VirtualPath.Join(_path, path);
     }
-
-    [DoesNotReturn]
-    private static void Error_InvalidPath() =>
-        throw new ArgumentException("Invalid path");
 }
