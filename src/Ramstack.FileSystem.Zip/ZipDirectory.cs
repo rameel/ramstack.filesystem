@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-using Ramstack.FileSystem.Internal;
+using Ramstack.FileSystem.Utilities;
 
 namespace Ramstack.FileSystem.Zip;
 

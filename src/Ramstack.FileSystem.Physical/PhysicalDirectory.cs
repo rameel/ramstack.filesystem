@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.IO.Enumeration;
 
-using Ramstack.FileSystem.Internal;
+using Ramstack.FileSystem.Utilities;
 
 namespace Ramstack.FileSystem.Physical;
 

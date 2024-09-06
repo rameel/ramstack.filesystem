@@ -1,4 +1,4 @@
-using Ramstack.FileSystem.Internal;
+using Ramstack.FileSystem.Utilities;
 
 namespace Ramstack.FileSystem.Null;
 
