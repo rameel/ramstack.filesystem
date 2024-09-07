@@ -1,7 +1,5 @@
 using System.Runtime.CompilerServices;
 
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem.Readonly;
 
 /// <summary>
@@ -36,18 +34,12 @@ internal sealed class ReadonlyDirectory : VirtualDirectory
         _directory.ExistsAsync(cancellationToken);
 
     /// <inheritdoc />
-    protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
-    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)

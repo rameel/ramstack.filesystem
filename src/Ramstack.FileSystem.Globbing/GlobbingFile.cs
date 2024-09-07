@@ -1,4 +1,4 @@
-using Ramstack.FileSystem.Internal;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ramstack.FileSystem.Globbing;
 
@@ -49,29 +49,24 @@ internal sealed class GlobbingFile : VirtualFile
     protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken)
     {
         if (!_included)
-            ThrowHelper.FileNotFound(FullName);
+            Error_FileNotFound(FullName);
 
         return _file.OpenReadAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
-    protected override ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
-    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
+        default;
+
+    [DoesNotReturn]
+    private static void Error_FileNotFound(string path) =>
+        throw new FileNotFoundException($"Unable to find file '{path}'.", path);
 }

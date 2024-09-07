@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Ramstack.FileSystem.Sub;
 
@@ -32,7 +31,7 @@ public sealed class SubFileSystem : IVirtualFileSystem
     public VirtualFile GetFile(string path)
     {
         path = VirtualPath.GetFullPath(path);
-        var file = _fs.GetFile(GetFullPath(path));
+        var file = _fs.GetFile(ResolvePath(path));
 
         return new SubFile(this, path, file);
     }
@@ -41,7 +40,7 @@ public sealed class SubFileSystem : IVirtualFileSystem
     public VirtualDirectory GetDirectory(string path)
     {
         path = VirtualPath.GetFullPath(path);
-        var directory = _fs.GetDirectory(GetFullPath(path));
+        var directory = _fs.GetDirectory(ResolvePath(path));
 
         return new SubDirectory(this, path, directory);
     }
@@ -51,27 +50,17 @@ public sealed class SubFileSystem : IVirtualFileSystem
         _fs.Dispose();
 
     /// <summary>
-    /// Returns the full path to the underlying file system.
+    /// Resolves the specified path to the underlying file system.
     /// </summary>
     /// <param name="path">The path to resolve.</param>
     /// <returns>
-    /// The full path to underlying file system.
+    /// The resolved path in the underlying file system.
     /// </returns>
-    /// <exception cref="ArgumentException">
-    /// Thrown if the <paramref name="path"/> navigates above the root directory.
-    /// </exception>
-    private string GetFullPath(string path)
+    private string ResolvePath(string path)
     {
         if (path.Length == 0 || path == "/")
             return _path;
 
-        if (VirtualPath.IsNavigatesAboveRoot(path))
-            Error_InvalidPath();
-
         return VirtualPath.Join(_path, path);
     }
-
-    [DoesNotReturn]
-    private static void Error_InvalidPath() =>
-        throw new ArgumentException("Invalid path");
 }

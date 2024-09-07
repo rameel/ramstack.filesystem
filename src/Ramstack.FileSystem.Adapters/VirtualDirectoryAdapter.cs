@@ -1,6 +1,6 @@
 using Microsoft.Extensions.FileProviders;
 
-using Ramstack.FileSystem.Internal;
+using Ramstack.FileSystem.Utilities;
 
 namespace Ramstack.FileSystem.Adapters;
 
@@ -60,18 +60,12 @@ internal sealed class VirtualDirectoryAdapter : VirtualDirectory
     }
 
     /// <inheritdoc />
-    protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
-    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken)
-    {
-        ThrowHelper.ChangesNotSupported();
-        return default;
-    }
+    protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
+        default;
 
     /// <inheritdoc />
     protected override IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(CancellationToken cancellationToken)

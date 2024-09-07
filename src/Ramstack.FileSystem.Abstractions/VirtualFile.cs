@@ -1,7 +1,5 @@
 using System.Diagnostics;
 
-using Ramstack.FileSystem.Internal;
-
 namespace Ramstack.FileSystem;
 
 /// <summary>
@@ -215,9 +213,7 @@ public abstract class VirtualFile : VirtualNode
     /// </remarks>
     public ValueTask CopyToAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken = default)
     {
-        if (destination.IsReadOnly)
-            ThrowHelper.ChangesNotSupported();
-
+        EnsureWritable();
         return CopyToCoreAsync(destination, overwrite, cancellationToken);
     }
 
