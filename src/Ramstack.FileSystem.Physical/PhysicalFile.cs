@@ -77,22 +77,45 @@ internal sealed class PhysicalFile : VirtualFile
     {
         EnsureDirectoryExists();
 
-        var options = Path.DirectorySeparatorChar == '\\'
-            ? FileOptions.Asynchronous | FileOptions.SequentialScan
-            : FileOptions.Asynchronous;
+        try
+        {
+            var options = Path.DirectorySeparatorChar == '\\'
+                ? FileOptions.Asynchronous | FileOptions.SequentialScan
+                : FileOptions.Asynchronous;
 
-        // To overwrite the file, we use FileMode.OpenOrCreate instead of FileMode.Create.
-        // This avoids a System.UnauthorizedAccessException: Access to the path is denied,
-        // which can occur if the file has the FileAttributes.Hidden attribute.
-        var fileMode = overwrite ? FileMode.OpenOrCreate : FileMode.CreateNew;
+            // To overwrite the file, we use FileMode.OpenOrCreate instead of FileMode.Create.
+            // This avoids a System.UnauthorizedAccessException: Access to the path is denied,
+            // which can occur if the file has the FileAttributes.Hidden attribute.
+            var fileMode = overwrite ? FileMode.OpenOrCreate : FileMode.CreateNew;
 
-        await using var fs = new FileStream(_physicalPath, fileMode, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
+            await using var fs = new FileStream(_physicalPath, fileMode, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
 
-        // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
-        // set the file length to zero to remove any leftover data.
-        fs.SetLength(0);
+            // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
+            // set the file length to zero to remove any leftover data.
+            fs.SetLength(0);
 
-        await stream.CopyToAsync(fs, cancellationToken).ConfigureAwait(false);
+            await stream.CopyToAsync(fs, cancellationToken).ConfigureAwait(false);
+        }
+        catch (IOException exception)
+        {
+            // https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/0642cb2f-2075-4469-918c-4441e69c548a
+            // https://github.com/github/VisualStudio/blob/master/tools/Debugging%20Tools%20for%20Windows/winext/manifest/winerror.h#L64C9-L64C26
+            //
+            // 0x8007_0050
+            // 1000000000000111  00000000 01010000
+            // S____________HR_  ____CODE 80 _____
+
+            const int WIN32_ERROR_FILE_EXISTS = unchecked((int)0x80070050);
+            const int POSIX_EEXIST = 17;
+
+            var exists = Path.DirectorySeparatorChar == '\\'
+                ? exception.HResult == WIN32_ERROR_FILE_EXISTS
+                : exception.HResult == POSIX_EEXIST;
+
+            throw new IOException(exists
+                ? $"The file '{FullName}' already exists."
+                : $"An error occurred while writing to the file '{FullName}'.", exception);
+        }
     }
 
     /// <inheritdoc />

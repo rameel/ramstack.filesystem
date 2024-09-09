@@ -106,16 +106,15 @@ internal sealed class S3File : VirtualFile
 
     /// <inheritdoc />
     protected override ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken) =>
-        CopyObjectAsync(_fs.BucketName, _key, _fs.BucketName, destinationPath, overwrite, cancellationToken);
+        CopyObjectAsync(_fs.BucketName, _key, _fs.BucketName, destinationPath[1..], overwrite, cancellationToken);
 
     /// <inheritdoc />
     protected override ValueTask CopyToCoreAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken)
     {
-        return destination switch
-        {
-            S3File destinationFile => CopyObjectAsync(_fs.BucketName, _key, destinationFile._fs.BucketName, destinationFile._key, overwrite, cancellationToken),
-            _ => base.CopyToCoreAsync(destination, overwrite, cancellationToken)
-        };
+        if (destination is S3File file)
+            return CopyObjectAsync(_fs.BucketName, _key, file._fs.BucketName, file._key, overwrite, cancellationToken);
+
+        return base.CopyToCoreAsync(destination, overwrite, cancellationToken);
     }
 
     /// <summary>
@@ -132,6 +131,9 @@ internal sealed class S3File : VirtualFile
     /// </returns>
     private async ValueTask CopyObjectAsync(string sourceBucket, string sourceKey, string destinationBucket, string destinationKey, bool overwrite, CancellationToken cancellationToken)
     {
+        if (sourceBucket == destinationBucket && sourceKey == destinationKey)
+            throw new IOException($"Cannot copy a file '{FullName}' to itself.");
+
         // Unfortunately, Amazon S3 does not support destination conditions,
         // so we make a separate request to check for the destination object existence.
 
@@ -143,7 +145,7 @@ internal sealed class S3File : VirtualFile
                     .GetObjectMetadataAsync(destinationBucket, destinationKey, cancellationToken)
                     .ConfigureAwait(false);
 
-                throw new AmazonS3Exception($"An object already exists at destination: {destinationKey}");
+                throw new IOException($"The file '{FullName}' already exists.");
             }
             catch (AmazonS3Exception e) when (e.StatusCode == HttpStatusCode.NotFound)
             {
