@@ -50,6 +50,18 @@ public static class VirtualFileExtensions
         file.WriteAsync(stream, overwrite: false, cancellationToken);
 
     /// <summary>
+    /// Asynchronously copies the file to the specified destination path.
+    /// </summary>
+    /// <param name="file">The source <see cref="VirtualFile"/> to copy from.</param>
+    /// <param name="destinationPath">The path of the destination file. This cannot be a directory.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask CopyAsync(this VirtualFile file, string destinationPath, CancellationToken cancellationToken = default) =>
+        file.CopyAsync(destinationPath, overwrite: false, cancellationToken);
+
+    /// <summary>
     /// Asynchronously copies the contents of the current <see cref="VirtualFile"/> to the specified destination <see cref="VirtualFile"/>.
     /// </summary>
     /// <param name="file">The source <see cref="VirtualFile"/> to copy from.</param>
