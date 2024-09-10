@@ -8,6 +8,11 @@ namespace Ramstack.FileSystem;
 /// </summary>
 public static class VirtualFileExtensions
 {
+    private static Encoding? _utf8NoBom;
+
+    private static Encoding Utf8NoBom => _utf8NoBom
+        ??= new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+
     /// <summary>
     /// Asynchronously returns a <see cref="StreamReader"/> with <see cref="Encoding.UTF8"/>
     /// character encoding that reads from the specified text file.
@@ -243,6 +248,148 @@ public static class VirtualFileExtensions
     /// </returns>
     public static ValueTask WriteAsync(this VirtualFile file, Stream stream, CancellationToken cancellationToken = default) =>
         file.WriteAsync(stream, overwrite: false, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified string to the current file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="file">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllTextAsync(this VirtualFile file, string contents, CancellationToken cancellationToken = default) =>
+        WriteAllTextAsync(file, contents.AsMemory(), Utf8NoBom, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified string to the current file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="file">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="encoding">The encoding to apply to the string.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllTextAsync(this VirtualFile file, string contents, Encoding encoding, CancellationToken cancellationToken = default) =>
+        WriteAllTextAsync(file, contents.AsMemory(), encoding, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified string to current the file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="file">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllTextAsync(this VirtualFile file, ReadOnlyMemory<char> contents, CancellationToken cancellationToken = default) =>
+        WriteAllTextAsync(file, contents, Utf8NoBom, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified string to the current file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="file">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="encoding">The encoding to apply to the string.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static async ValueTask WriteAllTextAsync(this VirtualFile file, ReadOnlyMemory<char> contents, Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        const int ChunkSize = 8192;
+
+        if (contents.IsEmpty)
+            return;
+
+        var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
+
+        var preamble = encoding.GetPreamble();
+        if (preamble.Length != 0)
+            stream.Write(preamble);
+
+        var bytes = ArrayPool<byte>.Shared.Rent(
+            encoding.GetMaxCharCount(Math.Min(ChunkSize, contents.Length)));
+
+        try
+        {
+            var encoder = encoding.GetEncoder();
+            while (contents.Length != 0)
+            {
+                var data = contents[..Math.Min(ChunkSize, contents.Length)];
+                contents = contents[data.Length..];
+
+                var encoded = encoder.GetBytes(data.Span, bytes.AsSpan(), flush: contents.IsEmpty);
+                await stream.WriteAsync(bytes.AsMemory(0, encoded), cancellationToken).ConfigureAwait(false);
+            }
+        }
+        finally
+        {
+            await stream.DisposeAsync().ConfigureAwait(false);
+            ArrayPool<byte>.Shared.Return(bytes);
+        }
+    }
+
+    /// <summary>
+    /// Asynchronously writes the specified lines to the current file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="file">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllLinesAsync(this VirtualFile file, IEnumerable<string> contents, CancellationToken cancellationToken = default) =>
+        WriteAllLinesAsync(file, contents, Utf8NoBom, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified lines to the current file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="file">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="encoding">The encoding to apply to the string.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static async ValueTask WriteAllLinesAsync(this VirtualFile file, IEnumerable<string> contents, Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
+        await using var writer = new StreamWriter(stream, encoding);
+
+        foreach (var line in contents)
+            await writer.WriteLineAsync(line).ConfigureAwait(false);
+
+        await writer.FlushAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously writes the specified byte array to the current file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="file">The file to write to.</param>
+    /// <param name="bytes">The bytes to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllBytesAsync(this VirtualFile file, byte[] bytes, CancellationToken cancellationToken = default) =>
+        WriteAllBytesAsync(file, bytes.AsMemory(), cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified byte array to the current file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="file">The file to write to.</param>
+    /// <param name="bytes">The bytes to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static async ValueTask WriteAllBytesAsync(this VirtualFile file, ReadOnlyMemory<byte> bytes, CancellationToken cancellationToken = default)
+    {
+        await using var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
+        await stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
+    }
 
     /// <summary>
     /// Asynchronously copies the file to the specified destination path.

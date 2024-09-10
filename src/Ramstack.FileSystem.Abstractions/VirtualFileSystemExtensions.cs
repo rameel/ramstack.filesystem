@@ -121,7 +121,7 @@ public static partial class VirtualFileSystemExtensions
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
-    public static ValueTask WriteFileAsync(this IVirtualFileSystem fs, string path, Stream stream, CancellationToken cancellationToken = default) =>
+    public static ValueTask WriteAsync(this IVirtualFileSystem fs, string path, Stream stream, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).WriteAsync(stream, overwrite: false, cancellationToken);
 
     /// <summary>
@@ -143,8 +143,115 @@ public static partial class VirtualFileSystemExtensions
     ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
     /// </list>
     /// </remarks>
-    public static ValueTask WriteFileAsync(this IVirtualFileSystem fs, string path, Stream stream, bool overwrite, CancellationToken cancellationToken = default) =>
+    public static ValueTask WriteAsync(this IVirtualFileSystem fs, string path, Stream stream, bool overwrite, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).WriteAsync(stream, overwrite, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified string to the specified file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllTextAsync(this IVirtualFileSystem fs, string path, string contents, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).WriteAllTextAsync(contents, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified string to the specified file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="encoding">The encoding to apply to the string.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllTextAsync(this IVirtualFileSystem fs, string path, string contents, Encoding encoding, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).WriteAllTextAsync(contents, encoding, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified string to specified the file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllTextAsync(this IVirtualFileSystem fs, string path, ReadOnlyMemory<char> contents, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).WriteAllTextAsync(contents, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified string to the specified file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="encoding">The encoding to apply to the string.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllTextAsync(this IVirtualFileSystem fs, string path, ReadOnlyMemory<char> contents, Encoding encoding, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).WriteAllTextAsync(contents, encoding, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified lines to the specified file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllLinesAsync(this IVirtualFileSystem fs, string path, IEnumerable<string> contents, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).WriteAllLinesAsync(contents, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified lines to the specified file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to write to.</param>
+    /// <param name="contents">The contents to write to the file.</param>
+    /// <param name="encoding">The encoding to apply to the string.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllLinesAsync(this IVirtualFileSystem fs, string path, IEnumerable<string> contents, Encoding encoding, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).WriteAllLinesAsync(contents, encoding, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified byte array to the specified file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to write to.</param>
+    /// <param name="bytes">The bytes to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllBytesAsync(this IVirtualFileSystem fs, string path, byte[] bytes, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).WriteAllBytesAsync(bytes, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified byte array to the specified file. If the file already exists, it is truncated and overwritten.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to write to.</param>
+    /// <param name="bytes">The bytes to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAllBytesAsync(this IVirtualFileSystem fs, string path, ReadOnlyMemory<byte> bytes, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).WriteAllBytesAsync(bytes, cancellationToken);
 
     /// <summary>
     /// Asynchronously deletes the file at the specified path. No exception is thrown if the file does not exist.

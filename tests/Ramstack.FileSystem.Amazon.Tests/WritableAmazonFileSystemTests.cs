@@ -24,7 +24,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         foreach (var path in Directory.EnumerateFiles(_storage.Root, "*", SearchOption.AllDirectories))
         {
             await using var stream = File.OpenRead(path);
-            await fs.WriteFileAsync(path[_storage.Root.Length..], stream, overwrite: true);
+            await fs.WriteAsync(path[_storage.Root.Length..], stream, overwrite: true);
         }
     }
 
@@ -167,7 +167,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 
         using var fs = GetFileSystem();
         for (var i = 0; i < Count; i++)
-            await fs.WriteFileAsync($"/temp/{i:0000}", Stream.Null);
+            await fs.WriteAsync($"/temp/{i:0000}", Stream.Null);
 
         Assert.That(
             await fs.GetFilesAsync("/temp").CountAsync(),

@@ -418,8 +418,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         if (!fs.IsReadOnly)
             return;
 
-        Assert.That(() => fs.WriteFileAsync($"/{Guid.NewGuid()}", new MemoryStream()), Throws.Exception);
-        Assert.That(() => fs.WriteFileAsync($"{safePath}/{Guid.NewGuid()}", new MemoryStream()), Throws.Exception);
+        Assert.That(() => fs.WriteAsync($"/{Guid.NewGuid()}", new MemoryStream()), Throws.Exception);
+        Assert.That(() => fs.WriteAsync($"{safePath}/{Guid.NewGuid()}", new MemoryStream()), Throws.Exception);
     }
 
     [Test]
@@ -661,8 +661,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         for (var i = 0; i < 10; i++)
         {
-            await fs.WriteFileAsync($"{directory.FullName}/{Guid.NewGuid()}.txt", new MemoryStream());
-            await fs.WriteFileAsync($"{directory.FullName}/{Guid.NewGuid()}/{Guid.NewGuid()}.txt", new MemoryStream());
+            await fs.WriteAsync($"{directory.FullName}/{Guid.NewGuid()}.txt", new MemoryStream());
+            await fs.WriteAsync($"{directory.FullName}/{Guid.NewGuid()}/{Guid.NewGuid()}.txt", new MemoryStream());
         }
 
         Assert.That(

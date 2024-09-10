@@ -222,7 +222,7 @@ public abstract class VirtualFile : VirtualNode
     protected virtual async ValueTask CopyToCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
     {
         await using var source = await OpenReadAsync(cancellationToken).ConfigureAwait(false);
-        await FileSystem.WriteFileAsync(destinationPath, source, overwrite, cancellationToken).ConfigureAwait(false);
+        await FileSystem.WriteAsync(destinationPath, source, overwrite, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

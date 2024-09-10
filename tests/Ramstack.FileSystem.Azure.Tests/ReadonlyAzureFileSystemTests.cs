@@ -19,7 +19,7 @@ public class ReadonlyAzureFileSystemTests : VirtualFileSystemSpecificationTests
         foreach (var path in Directory.EnumerateFiles(_storage.Root, "*", SearchOption.AllDirectories))
         {
             await using var stream = File.OpenRead(path);
-            await fs.WriteFileAsync(path[_storage.Root.Length..], stream, overwrite: true);
+            await fs.WriteAsync(path[_storage.Root.Length..], stream, overwrite: true);
         }
     }
 
