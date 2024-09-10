@@ -53,10 +53,10 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         static async Task CompareFilesAsync(VirtualFile virtualFile, FileInfo localFile)
         {
-            var vc = await ReadAllTextAsync(await virtualFile.OpenReadAsync());
-            var lc = await ReadAllTextAsync(localFile.OpenRead());
-
-            Assert.That(vc, Is.EqualTo(lc), virtualFile.FullName);
+            Assert.That(
+                await virtualFile.ReadAllTextAsync(),
+                Is.EqualTo(await File.ReadAllTextAsync(localFile.FullName)),
+                virtualFile.FullName);
         }
     }
 
@@ -198,7 +198,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             }
 
             Assert.That(
-                await ReadAllTextAsync(await file.OpenReadAsync()),
+                await file.ReadAllTextAsync(),
                 Is.EqualTo(content));
         }
     }
@@ -221,7 +221,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         }
 
         Assert.That(
-            await ReadAllTextAsync(await fs.OpenReadAsync(name)),
+            await fs.ReadAllTextAsync(name),
             Is.EqualTo(content));
 
         await fs.DeleteFileAsync(name);
@@ -254,7 +254,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             await file.WriteAsync(ms, overwrite: true);
 
             Assert.That(
-                await ReadAllTextAsync(await file.OpenReadAsync()),
+                await file.ReadAllTextAsync(),
                 Is.EqualTo(content));
         }
     }
@@ -273,14 +273,14 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         await foreach (var file in fs.GetAllFilesRecursively("/"))
         {
-            var current = await ReadAllTextAsync(await file.OpenReadAsync());
+            var current = await file.ReadAllTextAsync();
 
             Assert.That(
                 () => file.WriteAsync(new MemoryStream(), overwrite: false),
                 Throws.Exception);
 
             Assert.That(
-                await ReadAllTextAsync(await file.OpenReadAsync()),
+                await file.ReadAllTextAsync(),
                 Is.EqualTo(current));
         }
     }
@@ -306,12 +306,11 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         await file.WriteAsync(ms);
 
         Assert.That(await file.ExistsAsync(), Is.True);
-        Assert.That(await ReadAllTextAsync(await file.OpenReadAsync()), Is.EqualTo(content));
+        Assert.That(await file.ReadAllTextAsync(), Is.EqualTo(content));
 
         await file.DeleteAsync();
 
         Assert.That(await file.ExistsAsync(), Is.False);
-
     }
 
     [Test]
@@ -467,8 +466,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         Assert.That(await fs.FileExistsAsync(destinationPath), Is.True);
 
         Assert.That(
-            await ReadAllTextAsync(fs.GetFile(destinationPath)),
-            Is.EqualTo(await ReadAllTextAsync(file)));
+            await fs.GetFile(destinationPath).ReadAllTextAsync(),
+            Is.EqualTo(await file.ReadAllTextAsync()));
 
         await fs.DeleteFileAsync(destinationPath);
         Assert.That(await fs.FileExistsAsync(destinationPath), Is.False);
@@ -509,8 +508,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         Assert.That(await destination.ExistsAsync(), Is.True);
         Assert.That(
-            await ReadAllTextAsync(destination),
-            Is.EqualTo(await ReadAllTextAsync(file)));
+            await destination.ReadAllTextAsync(),
+            Is.EqualTo(await file.ReadAllTextAsync()));
 
         await destination.DeleteAsync();
         Assert.That(await destination.ExistsAsync(), Is.False);
@@ -534,8 +533,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         Assert.That(await destination.ExistsAsync(), Is.True);
         Assert.That(
-            await ReadAllTextAsync(destination),
-            Is.EqualTo(await ReadAllTextAsync(file)));
+            await destination.ReadAllTextAsync(),
+            Is.EqualTo(await file.ReadAllTextAsync()));
 
         await destination.DeleteAsync();
         Assert.That(await destination.ExistsAsync(), Is.False);
@@ -730,18 +729,6 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
     /// A <see cref="DirectoryInfo"/> object that points to the root of the test directory.
     /// </returns>
     protected abstract DirectoryInfo GetDirectoryInfo();
-
-    private static async Task<string> ReadAllTextAsync(VirtualFile file)
-    {
-        using var reader = await file.OpenTextAsync();
-        return await reader.ReadToEndAsync();
-    }
-
-    private static async Task<string> ReadAllTextAsync(Stream stream)
-    {
-        using var reader = new StreamReader(stream);
-        return await reader.ReadToEndAsync();
-    }
 
     private static IEnumerable<string> GetPathsAboveRoot(string path)
     {
