@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Ramstack.FileSystem.Amazon\Ramstack.FileSystem.Amazon.csproj" />
+    <ProjectReference Include="..\..\src\Ramstack.FileSystem.Physical\Ramstack.FileSystem.Physical.csproj" />
     <ProjectReference Include="..\Ramstack.FileSystem.Specification.Tests\Ramstack.FileSystem.Specification.Tests.csproj" />
   </ItemGroup>
 

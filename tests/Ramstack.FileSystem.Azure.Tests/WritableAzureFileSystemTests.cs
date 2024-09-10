@@ -1,3 +1,4 @@
+using Ramstack.FileSystem.Physical;
 using Ramstack.FileSystem.Specification.Tests;
 using Ramstack.FileSystem.Specification.Tests.Utilities;
 
@@ -33,6 +34,60 @@ public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
     }
 
     [Test]
+    public async Task File_CopyTo_File_DifferentFileSystems()
+    {
+        using var fs1 = new PhysicalFileSystem(_storage.Root);
+        using var fs2 = GetFileSystem();
+
+        var source = fs1.GetFile("/0000.txt");
+        var destination = fs2.GetFile("/0000.txt");
+
+        var content = Guid.NewGuid().ToString();
+
+        await using (var stream = await source.OpenWriteAsync())
+        await using (var writer = new StreamWriter(stream))
+            await writer.WriteAsync(content);
+
+        Assert.That(await destination.ExistsAsync(), Is.False);
+
+        await source.CopyToAsync(destination);
+        Assert.That(await destination.ExistsAsync(), Is.True);
+
+        using var reader = await destination.OpenTextAsync();
+        Assert.That(
+            await reader.ReadToEndAsync(),
+            Is.EqualTo(content));
+    }
+
+    [Test]
+    public async Task File_CopyTo_File_DifferentStorages()
+    {
+        using var fs1 = CreateFileSystem("temp-storage");
+        using var fs2 = GetFileSystem();
+
+        await fs1.CreateContainerAsync();
+
+        var source = fs1.GetFile("/0000.txt");
+        var destination = fs2.GetFile("/0000.txt");
+
+        var content = Guid.NewGuid().ToString();
+
+        await using (var stream = await source.OpenWriteAsync())
+        await using (var writer = new StreamWriter(stream))
+            await writer.WriteAsync(content);
+
+        Assert.That(await destination.ExistsAsync(), Is.False);
+
+        await source.CopyToAsync(destination);
+        Assert.That(await destination.ExistsAsync(), Is.True);
+
+        using var reader = await destination.OpenTextAsync();
+        Assert.That(
+            await reader.ReadToEndAsync(),
+            Is.EqualTo(content));
+    }
+
+    [Test]
     public async Task Directory_BatchDeleting()
     {
         // 1. Page size is a maximum of 5000 items.
@@ -56,16 +111,19 @@ public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
             Is.EqualTo(0));
     }
 
-    protected override AzureFileSystem GetFileSystem()
+    protected override AzureFileSystem GetFileSystem() =>
+        CreateFileSystem("storage");
+
+    protected override DirectoryInfo GetDirectoryInfo() =>
+        new DirectoryInfo(_storage.Root);
+
+    private static AzureFileSystem CreateFileSystem(string storageName)
     {
         const string ConnectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;";
 
-        return new AzureFileSystem(ConnectionString, "storage")
+        return new AzureFileSystem(ConnectionString, storageName)
         {
             IsReadOnly = false
         };
     }
-
-    protected override DirectoryInfo GetDirectoryInfo() =>
-        new DirectoryInfo(_storage.Root);
 }
