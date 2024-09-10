@@ -17,7 +17,7 @@ public static partial class VirtualFileSystemExtensions
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The task result is <see langword="true"/> if the file exists; otherwise, <see langword="false"/>.
     /// </returns>
-    public static ValueTask<bool> FileExistsAsync(IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
+    public static ValueTask<bool> FileExistsAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).ExistsAsync(cancellationToken);
 
     /// <summary>
@@ -135,7 +135,7 @@ public static partial class VirtualFileSystemExtensions
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The task result is <see langword="true"/> if the directory exists; otherwise, <see langword="false"/>.
     /// </returns>
-    public static ValueTask<bool> DirectoryExistsAsync(IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
+    public static ValueTask<bool> DirectoryExistsAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
         fs.GetDirectory(path).ExistsAsync(cancellationToken);
 
     /// <summary>
