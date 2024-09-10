@@ -452,6 +452,134 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
     }
 
     [Test]
+    public async Task File_CopyTo_Path()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var file = await fs.GetAllFilesRecursively("/").FirstAsync();
+        var destinationPath = file.FullName + ".copy";
+
+        Assert.That(await fs.FileExistsAsync(destinationPath), Is.False);
+
+        await file.CopyToAsync(destinationPath);
+        Assert.That(await fs.FileExistsAsync(destinationPath), Is.True);
+
+        Assert.That(
+            await ReadAllTextAsync(fs.GetFile(destinationPath)),
+            Is.EqualTo(await ReadAllTextAsync(file)));
+
+        await fs.DeleteFileAsync(destinationPath);
+        Assert.That(await fs.FileExistsAsync(destinationPath), Is.False);
+    }
+
+    [Test]
+    public async Task File_CopyTo_Path_NoOverwrite_ThrowsException()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var file = await fs.GetAllFilesRecursively("/").FirstAsync();
+        var destinationPath = file.FullName + ".copy";
+
+        await file.CopyToAsync(destinationPath);
+
+        Assert.That(await fs.FileExistsAsync(destinationPath), Is.True);
+        Assert.That(() => file.CopyToAsync(destinationPath), Throws.Exception);
+
+        await fs.DeleteFileAsync(destinationPath);
+        Assert.That(await fs.FileExistsAsync(destinationPath), Is.False);
+    }
+
+    [Test]
+    public async Task File_CopyTo_File()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var file = await fs.GetAllFilesRecursively("/").FirstAsync();
+        var destination = fs.GetFile(file.FullName + ".copy");
+
+        Assert.That(await destination.ExistsAsync(), Is.False);
+
+        await file.CopyToAsync(destination);
+
+        Assert.That(await destination.ExistsAsync(), Is.True);
+        Assert.That(
+            await ReadAllTextAsync(destination),
+            Is.EqualTo(await ReadAllTextAsync(file)));
+
+        await destination.DeleteAsync();
+        Assert.That(await destination.ExistsAsync(), Is.False);
+    }
+
+    [Test]
+    public async Task File_CopyTo_File_NoOverwrite_ThrowsException()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var file = await fs.GetAllFilesRecursively("/").FirstAsync();
+        var destination = fs.GetFile(file.FullName + ".copy");
+
+        Assert.That(await destination.ExistsAsync(), Is.False);
+        await file.CopyToAsync(destination);
+
+        Assert.That(await destination.ExistsAsync(), Is.True);
+        Assert.That(() => file.CopyToAsync(destination), Throws.Exception);
+
+        await file.DeleteAsync();
+        Assert.That(await destination.ExistsAsync(), Is.False);
+    }
+
+    [Test]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
+    public async Task File_CopyTo_ThrowsException_When_CopyingToItself()
+    {
+        using var fs1 = GetFileSystem();
+        using var fs2 = GetFileSystem();
+
+        if (fs1.IsReadOnly)
+            return;
+
+        var file = await fs1.GetAllFilesRecursively("/").FirstAsync();
+        Assert.That(() => file.CopyToAsync(file.FullName), Throws.Exception);
+        Assert.That(() => file.CopyToAsync(file), Throws.Exception);
+        Assert.That(() => file.CopyToAsync(fs1.GetFile(file.FullName)), Throws.Exception);
+        Assert.That(() => file.CopyToAsync(fs2.GetFile(file.FullName)), Throws.Exception);
+    }
+
+    [Test]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
+    public void File_CopyTo_ThrowException_For_NonExistingFile()
+    {
+        using var fs = GetFileSystem();
+
+        if (fs.IsReadOnly)
+            return;
+
+        Assert.That(() => fs.CopyFileAsync($"/{Guid.NewGuid()}", "/test.txt"), Throws.Exception);
+        Assert.That(() => fs.CopyFileAsync($"{safePath}/{Guid.NewGuid()}", $"/{safePath}/test.txt"), Throws.Exception);
+    }
+
+    [Test]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
+    public async Task File_Readonly_CopyTo_ThrowException_For_NonExistingFile()
+    {
+        using var fs = GetFileSystem();
+
+        if (!fs.IsReadOnly)
+            return;
+
+        var file = await fs.GetAllFilesRecursively("/").FirstAsync();
+        Assert.That(() => file.CopyToAsync(file.FullName + ".copy"), Throws.Exception);
+    }
+
+    [Test]
     public async Task Directory_Enumerate_ReturnsEmpty_For_NonExistingDirectory()
     {
         using var fs = GetFileSystem();
@@ -577,6 +705,12 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
     /// A <see cref="DirectoryInfo"/> object that points to the root of the test directory.
     /// </returns>
     protected abstract DirectoryInfo GetDirectoryInfo();
+
+    private static async Task<string> ReadAllTextAsync(VirtualFile file)
+    {
+        using var reader = await file.OpenTextAsync();
+        return await reader.ReadToEndAsync();
+    }
 
     private static async Task<string> ReadAllTextAsync(Stream stream)
     {
