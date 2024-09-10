@@ -656,6 +656,70 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
     }
 
     [Test]
+    public async Task File_WriteAllBytes()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var bytes = new byte[1024 * 1024];
+        Random.Shared.NextBytes(bytes);
+
+        var path = $"{safePath}/{Guid.NewGuid()}";
+        await fs.WriteAllBytesAsync(path, bytes);
+
+        Assert.That(
+            await fs.ReadAllBytesAsync(path),
+            Is.EqualTo(bytes));
+
+        await fs.DeleteFileAsync(path);
+    }
+
+    [Test]
+    public async Task File_WriteAllText()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var list = new List<string>();
+        for (var i = 0; i < 102400; i++)
+            list.Add(Guid.NewGuid().ToString());
+
+        var contents = string.Join(Environment.NewLine, list);
+
+        var path = $"{safePath}/{Guid.NewGuid()}";
+        await fs.WriteAllTextAsync(path, contents);
+
+        Assert.That(
+            await fs.ReadAllTextAsync(path),
+            Is.EqualTo(contents));
+
+        await fs.DeleteFileAsync(path);
+    }
+
+    [Test]
+    public async Task File_WriteAllLines()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var list = new List<string>();
+        for (var i = 0; i < 102400; i++)
+            list.Add(Guid.NewGuid().ToString());
+
+        var path = $"{safePath}/{Guid.NewGuid()}";
+        await fs.WriteAllLinesAsync(path, list);
+
+        Assert.That(
+            await fs.ReadAllLinesAsync(path),
+            Is.EqualTo(list));
+
+        await fs.DeleteFileAsync(path);
+    }
+
+    [Test]
     public async Task Directory_Enumerate_ReturnsEmpty_For_NonExistingDirectory()
     {
         using var fs = GetFileSystem();
