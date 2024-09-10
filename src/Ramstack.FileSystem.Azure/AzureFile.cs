@@ -95,7 +95,7 @@ internal sealed class AzureFile : VirtualFile
     }
 
     /// <inheritdoc />
-    protected override ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
+    protected override ValueTask CopyToCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
     {
         var source = GetBlobClient();
         var destination = _fs.CreateBlobClient(destinationPath);

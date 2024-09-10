@@ -117,14 +117,14 @@ public abstract class VirtualFile : VirtualNode
     ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
     /// </list>
     /// </remarks>
-    public ValueTask CopyAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken = default)
+    public ValueTask CopyToAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken = default)
     {
         EnsureWritable();
 
         var path = VirtualPath.GetFullPath(destinationPath);
         EnsureDistinctTargets(FullName, path);
 
-        return CopyCoreAsync(path, overwrite, cancellationToken);
+        return CopyToCoreAsync(destinationPath, overwrite, cancellationToken);
     }
 
     /// <summary>
@@ -154,7 +154,7 @@ public abstract class VirtualFile : VirtualNode
 
         EnsureDistinctTargets(FullName, destination.FullName);
 
-        return CopyCoreAsync(destination.FullName, overwrite, cancellationToken);
+        return CopyToCoreAsync(destination.FullName, overwrite, cancellationToken);
     }
 
     /// <summary>
@@ -221,7 +221,7 @@ public abstract class VirtualFile : VirtualNode
     ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
     /// </list>
     /// </remarks>
-    protected virtual async ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
+    protected virtual async ValueTask CopyToCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
     {
         await using var source = await OpenReadAsync(cancellationToken).ConfigureAwait(false);
         await FileSystem.WriteFileAsync(destinationPath, source, overwrite, cancellationToken).ConfigureAwait(false);

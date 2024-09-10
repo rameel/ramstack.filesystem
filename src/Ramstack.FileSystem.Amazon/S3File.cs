@@ -105,7 +105,7 @@ internal sealed class S3File : VirtualFile
     }
 
     /// <inheritdoc />
-    protected override ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken) =>
+    protected override ValueTask CopyToCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken) =>
         CopyObjectAsync(_fs.BucketName, _key, _fs.BucketName, destinationPath[1..], overwrite, cancellationToken);
 
     /// <inheritdoc />

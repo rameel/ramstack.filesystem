@@ -102,7 +102,7 @@ public static partial class VirtualFileSystemExtensions
     /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
     /// </returns>
     public static ValueTask CopyFileAsync(this IVirtualFileSystem fs, string path, string destinationPath, CancellationToken cancellationToken = default) =>
-        fs.GetFile(path).CopyAsync(destinationPath, overwrite: false, cancellationToken);
+        fs.GetFile(path).CopyToAsync(destinationPath, overwrite: false, cancellationToken);
 
     /// <summary>
     /// Asynchronously copies a file within the file system to the specified destination path.
@@ -123,7 +123,7 @@ public static partial class VirtualFileSystemExtensions
     /// </list>
     /// </remarks>
     public static ValueTask CopyFileAsync(this IVirtualFileSystem fs, string path, string destinationPath, bool overwrite, CancellationToken cancellationToken = default) =>
-        fs.GetFile(path).CopyAsync(destinationPath, overwrite, cancellationToken);
+        fs.GetFile(path).CopyToAsync(destinationPath, overwrite, cancellationToken);
 
     /// <summary>
     /// Asynchronously determines whether the directory exists.

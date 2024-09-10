@@ -58,8 +58,8 @@ public static class VirtualFileExtensions
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
-    public static ValueTask CopyAsync(this VirtualFile file, string destinationPath, CancellationToken cancellationToken = default) =>
-        file.CopyAsync(destinationPath, overwrite: false, cancellationToken);
+    public static ValueTask CopyToAsync(this VirtualFile file, string destinationPath, CancellationToken cancellationToken = default) =>
+        file.CopyToAsync(destinationPath, overwrite: false, cancellationToken);
 
     /// <summary>
     /// Asynchronously copies the contents of the current <see cref="VirtualFile"/> to the specified destination <see cref="VirtualFile"/>.
