@@ -45,6 +45,73 @@ public static partial class VirtualFileSystemExtensions
         fs.GetFile(path).OpenWriteAsync(cancellationToken);
 
     /// <summary>
+    /// Asynchronously reads all the text in the file with the specified encoding.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file from which to read the entire text content.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
+    /// containing the full text from the current file.
+    /// </returns>
+    public static ValueTask<string> ReadAllTextAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).ReadAllTextAsync(cancellationToken);
+
+    /// <summary>
+    /// Asynchronously reads all the text in the file with the specified encoding.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file from which to read the entire text content.</param>
+    /// <param name="encoding">The encoding applied to the contents.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
+    /// containing the full text from the current file.
+    /// </returns>
+    public static ValueTask<string> ReadAllTextAsync(this IVirtualFileSystem fs, string path, Encoding encoding, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).ReadAllTextAsync(encoding, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously reads all lines of the file with the specified encoding.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to read from.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
+    /// containing an array of all lines in the current file.
+    /// </returns>
+    public static ValueTask<string[]> ReadAllLinesAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).ReadAllLinesAsync(cancellationToken);
+
+    /// <summary>
+    /// Asynchronously reads all lines of the file with the specified encoding.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to read from.</param>
+    /// <param name="encoding">The encoding applied to the contents.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
+    /// containing an array of all lines in the current file.
+    /// </returns>
+    public static ValueTask<string[]> ReadAllLinesAsync(this IVirtualFileSystem fs, string path, Encoding encoding, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).ReadAllLinesAsync(encoding, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously reads the entire contents of the specified file into a byte array.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The file to read from.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
+    /// containing an array of the file's bytes.
+    /// </returns>
+    public static ValueTask<byte[]> ReadAllBytesAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).ReadAllBytesAsync(cancellationToken);
+
+    /// <summary>
     /// Asynchronously writes the specified content to a file at the specified path. If the file exists, an exception will be thrown.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
