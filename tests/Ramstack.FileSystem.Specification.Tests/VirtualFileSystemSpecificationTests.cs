@@ -557,7 +557,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         Assert.That(await destination.ExistsAsync(), Is.True);
         Assert.That(() => file.CopyToAsync(destination), Throws.Exception);
 
-        await file.DeleteAsync();
+        await destination.DeleteAsync();
         Assert.That(await destination.ExistsAsync(), Is.False);
     }
 
