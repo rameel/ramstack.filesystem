@@ -8,6 +8,7 @@ namespace Ramstack.FileSystem.Azure;
 [Category("Cloud:Azure")]
 public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
 {
+    private readonly HashSet<string> _list = [];
     private readonly TempFileStorage _storage = new TempFileStorage();
 
     [OneTimeSetUp]
@@ -29,8 +30,19 @@ public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
     {
         _storage.Dispose();
 
-        using var fs = GetFileSystem();
-        await fs.DeleteDirectoryAsync("/");
+        foreach (var name in _list.ToArray())
+        {
+            using var fs = CreateFileSystem(name);
+
+            try
+            {
+                await fs.DeleteDirectoryAsync("/");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+        }
     }
 
     [Test]
@@ -67,8 +79,8 @@ public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
 
         await fs1.CreateContainerAsync();
 
-        var source = fs1.GetFile("/0000.txt");
-        var destination = fs2.GetFile("/0000.txt");
+        var source = fs1.GetFile("/1111.txt");
+        var destination = fs2.GetFile("/1111.txt");
 
         var content = Guid.NewGuid().ToString();
 
@@ -117,8 +129,10 @@ public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
     protected override DirectoryInfo GetDirectoryInfo() =>
         new DirectoryInfo(_storage.Root);
 
-    private static AzureFileSystem CreateFileSystem(string storageName)
+    private AzureFileSystem CreateFileSystem(string storageName)
     {
+        _list.Add(storageName);
+
         const string ConnectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;";
 
         return new AzureFileSystem(ConnectionString, storageName)

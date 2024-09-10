@@ -12,6 +12,7 @@ namespace Ramstack.FileSystem.Amazon;
 [Category("Cloud:Amazon")]
 public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 {
+    private readonly HashSet<string> _list = [];
     private readonly TempFileStorage _storage = new TempFileStorage();
 
     [OneTimeSetUp]
@@ -32,8 +33,19 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     {
         _storage.Dispose();
 
-        using var fs = GetFileSystem();
-        await fs.DeleteDirectoryAsync("/");
+        foreach (var name in _list.ToArray())
+        {
+            using var fs = CreateFileSystem(name);
+
+            try
+            {
+                await fs.DeleteDirectoryAsync("/");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+        }
     }
 
     [Test]
@@ -122,8 +134,8 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 
         await fs1.CreateBucketAsync();
 
-        var source = fs1.GetFile("/0000.txt");
-        var destination = fs2.GetFile("/0000.txt");
+        var source = fs1.GetFile("/1111.txt");
+        var destination = fs2.GetFile("/1111.txt");
 
         var content = Guid.NewGuid().ToString();
 
@@ -174,8 +186,10 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     protected override DirectoryInfo GetDirectoryInfo() =>
         new DirectoryInfo(_storage.Root);
 
-    private static AmazonS3FileSystem CreateFileSystem(string storageName)
+    private AmazonS3FileSystem CreateFileSystem(string storageName)
     {
+        _list.Add(storageName);
+
         return new AmazonS3FileSystem(
             new BasicAWSCredentials("minioadmin", "minioadmin"),
             new AmazonS3Config
