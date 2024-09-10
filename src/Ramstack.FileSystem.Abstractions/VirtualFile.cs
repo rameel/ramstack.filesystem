@@ -121,8 +121,8 @@ public abstract class VirtualFile : VirtualNode
     {
         EnsureWritable();
 
-        var path = VirtualPath.GetFullPath(destinationPath);
-        EnsureDistinctTargets(FullName, path);
+        destinationPath = VirtualPath.GetFullPath(destinationPath);
+        EnsureDistinctTargets(FullName, destinationPath);
 
         return CopyToCoreAsync(destinationPath, overwrite, cancellationToken);
     }
@@ -146,14 +146,12 @@ public abstract class VirtualFile : VirtualNode
     public ValueTask CopyToAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken = default)
     {
         EnsureWritable();
-
         destination.Refresh();
 
         if (destination.FileSystem != FileSystem)
             return CopyToCoreAsync(destination, overwrite, cancellationToken);
 
         EnsureDistinctTargets(FullName, destination.FullName);
-
         return CopyToCoreAsync(destination.FullName, overwrite, cancellationToken);
     }
 

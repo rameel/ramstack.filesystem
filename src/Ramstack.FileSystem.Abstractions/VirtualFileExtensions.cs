@@ -82,6 +82,9 @@ public static class VirtualFileExtensions
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The result is the size of the specified file in bytes, or <c>-1</c> if the file does not exist.
     /// </returns>
-    public static async ValueTask<long> GetLengthAsync(this VirtualFile file, CancellationToken cancellationToken = default) =>
-        (await file.GetPropertiesAsync(cancellationToken).ConfigureAwait(false)).Length;
+    public static async ValueTask<long> GetLengthAsync(this VirtualFile file, CancellationToken cancellationToken = default)
+    {
+        var properties = await file.GetPropertiesAsync(cancellationToken).ConfigureAwait(false);
+        return properties.Length;
+    }
 }
