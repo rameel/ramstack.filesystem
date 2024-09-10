@@ -494,7 +494,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
     }
 
     [Test]
-    public async Task File_CopyTo_File()
+    public async Task File_CopyTo_File_SameFileSystems()
     {
         using var fs = GetFileSystem();
         if (fs.IsReadOnly)
@@ -502,6 +502,31 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         var file = await fs.GetAllFilesRecursively("/").FirstAsync();
         var destination = fs.GetFile(file.FullName + ".copy");
+
+        Assert.That(await destination.ExistsAsync(), Is.False);
+
+        await file.CopyToAsync(destination);
+
+        Assert.That(await destination.ExistsAsync(), Is.True);
+        Assert.That(
+            await ReadAllTextAsync(destination),
+            Is.EqualTo(await ReadAllTextAsync(file)));
+
+        await destination.DeleteAsync();
+        Assert.That(await destination.ExistsAsync(), Is.False);
+    }
+
+    [Test]
+    public async Task File_CopyTo_File_NotSameFileSystems()
+    {
+        using var fs1 = GetFileSystem();
+        using var fs2 = GetFileSystem();
+
+        if (fs1.IsReadOnly)
+            return;
+
+        var file = await fs1.GetAllFilesRecursively("/").FirstAsync();
+        var destination = fs2.GetFile(file.FullName + ".copy");
 
         Assert.That(await destination.ExistsAsync(), Is.False);
 
