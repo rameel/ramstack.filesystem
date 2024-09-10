@@ -113,43 +113,49 @@ public class VirtualPathTests
     public bool IsFullyNormalized(string path) =>
         VirtualPath.IsFullyNormalized(path);
 
-    [TestCase("", ExpectedResult = "/")]
-    [TestCase(".", ExpectedResult = "/")]
-    [TestCase(".", ExpectedResult = "/")]
-    [TestCase("/home/", ExpectedResult = "/home")]
-    [TestCase("/home/..folder1/.folder2/file", ExpectedResult = "/home/..folder1/.folder2/file")]
-    [TestCase("/home/././", ExpectedResult = "/home")]
-    [TestCase("/././././/home/user/documents", ExpectedResult = "/home/user/documents")]
-    [TestCase("/home/./user/./././/documents", ExpectedResult = "/home/user/documents")]
-    [TestCase("/home/../home/user//documents", ExpectedResult = "/home/user/documents")]
-    [TestCase("/home/../home/user/../../home/config/documents", ExpectedResult = "/home/config/documents")]
-    [TestCase("/home/../home/user/./.././.././home/config/documents", ExpectedResult = "/home/config/documents")]
-    public string GetFullPath(string path) =>
-        VirtualPath.GetFullPath(path);
+    [TestCase("", "/")]
+    [TestCase(".", "/")]
+    [TestCase(".", "/")]
+    [TestCase("/home/", "/home")]
+    [TestCase("/home/..folder1/.folder2/file", "/home/..folder1/.folder2/file")]
+    [TestCase("/home/././", "/home")]
+    [TestCase("/././././/home/user/documents", "/home/user/documents")]
+    [TestCase("/home/./user/./././/documents", "/home/user/documents")]
+    [TestCase("/home/../home/user//documents", "/home/user/documents")]
+    [TestCase("/home/../home/user/../../home/config/documents", "/home/config/documents")]
+    [TestCase("/home/../home/user/./.././.././home/config/documents", "/home/config/documents")]
+    public void GetFullPath(string path, string expected)
+    {
+        foreach (var p in GetPathVariations(path))
+            Assert.That(VirtualPath.GetFullPath(p),Is.EqualTo(expected));
+    }
 
     [TestCase("..")]
     [TestCase("/home/../..")]
     public void GetFullPath_Error(string path) =>
         Assert.Throws<ArgumentException>(() => VirtualPath.GetFullPath(path));
 
-    [TestCase("/home/user/documents", ExpectedResult = false)]
-    [TestCase("/././././home/user/documents", ExpectedResult = false)]
-    [TestCase("/home/../documents", ExpectedResult = false)]
-    [TestCase("/home/.././././././documents", ExpectedResult = false)]
-    [TestCase("/home/../../documents", ExpectedResult = true)]
-    [TestCase("/home/../..", ExpectedResult = true)]
-    [TestCase("/../documents", ExpectedResult = true)]
-    [TestCase("/home/user/documents/..", ExpectedResult = false)]
-    [TestCase("/home/user/documents/../..", ExpectedResult = false)]
-    [TestCase("/home/user/documents/../../..", ExpectedResult = false)]
-    [TestCase("/home/user/documents/../../../..", ExpectedResult = true)]
-    [TestCase("//home//user//documents//..//..////..///..", ExpectedResult = true)]
-    [TestCase("/..", ExpectedResult = true)]
-    [TestCase("/../", ExpectedResult = true)]
-    [TestCase("/", ExpectedResult = false)]
-    [TestCase("", ExpectedResult = false)]
-    public bool IsNavigatesAboveRoot(string path) =>
-        VirtualPath.IsNavigatesAboveRoot(path);
+    [TestCase("/home/user/documents", false)]
+    [TestCase("/././././home/user/documents", false)]
+    [TestCase("/home/../documents", false)]
+    [TestCase("/home/.././././././documents", false)]
+    [TestCase("/home/../../documents", true)]
+    [TestCase("/home/../..", true)]
+    [TestCase("/../documents", true)]
+    [TestCase("/home/user/documents/..", false)]
+    [TestCase("/home/user/documents/../..", false)]
+    [TestCase("/home/user/documents/../../..", false)]
+    [TestCase("/home/user/documents/../../../..", true)]
+    [TestCase("//home//user//documents//..//..////..///..", true)]
+    [TestCase("/..", true)]
+    [TestCase("/../", true)]
+    [TestCase("/", false)]
+    [TestCase("", false)]
+    public void IsNavigatesAboveRoot(string path, bool expected)
+    {
+        foreach (var p in GetPathVariations(path))
+            Assert.That(VirtualPath.IsNavigatesAboveRoot(p), Is.EqualTo(expected));
+    }
 
     [TestCase("", ExpectedResult = "/")]
     [TestCase("/", ExpectedResult = "/")]

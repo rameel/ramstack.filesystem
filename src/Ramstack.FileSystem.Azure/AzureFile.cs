@@ -95,7 +95,7 @@ internal sealed class AzureFile : VirtualFile
     }
 
     /// <inheritdoc />
-    protected override ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
+    protected override ValueTask CopyToCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
     {
         var source = GetBlobClient();
         var destination = _fs.CreateBlobClient(destinationPath);
@@ -105,11 +105,10 @@ internal sealed class AzureFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask CopyToCoreAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken)
     {
-        return destination switch
-        {
-            AzureFile destinationFile => CopyBlobAsync(GetBlobClient(), destinationFile.GetBlobClient(), overwrite, cancellationToken),
-            _ => base.CopyToCoreAsync(destination, overwrite, cancellationToken)
-        };
+        if (destination is AzureFile file)
+            return CopyBlobAsync(GetBlobClient(), file.GetBlobClient(), overwrite, cancellationToken);
+
+        return base.CopyToCoreAsync(destination, overwrite, cancellationToken);
     }
 
     /// <summary>
@@ -122,8 +121,11 @@ internal sealed class AzureFile : VirtualFile
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
-    private static async ValueTask CopyBlobAsync(BlobClient source, BlobClient destination, bool overwrite, CancellationToken cancellationToken)
+    private async ValueTask CopyBlobAsync(BlobClient source, BlobClient destination, bool overwrite, CancellationToken cancellationToken)
     {
+        if (source.Uri == destination.Uri)
+            throw new IOException($"Cannot copy a file '{FullName}' to itself.");
+
         var conditions = !overwrite
             ? new BlobRequestConditions { IfNoneMatch = new ETag("*") }
             : null;

@@ -53,10 +53,10 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         static async Task CompareFilesAsync(VirtualFile virtualFile, FileInfo localFile)
         {
-            var vc = await ReadAllTextAsync(await virtualFile.OpenReadAsync());
-            var lc = await ReadAllTextAsync(localFile.OpenRead());
-
-            Assert.That(vc, Is.EqualTo(lc), virtualFile.FullName);
+            Assert.That(
+                await virtualFile.ReadAllTextAsync(),
+                Is.EqualTo(await File.ReadAllTextAsync(localFile.FullName)),
+                virtualFile.FullName);
         }
     }
 
@@ -129,8 +129,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
                 ? node.FileSystem.GetFile(node.FullName)
                 : node.FileSystem.GetDirectory(node.FullName);
 
-            Assert.That(await node.ExistsAsync());
-            Assert.That(await byPath.ExistsAsync());
+            Assert.That(await node.ExistsAsync(), Is.True);
+            Assert.That(await byPath.ExistsAsync(), Is.True);
         }
     }
 
@@ -198,7 +198,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             }
 
             Assert.That(
-                await ReadAllTextAsync(await file.OpenReadAsync()),
+                await file.ReadAllTextAsync(),
                 Is.EqualTo(content));
         }
     }
@@ -221,7 +221,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         }
 
         Assert.That(
-            await ReadAllTextAsync(await fs.OpenReadAsync(name)),
+            await fs.ReadAllTextAsync(name),
             Is.EqualTo(content));
 
         await fs.DeleteFileAsync(name);
@@ -254,7 +254,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             await file.WriteAsync(ms, overwrite: true);
 
             Assert.That(
-                await ReadAllTextAsync(await file.OpenReadAsync()),
+                await file.ReadAllTextAsync(),
                 Is.EqualTo(content));
         }
     }
@@ -273,14 +273,14 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         await foreach (var file in fs.GetAllFilesRecursively("/"))
         {
-            var current = await ReadAllTextAsync(await file.OpenReadAsync());
+            var current = await file.ReadAllTextAsync();
 
             Assert.That(
                 () => file.WriteAsync(new MemoryStream(), overwrite: false),
                 Throws.Exception);
 
             Assert.That(
-                await ReadAllTextAsync(await file.OpenReadAsync()),
+                await file.ReadAllTextAsync(),
                 Is.EqualTo(current));
         }
     }
@@ -306,12 +306,11 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         await file.WriteAsync(ms);
 
         Assert.That(await file.ExistsAsync(), Is.True);
-        Assert.That(await ReadAllTextAsync(await file.OpenReadAsync()), Is.EqualTo(content));
+        Assert.That(await file.ReadAllTextAsync(), Is.EqualTo(content));
 
         await file.DeleteAsync();
 
         Assert.That(await file.ExistsAsync(), Is.False);
-
     }
 
     [Test]
@@ -418,8 +417,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         if (!fs.IsReadOnly)
             return;
 
-        Assert.That(() => fs.WriteFileAsync($"/{Guid.NewGuid()}", new MemoryStream()), Throws.Exception);
-        Assert.That(() => fs.WriteFileAsync($"{safePath}/{Guid.NewGuid()}", new MemoryStream()), Throws.Exception);
+        Assert.That(() => fs.WriteAsync($"/{Guid.NewGuid()}", new MemoryStream()), Throws.Exception);
+        Assert.That(() => fs.WriteAsync($"{safePath}/{Guid.NewGuid()}", new MemoryStream()), Throws.Exception);
     }
 
     [Test]
@@ -449,6 +448,275 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         Assert.That(() => fs.DeleteFileAsync($"/{Guid.NewGuid()}"), Throws.Exception);
         Assert.That(() => fs.DeleteFileAsync($"{safePath}/{Guid.NewGuid()}"), Throws.Exception);
+    }
+
+    [Test]
+    public async Task File_CopyTo_Path()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var file = await fs.GetAllFilesRecursively("/").FirstAsync();
+        var destinationPath = file.FullName + ".copy";
+
+        Assert.That(await fs.FileExistsAsync(destinationPath), Is.False);
+
+        await file.CopyToAsync(destinationPath);
+        Assert.That(await fs.FileExistsAsync(destinationPath), Is.True);
+
+        Assert.That(
+            await fs.GetFile(destinationPath).ReadAllTextAsync(),
+            Is.EqualTo(await file.ReadAllTextAsync()));
+
+        await fs.DeleteFileAsync(destinationPath);
+        Assert.That(await fs.FileExistsAsync(destinationPath), Is.False);
+    }
+
+    [Test]
+    public async Task File_CopyTo_Path_NoOverwrite_ThrowsException()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var file = await fs.GetAllFilesRecursively("/").FirstAsync();
+        var destinationPath = file.FullName + ".copy";
+
+        await file.CopyToAsync(destinationPath);
+
+        Assert.That(await fs.FileExistsAsync(destinationPath), Is.True);
+        Assert.That(() => file.CopyToAsync(destinationPath), Throws.Exception);
+
+        await fs.DeleteFileAsync(destinationPath);
+        Assert.That(await fs.FileExistsAsync(destinationPath), Is.False);
+    }
+
+    [Test]
+    public async Task File_CopyTo_File_SameFileSystems()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var file = await fs.GetAllFilesRecursively("/").FirstAsync();
+        var destination = fs.GetFile(file.FullName + ".copy");
+
+        Assert.That(await destination.ExistsAsync(), Is.False);
+
+        await file.CopyToAsync(destination);
+
+        Assert.That(await destination.ExistsAsync(), Is.True);
+        Assert.That(
+            await destination.ReadAllTextAsync(),
+            Is.EqualTo(await file.ReadAllTextAsync()));
+
+        await destination.DeleteAsync();
+        Assert.That(await destination.ExistsAsync(), Is.False);
+    }
+
+    [Test]
+    public async Task File_CopyTo_File_NotSameFileSystems()
+    {
+        using var fs1 = GetFileSystem();
+        using var fs2 = GetFileSystem();
+
+        if (fs1.IsReadOnly)
+            return;
+
+        var file = await fs1.GetAllFilesRecursively("/").FirstAsync();
+        var destination = fs2.GetFile(file.FullName + ".copy");
+
+        Assert.That(await destination.ExistsAsync(), Is.False);
+
+        await file.CopyToAsync(destination);
+
+        Assert.That(await destination.ExistsAsync(), Is.True);
+        Assert.That(
+            await destination.ReadAllTextAsync(),
+            Is.EqualTo(await file.ReadAllTextAsync()));
+
+        await destination.DeleteAsync();
+        Assert.That(await destination.ExistsAsync(), Is.False);
+    }
+
+    [Test]
+    public async Task File_CopyTo_File_NoOverwrite_ThrowsException()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var file = await fs.GetAllFilesRecursively("/").FirstAsync();
+        var destination = fs.GetFile(file.FullName + ".copy");
+
+        Assert.That(await destination.ExistsAsync(), Is.False);
+        await file.CopyToAsync(destination);
+
+        Assert.That(await destination.ExistsAsync(), Is.True);
+        Assert.That(() => file.CopyToAsync(destination), Throws.Exception);
+
+        await destination.DeleteAsync();
+        Assert.That(await destination.ExistsAsync(), Is.False);
+    }
+
+    [Test]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
+    public async Task File_CopyTo_ThrowsException_When_CopyingToItself()
+    {
+        using var fs1 = GetFileSystem();
+        using var fs2 = GetFileSystem();
+
+        if (fs1.IsReadOnly)
+            return;
+
+        var file = await fs1.GetAllFilesRecursively("/").FirstAsync();
+        Assert.That(() => file.CopyToAsync(file.FullName), Throws.Exception);
+        Assert.That(() => file.CopyToAsync(file), Throws.Exception);
+        Assert.That(() => file.CopyToAsync(fs1.GetFile(file.FullName)), Throws.Exception);
+        Assert.That(() => file.CopyToAsync(fs2.GetFile(file.FullName)), Throws.Exception);
+    }
+
+    [Test]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
+    public void File_CopyTo_ThrowException_For_NonExistingFile()
+    {
+        using var fs = GetFileSystem();
+
+        if (fs.IsReadOnly)
+            return;
+
+        Assert.That(() => fs.CopyFileAsync($"/{Guid.NewGuid()}", "/test.txt"), Throws.Exception);
+        Assert.That(() => fs.CopyFileAsync($"{safePath}/{Guid.NewGuid()}", $"/{safePath}/test.txt"), Throws.Exception);
+    }
+
+    [Test]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
+    public async Task File_Readonly_CopyTo_ThrowException_For_NonExistingFile()
+    {
+        using var fs = GetFileSystem();
+
+        if (!fs.IsReadOnly)
+            return;
+
+        var file = await fs.GetAllFilesRecursively("/").FirstAsync();
+        Assert.That(() => file.CopyToAsync(file.FullName + ".copy"), Throws.Exception);
+    }
+
+    [Test]
+    public async Task File_ReadAllBytes()
+    {
+        using var fs = GetFileSystem();
+
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
+        {
+            var stream = await file.OpenReadAsync();
+            using var reader = new BinaryReader(stream);
+
+            Assert.That(
+                await fs.ReadAllBytesAsync(file.FullName),
+                Is.EqualTo(reader.ReadBytes(4096)));
+        }
+    }
+
+    [Test]
+    public async Task File_ReadAllText()
+    {
+        using var fs = GetFileSystem();
+
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
+        {
+            var stream = await file.OpenReadAsync();
+            using var reader = new StreamReader(stream);
+
+            Assert.That(
+                await fs.ReadAllTextAsync(file.FullName),
+                Is.EqualTo(await reader.ReadToEndAsync()));
+        }
+    }
+
+    [Test]
+    public async Task File_ReadAllLines()
+    {
+        using var fs = GetFileSystem();
+
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
+        {
+            var stream = await file.OpenReadAsync();
+            using var reader = new StreamReader(stream);
+
+            var lines = new List<string>();
+            while (await reader.ReadLineAsync() is {} line)
+                lines.Add(line);
+
+            Assert.That(
+                await fs.ReadAllLinesAsync(file.FullName),
+                Is.EquivalentTo(lines));
+        }
+    }
+
+    [Test]
+    public async Task File_WriteAllBytes()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var bytes = new byte[1024 * 1024];
+        Random.Shared.NextBytes(bytes);
+
+        var path = $"{safePath}/{Guid.NewGuid()}";
+        await fs.WriteAllBytesAsync(path, bytes);
+
+        Assert.That(
+            await fs.ReadAllBytesAsync(path),
+            Is.EqualTo(bytes));
+
+        await fs.DeleteFileAsync(path);
+    }
+
+    [Test]
+    public async Task File_WriteAllText()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var list = new List<string>();
+        for (var i = 0; i < 102400; i++)
+            list.Add(Guid.NewGuid().ToString());
+
+        var contents = string.Join(Environment.NewLine, list);
+
+        var path = $"{safePath}/{Guid.NewGuid()}";
+        await fs.WriteAllTextAsync(path, contents);
+
+        Assert.That(
+            await fs.ReadAllTextAsync(path),
+            Is.EqualTo(contents));
+
+        await fs.DeleteFileAsync(path);
+    }
+
+    [Test]
+    public async Task File_WriteAllLines()
+    {
+        using var fs = GetFileSystem();
+        if (fs.IsReadOnly)
+            return;
+
+        var list = new List<string>();
+        for (var i = 0; i < 102400; i++)
+            list.Add(Guid.NewGuid().ToString());
+
+        var path = $"{safePath}/{Guid.NewGuid()}";
+        await fs.WriteAllLinesAsync(path, list);
+
+        Assert.That(
+            await fs.ReadAllLinesAsync(path),
+            Is.EqualTo(list));
+
+        await fs.DeleteFileAsync(path);
     }
 
     [Test]
@@ -508,8 +776,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         for (var i = 0; i < 10; i++)
         {
-            await fs.WriteFileAsync($"{directory.FullName}/{Guid.NewGuid()}.txt", new MemoryStream());
-            await fs.WriteFileAsync($"{directory.FullName}/{Guid.NewGuid()}/{Guid.NewGuid()}.txt", new MemoryStream());
+            await fs.WriteAsync($"{directory.FullName}/{Guid.NewGuid()}.txt", new MemoryStream());
+            await fs.WriteAsync($"{directory.FullName}/{Guid.NewGuid()}/{Guid.NewGuid()}.txt", new MemoryStream());
         }
 
         Assert.That(
@@ -577,12 +845,6 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
     /// A <see cref="DirectoryInfo"/> object that points to the root of the test directory.
     /// </returns>
     protected abstract DirectoryInfo GetDirectoryInfo();
-
-    private static async Task<string> ReadAllTextAsync(Stream stream)
-    {
-        using var reader = new StreamReader(stream);
-        return await reader.ReadToEndAsync();
-    }
 
     private static IEnumerable<string> GetPathsAboveRoot(string path)
     {

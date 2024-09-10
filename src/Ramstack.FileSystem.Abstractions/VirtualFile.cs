@@ -117,12 +117,42 @@ public abstract class VirtualFile : VirtualNode
     ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
     /// </list>
     /// </remarks>
-    public ValueTask CopyAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken = default)
+    public ValueTask CopyToAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken = default)
     {
         EnsureWritable();
 
         destinationPath = VirtualPath.GetFullPath(destinationPath);
-        return CopyCoreAsync(destinationPath, overwrite, cancellationToken);
+        EnsureDistinctTargets(FullName, destinationPath);
+
+        return CopyToCoreAsync(destinationPath, overwrite, cancellationToken);
+    }
+
+    /// <summary>
+    /// Asynchronously copies the contents of the current <see cref="VirtualFile"/> to the specified destination <see cref="VirtualFile"/>.
+    /// </summary>
+    /// <param name="destination">The destination <see cref="VirtualFile"/> where the contents will be copied to.</param>
+    /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
+    /// </returns>
+    /// <remarks>
+    /// <list type="bullet">
+    ///   <item><description>If the file does not exist, it will be created.</description></item>
+    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
+    /// </list>
+    /// </remarks>
+    public ValueTask CopyToAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken = default)
+    {
+        EnsureWritable();
+        destination.Refresh();
+
+        if (destination.FileSystem != FileSystem)
+            return CopyToCoreAsync(destination, overwrite, cancellationToken);
+
+        EnsureDistinctTargets(FullName, destination.FullName);
+        return CopyToCoreAsync(destination.FullName, overwrite, cancellationToken);
     }
 
     /// <summary>
@@ -189,32 +219,10 @@ public abstract class VirtualFile : VirtualNode
     ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
     /// </list>
     /// </remarks>
-    protected virtual async ValueTask CopyCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
+    protected virtual async ValueTask CopyToCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
     {
         await using var source = await OpenReadAsync(cancellationToken).ConfigureAwait(false);
-        await FileSystem.WriteFileAsync(destinationPath, source, overwrite, cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// Asynchronously copies the contents of the current <see cref="VirtualFile"/> to the specified destination <see cref="VirtualFile"/>.
-    /// </summary>
-    /// <param name="destination">The destination <see cref="VirtualFile"/> where the contents will be copied to.</param>
-    /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
-    /// <returns>
-    /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
-    /// </returns>
-    /// <remarks>
-    /// <list type="bullet">
-    ///   <item><description>If the file does not exist, it will be created.</description></item>
-    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
-    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
-    /// </list>
-    /// </remarks>
-    public ValueTask CopyToAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken = default)
-    {
-        EnsureWritable();
-        return CopyToCoreAsync(destination, overwrite, cancellationToken);
+        await FileSystem.WriteAsync(destinationPath, source, overwrite, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -235,15 +243,27 @@ public abstract class VirtualFile : VirtualNode
     /// </remarks>
     protected virtual async ValueTask CopyToCoreAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken)
     {
-        if (FileSystem == destination.FileSystem)
-        {
-            await CopyAsync(destination.FullName, overwrite, cancellationToken).ConfigureAwait(false);
-            destination.Refresh();
-        }
-        else
-        {
-            await using var stream = await OpenReadAsync(cancellationToken).ConfigureAwait(false);
-            await destination.WriteAsync(stream, overwrite, cancellationToken).ConfigureAwait(false);
-        }
+        await using var stream = await OpenReadAsync(cancellationToken).ConfigureAwait(false);
+        await destination.WriteAsync(stream, overwrite, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Ensures that the source and destination paths are distinct.
+    /// </summary>
+    /// <param name="path">The source file path.</param>
+    /// <param name="destinationPath">The destination file path.</param>
+    /// <remarks>
+    /// Distinct target validation, if the underlying file system is case-insensitive,
+    /// should be handled by the appropriate provider.
+    /// </remarks>
+    private static void EnsureDistinctTargets(string path, string destinationPath)
+    {
+        // Distinct target validation, if the underlying file system is case-insensitive,
+        // should be handled by the appropriate provider.
+        if (path == destinationPath)
+            Error(path);
+
+        static void Error(string path) =>
+            throw new IOException($"Cannot copy a file '{path}' to itself.");
     }
 }

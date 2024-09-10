@@ -2,6 +2,7 @@
 using Amazon.Runtime;
 using Amazon.S3;
 
+using Ramstack.FileSystem.Physical;
 using Ramstack.FileSystem.Specification.Tests;
 using Ramstack.FileSystem.Specification.Tests.Utilities;
 
@@ -11,6 +12,7 @@ namespace Ramstack.FileSystem.Amazon;
 [Category("Cloud:Amazon")]
 public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 {
+    private readonly HashSet<string> _list = [];
     private readonly TempFileStorage _storage = new TempFileStorage();
 
     [OneTimeSetUp]
@@ -22,7 +24,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         foreach (var path in Directory.EnumerateFiles(_storage.Root, "*", SearchOption.AllDirectories))
         {
             await using var stream = File.OpenRead(path);
-            await fs.WriteFileAsync(path[_storage.Root.Length..], stream, overwrite: true);
+            await fs.WriteAsync(path[_storage.Root.Length..], stream, overwrite: true);
         }
     }
 
@@ -31,8 +33,19 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     {
         _storage.Dispose();
 
-        using var fs = GetFileSystem();
-        await fs.DeleteDirectoryAsync("/");
+        foreach (var name in _list.ToArray())
+        {
+            using var fs = CreateFileSystem(name);
+
+            try
+            {
+                await fs.DeleteDirectoryAsync("/");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+        }
     }
 
     [Test]
@@ -88,6 +101,61 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     }
 
     [Test]
+    public async Task File_CopyTo_File_DifferentFileSystems()
+    {
+        using var fs1 = new PhysicalFileSystem(_storage.Root);
+        using var fs2 = GetFileSystem();
+
+        var source = fs1.GetFile("/0000.txt");
+        var destination = fs2.GetFile("/0000.txt");
+
+        var content = Guid.NewGuid().ToString();
+
+        await using (var stream = await source.OpenWriteAsync())
+        await using (var writer = new StreamWriter(stream))
+            await writer.WriteAsync(content);
+
+        Assert.That(await destination.ExistsAsync(), Is.False);
+
+        await source.CopyToAsync(destination);
+        Assert.That(await destination.ExistsAsync(), Is.True);
+
+        using var reader = await destination.OpenTextAsync();
+        Assert.That(
+            await reader.ReadToEndAsync(),
+            Is.EqualTo(content));
+    }
+
+    [Test]
+    public async Task File_CopyTo_File_DifferentStorages()
+    {
+        using var fs1 = CreateFileSystem("temp-storage");
+        using var fs2 = GetFileSystem();
+
+        await fs1.CreateBucketAsync();
+
+        var source = fs1.GetFile("/1111.txt");
+        var destination = fs2.GetFile("/1111.txt");
+
+        var content = Guid.NewGuid().ToString();
+
+        await using (var stream = await source.OpenWriteAsync())
+        await using (var writer = new StreamWriter(stream))
+            await writer.WriteAsync(content);
+
+        Assert.That(await destination.ExistsAsync(), Is.False);
+
+        await source.CopyToAsync(destination);
+        Assert.That(await destination.ExistsAsync(), Is.True);
+
+        using var reader = await destination.OpenTextAsync();
+        Assert.That(
+            await reader.ReadToEndAsync(),
+            Is.EqualTo(content));
+    }
+
+
+    [Test]
     public async Task Directory_BatchDeleting()
     {
         // 1. The maximum list page size is 1000 items.
@@ -99,7 +167,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 
         using var fs = GetFileSystem();
         for (var i = 0; i < Count; i++)
-            await fs.WriteFileAsync($"/temp/{i:0000}", Stream.Null);
+            await fs.WriteAsync($"/temp/{i:0000}", Stream.Null);
 
         Assert.That(
             await fs.GetFilesAsync("/temp").CountAsync(),
@@ -112,8 +180,16 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
             Is.EqualTo(0));
     }
 
-    protected override AmazonS3FileSystem GetFileSystem()
+    protected override AmazonS3FileSystem GetFileSystem() =>
+        CreateFileSystem("storage");
+
+    protected override DirectoryInfo GetDirectoryInfo() =>
+        new DirectoryInfo(_storage.Root);
+
+    private AmazonS3FileSystem CreateFileSystem(string storageName)
     {
+        _list.Add(storageName);
+
         return new AmazonS3FileSystem(
             new BasicAWSCredentials("minioadmin", "minioadmin"),
             new AmazonS3Config
@@ -122,9 +198,6 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
                 ServiceURL = "http://localhost:9000",
                 ForcePathStyle = true
             },
-            bucketName: "storage");
+            bucketName: storageName);
     }
-
-    protected override DirectoryInfo GetDirectoryInfo() =>
-        new DirectoryInfo(_storage.Root);
 }
