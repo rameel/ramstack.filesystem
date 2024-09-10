@@ -129,8 +129,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
                 ? node.FileSystem.GetFile(node.FullName)
                 : node.FileSystem.GetDirectory(node.FullName);
 
-            Assert.That(await node.ExistsAsync());
-            Assert.That(await byPath.ExistsAsync());
+            Assert.That(await node.ExistsAsync(), Is.True);
+            Assert.That(await byPath.ExistsAsync(), Is.True);
         }
     }
 
