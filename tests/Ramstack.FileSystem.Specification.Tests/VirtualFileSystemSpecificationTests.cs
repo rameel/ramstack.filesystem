@@ -604,6 +604,58 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
     }
 
     [Test]
+    public async Task File_ReadAllBytes()
+    {
+        using var fs = GetFileSystem();
+
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
+        {
+            var stream = await file.OpenReadAsync();
+            using var reader = new BinaryReader(stream);
+
+            Assert.That(
+                await fs.ReadAllBytesAsync(file.FullName),
+                Is.EqualTo(reader.ReadBytes(4096)));
+        }
+    }
+
+    [Test]
+    public async Task File_ReadAllText()
+    {
+        using var fs = GetFileSystem();
+
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
+        {
+            var stream = await file.OpenReadAsync();
+            using var reader = new StreamReader(stream);
+
+            Assert.That(
+                await fs.ReadAllTextAsync(file.FullName),
+                Is.EqualTo(await reader.ReadToEndAsync()));
+        }
+    }
+
+    [Test]
+    public async Task File_ReadAllLines()
+    {
+        using var fs = GetFileSystem();
+
+        await foreach (var file in fs.GetAllFilesRecursively("/"))
+        {
+            var stream = await file.OpenReadAsync();
+            using var reader = new StreamReader(stream);
+
+            var lines = new List<string>();
+            while (await reader.ReadLineAsync() is {} line)
+                lines.Add(line);
+
+            Assert.That(
+                await fs.ReadAllLinesAsync(file.FullName),
+                Is.EquivalentTo(lines));
+        }
+    }
+
+    [Test]
     public async Task Directory_Enumerate_ReturnsEmpty_For_NonExistingDirectory()
     {
         using var fs = GetFileSystem();
