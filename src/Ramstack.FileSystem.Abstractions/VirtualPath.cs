@@ -125,6 +125,8 @@ public static class VirtualPath
     /// </returns>
     public static string GetDirectoryName(string path)
     {
+        _ = path.Length;
+
         var offset = GetDirectoryNameOffset(path);
 
         if (offset > 0)
