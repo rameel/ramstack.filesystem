@@ -94,11 +94,11 @@ public sealed class AzureFileSystem : IVirtualFileSystem
 
     /// <inheritdoc />
     public VirtualDirectory GetDirectory(string path) =>
-        new AzureDirectory(this, VirtualPath.GetFullPath(path));
+        new AzureDirectory(this, VirtualPath.Normalize(path));
 
     /// <inheritdoc />
     public VirtualFile GetFile(string path) =>
-        new AzureFile(this, VirtualPath.GetFullPath(path));
+        new AzureFile(this, VirtualPath.Normalize(path));
 
     /// <summary>
     /// Asynchronously creates the container in Azure Blob Storage if it does not already exist.
@@ -158,7 +158,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// </returns>
     internal BlobClient CreateBlobClient(string path)
     {
-        Debug.Assert(path == VirtualPath.GetFullPath(path));
+        Debug.Assert(path == VirtualPath.Normalize(path));
         return AzureClient.GetBlobClient(path[1..]);
     }
 }

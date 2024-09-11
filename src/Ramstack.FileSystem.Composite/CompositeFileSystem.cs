@@ -39,14 +39,14 @@ public sealed partial class CompositeFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualFile GetFile(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
         return new CompositeFile(this, path);
     }
 
     /// <inheritdoc />
     public VirtualDirectory GetDirectory(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
         return new CompositeDirectory(this, path);
     }
 

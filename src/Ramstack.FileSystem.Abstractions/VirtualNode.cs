@@ -41,7 +41,7 @@ public abstract class VirtualNode
     /// <param name="path">The full path of the file or directory.</param>
     protected VirtualNode(string path)
     {
-        Debug.Assert(path == VirtualPath.GetFullPath(path));
+        Debug.Assert(path == VirtualPath.Normalize(path));
         FullName = path;
     }
 

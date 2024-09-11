@@ -15,7 +15,7 @@ public sealed class NotFoundFile : VirtualFile
     /// </summary>
     /// <param name="fileSystem">The file system associated with this file.</param>
     /// <param name="path">The path of the file.</param>
-    public NotFoundFile(IVirtualFileSystem fileSystem, string path) : base(VirtualPath.GetFullPath(path)) =>
+    public NotFoundFile(IVirtualFileSystem fileSystem, string path) : base(VirtualPath.Normalize(path)) =>
         FileSystem = fileSystem;
 
     /// <inheritdoc />

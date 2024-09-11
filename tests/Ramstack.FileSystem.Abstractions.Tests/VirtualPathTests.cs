@@ -80,22 +80,6 @@ public class VirtualPathTests
 
     [TestCase("/", ExpectedResult = true)]
     [TestCase("/a/b/c", ExpectedResult = true)]
-    [TestCase("/a/./b/c", ExpectedResult = true)]
-    [TestCase("/a/../b/c", ExpectedResult = true)]
-    [TestCase("/a/./../b/c", ExpectedResult = true)]
-    [TestCase("/a / /c", ExpectedResult = true)]
-    [TestCase("/a/ ", ExpectedResult = true)]
-    [TestCase("/a/", ExpectedResult = false)]
-    [TestCase("/a//b", ExpectedResult = false)]
-    [TestCase("/a\\b", ExpectedResult = false)]
-    [TestCase("", ExpectedResult = false)]
-    [TestCase(" ", ExpectedResult = false)]
-    [TestCase(" /", ExpectedResult = false)]
-    public bool IsPartiallyNormalized(string path) =>
-        VirtualPath.IsNormalized(path);
-
-    [TestCase("/", ExpectedResult = true)]
-    [TestCase("/a/b/c", ExpectedResult = true)]
     [TestCase("/a/ /c", ExpectedResult = true)]
     [TestCase("/a/ ", ExpectedResult = true)]
     [TestCase("/a/ /c", ExpectedResult = true)]
@@ -110,8 +94,8 @@ public class VirtualPathTests
     [TestCase("", ExpectedResult = false)]
     [TestCase(" ", ExpectedResult = false)]
     [TestCase(" /", ExpectedResult = false)]
-    public bool IsFullyNormalized(string path) =>
-        VirtualPath.IsFullyNormalized(path);
+    public bool IsNormalized(string path) =>
+        VirtualPath.IsNormalized(path);
 
     [TestCase("", "/")]
     [TestCase(".", "/")]
@@ -124,59 +108,16 @@ public class VirtualPathTests
     [TestCase("/home/../home/user//documents", "/home/user/documents")]
     [TestCase("/home/../home/user/../../home/config/documents", "/home/config/documents")]
     [TestCase("/home/../home/user/./.././.././home/config/documents", "/home/config/documents")]
-    public void GetFullPath(string path, string expected)
+    public void Normalize(string path, string expected)
     {
         foreach (var p in GetPathVariations(path))
-            Assert.That(VirtualPath.GetFullPath(p),Is.EqualTo(expected));
+            Assert.That(VirtualPath.Normalize(p),Is.EqualTo(expected));
     }
 
     [TestCase("..")]
     [TestCase("/home/../..")]
-    public void GetFullPath_Error(string path) =>
-        Assert.Throws<ArgumentException>(() => VirtualPath.GetFullPath(path));
-
-    [TestCase("/home/user/documents", false)]
-    [TestCase("/././././home/user/documents", false)]
-    [TestCase("/home/../documents", false)]
-    [TestCase("/home/.././././././documents", false)]
-    [TestCase("/home/../../documents", true)]
-    [TestCase("/home/../..", true)]
-    [TestCase("/../documents", true)]
-    [TestCase("/home/user/documents/..", false)]
-    [TestCase("/home/user/documents/../..", false)]
-    [TestCase("/home/user/documents/../../..", false)]
-    [TestCase("/home/user/documents/../../../..", true)]
-    [TestCase("//home//user//documents//..//..////..///..", true)]
-    [TestCase("/..", true)]
-    [TestCase("/../", true)]
-    [TestCase("/", false)]
-    [TestCase("", false)]
-    public void IsNavigatesAboveRoot(string path, bool expected)
-    {
-        foreach (var p in GetPathVariations(path))
-            Assert.That(VirtualPath.IsNavigatesAboveRoot(p), Is.EqualTo(expected));
-    }
-
-    [TestCase("", ExpectedResult = "/")]
-    [TestCase("/", ExpectedResult = "/")]
-    [TestCase("///", ExpectedResult = "/")]
-    [TestCase("///a///b///", ExpectedResult = "/a/b")]
-    [TestCase("\\", ExpectedResult = "/")]
-    [TestCase("a", ExpectedResult = "/a")]
-    [TestCase("a/", ExpectedResult = "/a")]
-    [TestCase("a/b/c", ExpectedResult = "/a/b/c")]
-    [TestCase("a/b/c/", ExpectedResult = "/a/b/c")]
-    [TestCase("a//b//c//", ExpectedResult = "/a/b/c")]
-    [TestCase("a\\//b\\//c\\//", ExpectedResult = "/a/b/c")]
-    [TestCase("a//b\\c//", ExpectedResult = "/a/b/c")]
-    [TestCase("/a/b/c/", ExpectedResult = "/a/b/c")]
-    [TestCase("\\a\\b\\c\\", ExpectedResult = "/a/b/c")]
-    [TestCase("\\\\a\\\\b\\\\c\\\\", ExpectedResult = "/a/b/c")]
-    [TestCase("/a/./b/c/", ExpectedResult = "/a/./b/c")]
-    [TestCase("/a/../b/c/", ExpectedResult = "/a/../b/c")]
-    [TestCase("/a/./../b/c/", ExpectedResult = "/a/./../b/c")]
-    public string Normalize(string path) =>
-        VirtualPath.Normalize(path);
+    public void Normalize_Error(string path) =>
+        Assert.Throws<ArgumentException>(() => VirtualPath.Normalize(path));
 
     private static string[] GetPathVariations(string path) =>
         [path, path.Replace('/', '\\')];

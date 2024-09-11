@@ -15,7 +15,7 @@ public class NotFoundDirectory : VirtualDirectory
     /// </summary>
     /// <param name="fileSystem">The file system associated with this directory.</param>
     /// <param name="path">The path of the directory.</param>
-    public NotFoundDirectory(IVirtualFileSystem fileSystem, string path) : base(VirtualPath.GetFullPath(path)) =>
+    public NotFoundDirectory(IVirtualFileSystem fileSystem, string path) : base(VirtualPath.Normalize(path)) =>
         FileSystem = fileSystem;
 
     /// <inheritdoc />

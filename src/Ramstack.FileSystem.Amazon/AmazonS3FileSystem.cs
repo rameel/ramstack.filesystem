@@ -90,14 +90,14 @@ public sealed class AmazonS3FileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualFile GetFile(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
         return new S3File(this, path);
     }
 
     /// <inheritdoc />
     public VirtualDirectory GetDirectory(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
         return new S3Directory(this, path);
     }
 

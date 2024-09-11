@@ -25,12 +25,12 @@ public sealed class SubFileSystem : IVirtualFileSystem
     /// <param name="path">The path under the root directory of the <paramref name="fileSystem"/>.</param>
     /// <param name="fileSystem">The underlying file system.</param>
     public SubFileSystem(string path, IVirtualFileSystem fileSystem) =>
-        (_path, _fs) = (VirtualPath.GetFullPath(path), fileSystem);
+        (_path, _fs) = (VirtualPath.Normalize(path), fileSystem);
 
     /// <inheritdoc />
     public VirtualFile GetFile(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
         var file = _fs.GetFile(ResolvePath(path));
 
         return new SubFile(this, path, file);
@@ -39,7 +39,7 @@ public sealed class SubFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualDirectory GetDirectory(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
         var directory = _fs.GetDirectory(ResolvePath(path));
 
         return new SubDirectory(this, path, directory);

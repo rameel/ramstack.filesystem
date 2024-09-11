@@ -13,18 +13,19 @@ namespace Ramstack.FileSystem;
 /// <remarks>
 /// <para>
 ///   For compatibility across different implementations of <see cref="IVirtualFileSystem"/>
-///   and operating systems, directory separators are unified to use both "/" and "\".
+///   and operating systems, directory separators are unified to use both
+///   backslashes and forward slashes ("/" and "\").
 ///   <strong>This approach will be reviewed once a better solution is found.</strong>
 /// </para>
 /// <para>
-///   When normalizing paths (e.g., using the methods <see cref="Normalize" /> and <see cref="GetFullPath" />),
-///   "\" separators will be replaced with "/" forcibly.
+///   When normalizing paths by using the method <see cref="Normalize" />,
+///   backslashes ("\") will be replaced with forward slashes ("/") forcibly.
 /// </para>
 /// <para>
-///   Highly recommended to call <see cref="Normalize" /> or <see cref="GetFullPath" /> when using virtual paths
-///   in the context of <see cref="IVirtualFileSystem" /> to normalize separators and remove relative segments
-///   such as "." and "..", since the underlying subsystem for which <see cref="IVirtualFileSystem" />
-///   is implemented may not support these capabilities.
+///   Highly recommended to call <see cref="Normalize" /> when using virtual paths
+///   in the context of <see cref="IVirtualFileSystem" /> to normalize separators and remove
+///   relative segments such as "." and "..", since the underlying subsystem
+///   for which <see cref="IVirtualFileSystem" /> is implemented may not support these capabilities.
 /// </para>
 /// </remarks>
 public static class VirtualPath
@@ -162,67 +163,6 @@ public static class VirtualPath
     }
 
     /// <summary>
-    /// Normalizes the specified path with adding the leading slash and removing the trailing slash.
-    /// </summary>
-    /// <param name="path">The path to normalize.</param>
-    /// <returns>
-    /// The normalized path.
-    /// </returns>
-    public static string Normalize(string path)
-    {
-        if (!IsNormalized(path))
-            path = NormalizeImpl(path);
-
-        return path;
-
-        static string NormalizeImpl(string path)
-        {
-            char[]? rented = null;
-
-            var buffer = path.Length + 1 <= StackallocThreshold
-                ? stackalloc char[StackallocThreshold]
-                : rented = ArrayPool<char>.Shared.Rent(path.Length + 1);
-
-            buffer[0] = '/';
-            var index = 1;
-            var slash = true;
-
-            for (var i = 0; i < path.Length; i++)
-            {
-                var c = path[i];
-                if (c == '/' || c == '\\')
-                {
-                    if (slash)
-                        continue;
-
-                    c = '/';
-                    slash = true;
-                }
-                else
-                {
-                    slash = false;
-                }
-
-                buffer[index] = c;
-                index++;
-            }
-
-            // There can be only one trailing slash at most
-            if (index > 1 && buffer[index - 1] == '/')
-                index--;
-
-            var result = index > 1
-                ? buffer[..index].ToString()
-                : "/";
-
-            if (rented is not null)
-                ArrayPool<char>.Shared.Return(rented);
-
-            return result;
-        }
-    }
-
-    /// <summary>
     /// Determines if the specified path in a normalized form.
     /// </summary>
     /// <param name="path">The path to test.</param>
@@ -231,31 +171,6 @@ public static class VirtualPath
     /// otherwise, <see langword="false" />.
     /// </returns>
     public static bool IsNormalized(ReadOnlySpan<char> path)
-    {
-        if (path.Length == 0)
-            return false;
-
-        if (path[0] != '/')
-            return false;
-
-        if (path.Length > 1 && HasTrailingSlash(path))
-            return false;
-
-        if (path.Contains('\\'))
-            return false;
-
-        return path.IndexOf("//") < 0;
-    }
-
-    /// <summary>
-    /// Determines if the specified path in a normalized form.
-    /// </summary>
-    /// <param name="path">The path to test.</param>
-    /// <returns>
-    /// <see langword="true" /> if the path in a normalized form;
-    /// otherwise, <see langword="false" />.
-    /// </returns>
-    public static bool IsFullyNormalized(ReadOnlySpan<char> path)
     {
         if (path is ['/', ..])
         {
@@ -304,9 +219,9 @@ public static class VirtualPath
     /// <returns>
     /// The fully qualified location of <paramref name="path"/>.
     /// </returns>
-    public static string GetFullPath(string path)
+    public static string Normalize(string path)
     {
-        if (IsFullyNormalized(path))
+        if (IsNormalized(path))
             return path;
 
         char[]? rented = null;
@@ -328,7 +243,7 @@ public static class VirtualPath
                 index = buffer[..index].LastIndexOf('/');
 
                 // Path.GetFullPath in this case does not throw an exception,
-                // it simply clears out the buffer
+                // it simply clears out the buffer.
                 if (index < 0)
                     Error_InvalidPath();
             }
@@ -348,37 +263,6 @@ public static class VirtualPath
             ArrayPool<char>.Shared.Return(rented);
 
         return result;
-    }
-
-    /// <summary>
-    /// Determines whether the path navigates above the root.
-    /// </summary>
-    /// <param name="path">The path to test.</param>
-    /// <returns>
-    /// <see langword="true" /> if path navigates above the root;
-    /// otherwise, <see langword="false" />.
-    /// </returns>
-    public static bool IsNavigatesAboveRoot(string path)
-    {
-        var depth = 0;
-
-        if (path.Length != 0)
-        {
-            foreach (var s in PathTokenizer.Tokenize(path))
-            {
-                // ReSharper disable once RedundantIfElseBlock
-                // ReSharper disable once RedundantJumpStatement
-
-                if (s.Length == 0 || s is ['.'])
-                    continue;
-                else if (s is not ['.', '.'])
-                    depth++;
-                else if (--depth < 0)
-                    break;
-            }
-        }
-
-        return depth < 0;
     }
 
     /// <summary>

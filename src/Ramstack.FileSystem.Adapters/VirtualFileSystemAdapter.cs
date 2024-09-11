@@ -29,7 +29,7 @@ public sealed class VirtualFileSystemAdapter : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualDirectory GetDirectory(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
         var directory = FileProvider.GetDirectoryContents(path);
 
         return new VirtualDirectoryAdapter(this, path, directory);
@@ -38,7 +38,7 @@ public sealed class VirtualFileSystemAdapter : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualFile GetFile(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
         var file = FileProvider.GetFileInfo(path);
 
         return new VirtualFileAdapter(this, path, file);
