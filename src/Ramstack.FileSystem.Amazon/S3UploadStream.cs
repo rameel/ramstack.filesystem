@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.ExceptionServices;
 
 using Amazon.S3;
 using Amazon.S3.Model;
@@ -104,10 +105,18 @@ internal sealed class S3UploadStream : Stream
     /// <inheritdoc />
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        _stream.Write(buffer);
+        try
+        {
+            _stream.Write(buffer);
 
-        if (_stream.Length >= PartSize)
-            UploadPart();
+            if (_stream.Length >= PartSize)
+                UploadPart();
+        }
+        catch (Exception exception)
+        {
+            Abort();
+            ExceptionDispatchInfo.Throw(exception);
+        }
     }
 
     /// <inheritdoc />
@@ -117,9 +126,17 @@ internal sealed class S3UploadStream : Stream
     /// <inheritdoc />
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new CancellationToken())
     {
-        await _stream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
-        if (_stream.Length >= PartSize)
-            await UploadPartAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await _stream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+            if (_stream.Length >= PartSize)
+                await UploadPartAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+            await AbortAsync(cancellationToken).ConfigureAwait(false);
+            ExceptionDispatchInfo.Throw(exception);
+        }
     }
 
     /// <inheritdoc />
@@ -174,10 +191,10 @@ internal sealed class S3UploadStream : Stream
                 .CompleteMultipartUploadAsync(request)
                 .ConfigureAwait(false);
         }
-        catch
+        catch (Exception exception)
         {
             await AbortAsync(CancellationToken.None).ConfigureAwait(false);
-            throw;
+            ExceptionDispatchInfo.Throw(exception);
         }
         finally
         {
@@ -237,16 +254,30 @@ internal sealed class S3UploadStream : Stream
                 _stream.Position = 0;
                 _stream.SetLength(0);
             }
-            catch
+            catch (Exception exception)
             {
                 await AbortAsync(cancellationToken).ConfigureAwait(false);
-                throw;
+                ExceptionDispatchInfo.Throw(exception);
             }
         }
     }
 
     /// <summary>
     /// Aborts the multipart upload session.
+    /// </summary>
+    /// <remarks>
+    /// This method sends a request to Amazon S3 to abort the multipart upload identified by the
+    /// <see cref="_uploadId"/>. Once aborted, the upload cannot be resumed, and any uploaded parts
+    /// will be deleted.
+    /// </remarks>
+    private void Abort()
+    {
+        using var scope = NullSynchronizationContext.CreateScope();
+        AbortAsync(CancellationToken.None).AsTask().GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Asynchronously aborts the multipart upload session.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>
@@ -269,6 +300,8 @@ internal sealed class S3UploadStream : Stream
         await _client
             .AbortMultipartUploadAsync(request, cancellationToken)
             .ConfigureAwait(false);
+
+        _disposed = true;
 
         // Prevent subsequent writes to the stream.
         await _stream

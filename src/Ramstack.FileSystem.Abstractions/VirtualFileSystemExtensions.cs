@@ -377,27 +377,27 @@ public static partial class VirtualFileSystemExtensions
     /// Asynchronously returns a <see cref="StreamReader"/> with <see cref="Encoding.UTF8"/> encoding for a file at the specified path.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
-    /// <param name="filePath">The path of the file to open.</param>
+    /// <param name="path">The path of the file to open.</param>
     /// <param name="cancellationToken">The optional cancellation token used for canceling the operation.</param>
     /// <returns>
     /// A task representing the asynchronous operation and returns a <see cref="StreamReader"/> that reads from the text file.
     /// </returns>
-    public static Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string filePath, CancellationToken cancellationToken = default) =>
-        fs.OpenTextAsync(filePath, Encoding.UTF8, cancellationToken);
+    public static Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
+        fs.OpenTextAsync(path, Encoding.UTF8, cancellationToken);
 
     /// <summary>
     /// Asynchronously returns a <see cref="StreamReader"/> with the specified character encoding for a file at the specified path.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
-    /// <param name="filePath">The path of the file to open.</param>
+    /// <param name="path">The path of the file to open.</param>
     /// <param name="encoding">The character encoding to use.</param>
     /// <param name="cancellationToken">The optional cancellation token used for canceling the operation.</param>
     /// <returns>
     /// A task representing the asynchronous operation and returns a <see cref="StreamReader"/> that reads from the text file.
     /// </returns>
-    public static async Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string filePath, Encoding encoding, CancellationToken cancellationToken = default)
+    public static async Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string path, Encoding encoding, CancellationToken cancellationToken = default)
     {
-        var stream = await fs.OpenReadAsync(filePath, cancellationToken).ConfigureAwait(false);
+        var stream = await fs.OpenReadAsync(path, cancellationToken).ConfigureAwait(false);
         return new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true, bufferSize: -1, leaveOpen: false);
     }
 }

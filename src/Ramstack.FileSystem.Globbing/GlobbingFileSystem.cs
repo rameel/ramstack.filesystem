@@ -62,7 +62,7 @@ public sealed class GlobbingFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualFile GetFile(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
 
         var file = _fs.GetFile(path);
         var fileIncluded = IsFileIncluded(path);
@@ -72,7 +72,7 @@ public sealed class GlobbingFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualDirectory GetDirectory(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
 
         var directory = _fs.GetDirectory(path);
         var directoryIncluded = IsDirectoryIncluded(path);

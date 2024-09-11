@@ -74,7 +74,7 @@ public sealed class ZipFileSystem : IVirtualFileSystem
     /// The <see cref="VirtualNode"/> if found; otherwise, <see langword="null"/>.
     /// </returns>
     private VirtualNode? FindNode(string path) =>
-        _directories.GetValueOrDefault(VirtualPath.GetFullPath(path));
+        _directories.GetValueOrDefault(VirtualPath.Normalize(path));
 
     /// <summary>
     /// Initializes the file system with entries from the specified ZIP archive.

@@ -121,7 +121,7 @@ public abstract class VirtualFile : VirtualNode
     {
         EnsureWritable();
 
-        destinationPath = VirtualPath.GetFullPath(destinationPath);
+        destinationPath = VirtualPath.Normalize(destinationPath);
         EnsureDistinctTargets(FullName, destinationPath);
 
         return CopyToCoreAsync(destinationPath, overwrite, cancellationToken);

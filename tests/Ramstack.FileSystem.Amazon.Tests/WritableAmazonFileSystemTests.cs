@@ -1,4 +1,6 @@
-﻿using Amazon;
+﻿using System.Reflection;
+
+using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 
@@ -46,6 +48,40 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
                 Console.WriteLine(exception);
             }
         }
+    }
+
+    [Test]
+    public async Task File_OpenWrite_InternalBufferWriteError_DoesNotCreateFile()
+    {
+        using var fs = GetFileSystem();
+
+        await using (var stream = await fs.OpenWriteAsync("/error.log"))
+        {
+            var underlying = (FileStream)stream.GetType().GetField("_stream", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(stream)!;
+            Assert.That(underlying, Is.Not.Null);
+
+            await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[1024]));
+
+            // Forces to upload buffer.
+            await stream.FlushAsync();
+
+            // Simulates an internal buffer write error.
+            await underlying.DisposeAsync();
+
+            try
+            {
+                await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[1024]));
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("Exception expected!");
+                Console.WriteLine(exception);
+            }
+        }
+
+        Assert.That(
+            await fs.FileExistsAsync("/error.log"),
+            Is.False);
     }
 
     [Test]

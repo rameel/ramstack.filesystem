@@ -26,7 +26,7 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
     /// <param name="fileSystem">The underlying file system that manages the files to which the prefix will be applied.</param>
     public PrefixedFileSystem(string prefix, IVirtualFileSystem fileSystem)
     {
-        prefix = VirtualPath.GetFullPath(prefix);
+        prefix = VirtualPath.Normalize(prefix);
         (_prefix, _fs) = (prefix, fileSystem);
 
         // Create artificial directory list
@@ -54,7 +54,7 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualFile GetFile(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
 
         var underlying = TryGetPath(path, _prefix);
         if (underlying is not null)
@@ -66,7 +66,7 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualDirectory GetDirectory(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
 
         foreach (var directory in _directories)
             if (directory.FullName == path)
@@ -93,7 +93,7 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
     /// </returns>
     private static string? TryGetPath(string path, string prefix)
     {
-        Debug.Assert(path == VirtualPath.GetFullPath(path));
+        Debug.Assert(path == VirtualPath.Normalize(path));
 
         if (path == prefix)
             return "/";

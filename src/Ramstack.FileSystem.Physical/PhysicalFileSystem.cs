@@ -33,7 +33,7 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualFile GetFile(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
         var physicalPath = GetPhysicalPath(path);
 
         return new PhysicalFile(this, path, physicalPath);
@@ -42,7 +42,7 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
     /// <inheritdoc />
     public VirtualDirectory GetDirectory(string path)
     {
-        path = VirtualPath.GetFullPath(path);
+        path = VirtualPath.Normalize(path);
         var physicalPath = GetPhysicalPath(path);
 
         return new PhysicalDirectory(this, path, physicalPath);
@@ -63,7 +63,7 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
     /// </returns>
     private string GetPhysicalPath(string path)
     {
-        Debug.Assert(path == VirtualPath.GetFullPath(path));
+        Debug.Assert(path == VirtualPath.Normalize(path));
         return Path.Join(_root, path);
     }
 }
