@@ -129,7 +129,7 @@ public static class VirtualPath
 
         var offset = GetDirectoryNameOffset(path);
 
-        if (offset > 0)
+        if (offset > 0 && (uint)offset < (uint)path.Length)
             return path[..offset];
 
         if (offset == 0)
@@ -149,13 +149,10 @@ public static class VirtualPath
     {
         var offset = GetDirectoryNameOffset(path);
 
-        if (offset > 0)
+        if (offset > 0 && (uint)offset < (uint)path.Length)
             return path.Slice(0, offset);
 
-        if (offset == 0)
-            return "/";
-
-        return "";
+        return offset == 0 ? "/" : "";
     }
 
     /// <summary>
