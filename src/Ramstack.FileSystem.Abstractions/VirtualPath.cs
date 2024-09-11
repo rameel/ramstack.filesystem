@@ -207,12 +207,22 @@ public static class VirtualPath
     }
 
     /// <summary>
-    /// Returns the absolute path for the specified path string.
+    /// Normalizes the specified path by resolving relative segments and applying formatting.
     /// </summary>
-    /// <param name="path">The file or directory for which to obtain absolute path information.</param>
+    /// <param name="path">The file or directory path to normalize.</param>
     /// <returns>
-    /// The fully qualified location of <paramref name="path"/>.
+    /// The fully normalized and absolute form of <paramref name="path"/>.
     /// </returns>
+    /// <remarks>
+    /// The normalization process includes the following steps:
+    /// <list type="bullet">
+    ///   <item><description>Resolves relative segments (e.g., ".", "..").</description></item>
+    ///   <item><description>Removes consecutive slashes.</description></item>
+    ///   <item><description>Replaces backslashes with forward slashes.</description></item>
+    ///   <item><description>Ensures the path starts with a leading slash.</description></item>
+    ///   <item><description>Removes any trailing slash.</description></item>
+    /// </list>
+    /// </remarks>
     public static string Normalize(string path)
     {
         if (IsNormalized(path))
@@ -303,6 +313,14 @@ public static class VirtualPath
         return string.Concat(path1, "/", path2);
     }
 
+    /// <summary>
+    /// Determines whether the specified path string starts with a directory separator.
+    /// </summary>
+    /// <param name="path">The path to test.</param>
+    /// <returns>
+    /// <see langword="true" /> if the path has a leading directory separator;
+    /// otherwise, <see langword="false" />.
+    /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasLeadingSlash(string path) =>
         path.StartsWith('/') || path.StartsWith('\\');
