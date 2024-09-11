@@ -21,12 +21,6 @@ namespace Ramstack.FileSystem;
 ///   When normalizing paths by using the method <see cref="Normalize" />,
 ///   backslashes ("\") will be replaced with forward slashes ("/") forcibly.
 /// </para>
-/// <para>
-///   Highly recommended to call <see cref="Normalize" /> when using virtual paths
-///   in the context of <see cref="IVirtualFileSystem" /> to normalize separators and remove
-///   relative segments such as "." and "..", since the underlying subsystem
-///   for which <see cref="IVirtualFileSystem" /> is implemented may not support these capabilities.
-/// </para>
 /// </remarks>
 public static class VirtualPath
 {
