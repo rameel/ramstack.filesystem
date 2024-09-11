@@ -56,7 +56,6 @@ public class VirtualPathTests
     [TestCase("/dir/dir/", "/dir/dir")]
     [TestCase("dir/dir", "dir")]
     [TestCase("dir/dir/", "dir/dir")]
-
     [TestCase("//", "")]
     [TestCase("///", "")]
     [TestCase("//dir", "/")]
