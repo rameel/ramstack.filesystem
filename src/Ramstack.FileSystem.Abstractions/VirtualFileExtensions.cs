@@ -69,7 +69,8 @@ public static class VirtualFileExtensions
     {
         const int BufferSize = 4096;
 
-        var reader = await file.OpenTextAsync(encoding, cancellationToken).ConfigureAwait(false);
+        var stream = await file.OpenReadAsync(cancellationToken).ConfigureAwait(false);
+        var reader = new StreamReader(stream, encoding);
         var buffer = (char[]?)null;
 
         try
@@ -124,7 +125,8 @@ public static class VirtualFileExtensions
     /// </returns>
     public static async ValueTask<string[]> ReadAllLinesAsync(this VirtualFile file, Encoding encoding, CancellationToken cancellationToken = default)
     {
-        using var reader = await file.OpenTextAsync(encoding, cancellationToken).ConfigureAwait(false);
+        var stream = await file.OpenReadAsync(cancellationToken).ConfigureAwait(false);
+        using var reader = new StreamReader(stream, encoding);
 
         var list = new List<string>();
         while (await reader.ReadLineAsync().ConfigureAwait(false) is {} line)
@@ -307,7 +309,7 @@ public static class VirtualFileExtensions
 
         var preamble = encoding.GetPreamble();
         if (preamble.Length != 0)
-            stream.Write(preamble);
+            stream.Write(preamble.AsSpan());
 
         var bytes = ArrayPool<byte>.Shared.Rent(
             encoding.GetMaxCharCount(Math.Min(ChunkSize, contents.Length)));
