@@ -69,7 +69,7 @@ public static class VirtualFileExtensions
     {
         const int BufferSize = 4096;
 
-        var reader = await file.OpenTextAsync(cancellationToken).ConfigureAwait(false);
+        var reader = await file.OpenTextAsync(encoding, cancellationToken).ConfigureAwait(false);
         var buffer = (char[]?)null;
 
         try
