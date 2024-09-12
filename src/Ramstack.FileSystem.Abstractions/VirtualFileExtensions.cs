@@ -44,6 +44,18 @@ public static class VirtualFileExtensions
     }
 
     /// <summary>
+    /// Asynchronously writes the specified content to a file. If the file exists, an exception will be thrown.
+    /// </summary>
+    /// <param name="file">The file to write to.</param>
+    /// <param name="stream">A <see cref="Stream"/> containing the content to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAsync(this VirtualFile file, Stream stream, CancellationToken cancellationToken = default) =>
+        file.WriteAsync(stream, overwrite: false, cancellationToken);
+
+    /// <summary>
     /// Asynchronously reads all the text in the current file.
     /// </summary>
     /// <param name="file">The file from which to read the entire text content.</param>
@@ -238,18 +250,6 @@ public static class VirtualFileExtensions
         static void Error() =>
             throw new EndOfStreamException();
     }
-
-    /// <summary>
-    /// Asynchronously writes the specified content to a file. If the file exists, an exception will be thrown.
-    /// </summary>
-    /// <param name="file">The file to write to.</param>
-    /// <param name="stream">A <see cref="Stream"/> containing the content to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
-    /// <returns>
-    /// A <see cref="ValueTask"/> representing the asynchronous operation.
-    /// </returns>
-    public static ValueTask WriteAsync(this VirtualFile file, Stream stream, CancellationToken cancellationToken = default) =>
-        file.WriteAsync(stream, overwrite: false, cancellationToken);
 
     /// <summary>
     /// Asynchronously writes the specified string to the current file. If the file already exists, it is truncated and overwritten.

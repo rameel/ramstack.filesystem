@@ -8,19 +8,6 @@ namespace Ramstack.FileSystem;
 public static partial class VirtualFileSystemExtensions
 {
     /// <summary>
-    /// Asynchronously determines whether the file exists.
-    /// </summary>
-    /// <param name="fs">The file system to use.</param>
-    /// <param name="path">The path of the file.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>
-    /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
-    /// The task result is <see langword="true"/> if the file exists; otherwise, <see langword="false"/>.
-    /// </returns>
-    public static ValueTask<bool> FileExistsAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
-        fs.GetFile(path).ExistsAsync(cancellationToken);
-
-    /// <summary>
     /// Asynchronously opens the file at the specified path for reading.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
@@ -33,6 +20,34 @@ public static partial class VirtualFileSystemExtensions
         fs.GetFile(path).OpenReadAsync(cancellationToken);
 
     /// <summary>
+    /// Asynchronously returns a <see cref="StreamReader"/> with <see cref="Encoding.UTF8"/> encoding for a file at the specified path.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The path of the file to open.</param>
+    /// <param name="cancellationToken">The optional cancellation token used for canceling the operation.</param>
+    /// <returns>
+    /// A task representing the asynchronous operation and returns a <see cref="StreamReader"/> that reads from the text file.
+    /// </returns>
+    public static Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
+        fs.OpenTextAsync(path, Encoding.UTF8, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously returns a <see cref="StreamReader"/> with the specified character encoding for a file at the specified path.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The path of the file to open.</param>
+    /// <param name="encoding">The character encoding to use.</param>
+    /// <param name="cancellationToken">The optional cancellation token used for canceling the operation.</param>
+    /// <returns>
+    /// A task representing the asynchronous operation and returns a <see cref="StreamReader"/> that reads from the text file.
+    /// </returns>
+    public static async Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string path, Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        var stream = await fs.OpenReadAsync(path, cancellationToken).ConfigureAwait(false);
+        return new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true, bufferSize: -1, leaveOpen: false);
+    }
+
+    /// <summary>
     /// Asynchronously opens the file at the specified path for writing.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
@@ -43,6 +58,41 @@ public static partial class VirtualFileSystemExtensions
     /// </returns>
     public static ValueTask<Stream> OpenWriteAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).OpenWriteAsync(cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified content to a file at the specified path. If the file exists, an exception will be thrown.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The path of the file.</param>
+    /// <param name="stream">A <see cref="Stream"/> containing the content to write to the file.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    public static ValueTask WriteAsync(this IVirtualFileSystem fs, string path, Stream stream, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).WriteAsync(stream, overwrite: false, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously writes the specified content to a file at the specified path, creating a new file or overwriting an existing one.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The path of the file.</param>
+    /// <param name="stream">A <see cref="Stream"/> containing the content to write to the file.</param>
+    /// <param name="overwrite"><see langword="true"/> to overwrite an existing file;
+    /// <see langword="false"/> to throw an exception if the file already exists.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
+    /// </returns>
+    /// <remarks>
+    /// <list type="bullet">
+    ///   <item><description>If the file does not exist, it will be created.</description></item>
+    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
+    /// </list>
+    /// </remarks>
+    public static ValueTask WriteAsync(this IVirtualFileSystem fs, string path, Stream stream, bool overwrite, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).WriteAsync(stream, overwrite, cancellationToken);
 
     /// <summary>
     /// Asynchronously reads all the text in the file with the specified encoding.
@@ -110,41 +160,6 @@ public static partial class VirtualFileSystemExtensions
     /// </returns>
     public static ValueTask<byte[]> ReadAllBytesAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).ReadAllBytesAsync(cancellationToken);
-
-    /// <summary>
-    /// Asynchronously writes the specified content to a file at the specified path. If the file exists, an exception will be thrown.
-    /// </summary>
-    /// <param name="fs">The file system to use.</param>
-    /// <param name="path">The path of the file.</param>
-    /// <param name="stream">A <see cref="Stream"/> containing the content to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
-    /// <returns>
-    /// A <see cref="ValueTask"/> representing the asynchronous operation.
-    /// </returns>
-    public static ValueTask WriteAsync(this IVirtualFileSystem fs, string path, Stream stream, CancellationToken cancellationToken = default) =>
-        fs.GetFile(path).WriteAsync(stream, overwrite: false, cancellationToken);
-
-    /// <summary>
-    /// Asynchronously writes the specified content to a file at the specified path, creating a new file or overwriting an existing one.
-    /// </summary>
-    /// <param name="fs">The file system to use.</param>
-    /// <param name="path">The path of the file.</param>
-    /// <param name="stream">A <see cref="Stream"/> containing the content to write to the file.</param>
-    /// <param name="overwrite"><see langword="true"/> to overwrite an existing file;
-    /// <see langword="false"/> to throw an exception if the file already exists.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
-    /// <returns>
-    /// A <see cref="ValueTask"/> representing the asynchronous operation.
-    /// </returns>
-    /// <remarks>
-    /// <list type="bullet">
-    ///   <item><description>If the file does not exist, it will be created.</description></item>
-    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
-    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
-    /// </list>
-    /// </remarks>
-    public static ValueTask WriteAsync(this IVirtualFileSystem fs, string path, Stream stream, bool overwrite, CancellationToken cancellationToken = default) =>
-        fs.GetFile(path).WriteAsync(stream, overwrite, cancellationToken);
 
     /// <summary>
     /// Asynchronously writes the specified string to the specified file. If the file already exists, it is truncated and overwritten.
@@ -252,6 +267,19 @@ public static partial class VirtualFileSystemExtensions
     /// </returns>
     public static ValueTask WriteAllBytesAsync(this IVirtualFileSystem fs, string path, ReadOnlyMemory<byte> bytes, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).WriteAllBytesAsync(bytes, cancellationToken);
+
+    /// <summary>
+    /// Asynchronously determines whether the file exists.
+    /// </summary>
+    /// <param name="fs">The file system to use.</param>
+    /// <param name="path">The path of the file.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
+    /// The task result is <see langword="true"/> if the file exists; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static ValueTask<bool> FileExistsAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
+        fs.GetFile(path).ExistsAsync(cancellationToken);
 
     /// <summary>
     /// Asynchronously deletes the file at the specified path. No exception is thrown if the file does not exist.
@@ -372,32 +400,4 @@ public static partial class VirtualFileSystemExtensions
     /// </returns>
     public static IAsyncEnumerable<VirtualDirectory> GetDirectoriesAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
         fs.GetDirectory(path).GetDirectoriesAsync(cancellationToken);
-
-    /// <summary>
-    /// Asynchronously returns a <see cref="StreamReader"/> with <see cref="Encoding.UTF8"/> encoding for a file at the specified path.
-    /// </summary>
-    /// <param name="fs">The file system to use.</param>
-    /// <param name="path">The path of the file to open.</param>
-    /// <param name="cancellationToken">The optional cancellation token used for canceling the operation.</param>
-    /// <returns>
-    /// A task representing the asynchronous operation and returns a <see cref="StreamReader"/> that reads from the text file.
-    /// </returns>
-    public static Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
-        fs.OpenTextAsync(path, Encoding.UTF8, cancellationToken);
-
-    /// <summary>
-    /// Asynchronously returns a <see cref="StreamReader"/> with the specified character encoding for a file at the specified path.
-    /// </summary>
-    /// <param name="fs">The file system to use.</param>
-    /// <param name="path">The path of the file to open.</param>
-    /// <param name="encoding">The character encoding to use.</param>
-    /// <param name="cancellationToken">The optional cancellation token used for canceling the operation.</param>
-    /// <returns>
-    /// A task representing the asynchronous operation and returns a <see cref="StreamReader"/> that reads from the text file.
-    /// </returns>
-    public static async Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string path, Encoding encoding, CancellationToken cancellationToken = default)
-    {
-        var stream = await fs.OpenReadAsync(path, cancellationToken).ConfigureAwait(false);
-        return new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true, bufferSize: -1, leaveOpen: false);
-    }
 }
