@@ -23,12 +23,28 @@ internal sealed class CompositeFile : VirtualFile
         (_fs, _file) = (fileSystem, file);
 
     /// <inheritdoc />
-    protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken) =>
-        GetFileInternal().GetPropertiesAsync(cancellationToken)!;
+    protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
+    {
+        return (_file?.GetPropertiesAsync(cancellationToken) ?? GetPropertiesImplAsync(cancellationToken))!;
+
+        async ValueTask<VirtualNodeProperties> GetPropertiesImplAsync(CancellationToken token)
+        {
+            var file = await FindFileAsync(token).ConfigureAwait(false);
+            return await file.GetPropertiesAsync(token).ConfigureAwait(false);
+        }
+    }
 
     /// <inheritdoc />
-    protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken) =>
-        GetFileInternal().OpenReadAsync(cancellationToken);
+    protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken)
+    {
+        return _file?.OpenReadAsync(cancellationToken) ?? OpenStreamImplAsync(cancellationToken);
+
+        async ValueTask<Stream> OpenStreamImplAsync(CancellationToken token)
+        {
+            var file = await FindFileAsync(token).ConfigureAwait(false);
+            return await file.OpenReadAsync(token).ConfigureAwait(false);
+        }
+    }
 
     /// <inheritdoc />
     protected override ValueTask<Stream> OpenWriteCoreAsync(CancellationToken cancellationToken) =>
@@ -46,22 +62,21 @@ internal sealed class CompositeFile : VirtualFile
     protected override void RefreshCore() =>
         _file = null;
 
-    private VirtualFile GetFileInternal()
+    private async ValueTask<VirtualFile> FindFileAsync(CancellationToken cancellationToken)
     {
-        return _file ?? GetFileSlow();
-
-        VirtualFile GetFileSlow()
+        if (_file is null)
         {
-            VirtualFile? file = null;
-
             foreach (var fs in _fs.InternalFileSystems)
             {
-                file = fs.GetFile(FullName);
-                if (file is not NotFoundFile)
-                    break;
-            }
+                var file = fs.GetFile(FullName);
+                if (file is NotFoundFile)
+                    continue;
 
-            return _file = file ?? new NotFoundFile(FileSystem, FullName);
+                if (await file.ExistsAsync(cancellationToken).ConfigureAwait(false))
+                    return _file = file;
+            }
         }
+
+        return _file ??= new NotFoundFile(FileSystem, FullName);
     }
 }
