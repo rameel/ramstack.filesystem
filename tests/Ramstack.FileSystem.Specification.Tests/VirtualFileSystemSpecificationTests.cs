@@ -682,7 +682,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         var list = new List<string>();
         for (var i = 0; i < 102400; i++)
-            list.Add(Guid.NewGuid().ToString());
+            list.Add($"Hello, 世界! Unicode test: café, weiß, Привет, ёжик! こんにちは! {Guid.NewGuid()}");
 
         var contents = string.Join(Environment.NewLine, list);
 
@@ -705,7 +705,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         var list = new List<string>();
         for (var i = 0; i < 102400; i++)
-            list.Add(Guid.NewGuid().ToString());
+            list.Add($"Hello, 世界! Unicode test: café, weiß, Привет, ёжик! こんにちは! {Guid.NewGuid()}");
 
         var path = $"{safePath}/{Guid.NewGuid()}";
         await fs.WriteAllLinesAsync(path, list);
