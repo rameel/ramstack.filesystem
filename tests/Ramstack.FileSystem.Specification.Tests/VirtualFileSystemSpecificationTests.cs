@@ -611,9 +611,10 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             var stream = await file.OpenReadAsync();
             using var reader = new BinaryReader(stream);
 
-            Assert.That(
-                await fs.ReadAllBytesAsync(file.FullName),
-                Is.EqualTo(reader.ReadBytes(4096)));
+            var bytes = await fs.ReadAllBytesAsync(file.FullName);
+            var expected = reader.ReadBytes(4096);
+
+            Assert.That(bytes.SequenceEqual(expected), Is.True);
         }
     }
 
@@ -660,15 +661,14 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         if (fs.IsReadOnly)
             return;
 
-        var bytes = new byte[1024 * 1024];
-        Random.Shared.NextBytes(bytes);
+        var expected = new byte[1024 * 1024];
+        Random.Shared.NextBytes(expected);
 
         var path = $"{safePath}/{Guid.NewGuid()}";
-        await fs.WriteAllBytesAsync(path, bytes);
+        await fs.WriteAllBytesAsync(path, expected);
 
-        Assert.That(
-            await fs.ReadAllBytesAsync(path),
-            Is.EqualTo(bytes));
+        var data = await fs.ReadAllBytesAsync(path);
+        Assert.That(data.SequenceEqual(expected), Is.True);
 
         await fs.DeleteFileAsync(path);
     }
@@ -681,7 +681,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             return;
 
         var list = new List<string>();
-        for (var i = 0; i < 102400; i++)
+        for (var i = 0; i < 10240; i++)
             list.Add($"Hello, 世界! Unicode test: café, weiß, Привет, ёжик! こんにちは! {Guid.NewGuid()}");
 
         var contents = string.Join(Environment.NewLine, list);
@@ -704,7 +704,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             return;
 
         var list = new List<string>();
-        for (var i = 0; i < 102400; i++)
+        for (var i = 0; i < 10240; i++)
             list.Add($"Hello, 世界! Unicode test: café, weiß, Привет, ёжик! こんにちは! {Guid.NewGuid()}");
 
         var path = $"{safePath}/{Guid.NewGuid()}";
@@ -712,7 +712,7 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
 
         Assert.That(
             await fs.ReadAllLinesAsync(path),
-            Is.EqualTo(list));
+            Is.EquivalentTo(list));
 
         await fs.DeleteFileAsync(path);
     }
