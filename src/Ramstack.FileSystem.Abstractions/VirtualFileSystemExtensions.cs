@@ -118,7 +118,7 @@ public static partial class VirtualFileSystemExtensions
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing the full text from the current file.
     /// </returns>
-    public static ValueTask<string> ReadAllTextAsync(this IVirtualFileSystem fs, string path, Encoding encoding, CancellationToken cancellationToken = default) =>
+    public static ValueTask<string> ReadAllTextAsync(this IVirtualFileSystem fs, string path, Encoding? encoding, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).ReadAllTextAsync(encoding, cancellationToken);
 
     /// <summary>
@@ -145,7 +145,7 @@ public static partial class VirtualFileSystemExtensions
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing an array of all lines in the current file.
     /// </returns>
-    public static ValueTask<string[]> ReadAllLinesAsync(this IVirtualFileSystem fs, string path, Encoding encoding, CancellationToken cancellationToken = default) =>
+    public static ValueTask<string[]> ReadAllLinesAsync(this IVirtualFileSystem fs, string path, Encoding? encoding, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).ReadAllLinesAsync(encoding, cancellationToken);
 
     /// <summary>
@@ -185,7 +185,7 @@ public static partial class VirtualFileSystemExtensions
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
-    public static ValueTask WriteAllTextAsync(this IVirtualFileSystem fs, string path, string contents, Encoding encoding, CancellationToken cancellationToken = default) =>
+    public static ValueTask WriteAllTextAsync(this IVirtualFileSystem fs, string path, string contents, Encoding? encoding, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).WriteAllTextAsync(contents, encoding, cancellationToken);
 
     /// <summary>
@@ -212,7 +212,7 @@ public static partial class VirtualFileSystemExtensions
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
-    public static ValueTask WriteAllTextAsync(this IVirtualFileSystem fs, string path, ReadOnlyMemory<char> contents, Encoding encoding, CancellationToken cancellationToken = default) =>
+    public static ValueTask WriteAllTextAsync(this IVirtualFileSystem fs, string path, ReadOnlyMemory<char> contents, Encoding? encoding, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).WriteAllTextAsync(contents, encoding, cancellationToken);
 
     /// <summary>
@@ -239,7 +239,7 @@ public static partial class VirtualFileSystemExtensions
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
-    public static ValueTask WriteAllLinesAsync(this IVirtualFileSystem fs, string path, IEnumerable<string> contents, Encoding encoding, CancellationToken cancellationToken = default) =>
+    public static ValueTask WriteAllLinesAsync(this IVirtualFileSystem fs, string path, IEnumerable<string> contents, Encoding? encoding, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).WriteAllLinesAsync(contents, encoding, cancellationToken);
 
     /// <summary>
