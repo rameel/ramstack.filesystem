@@ -198,26 +198,23 @@ public static class VirtualFileExtensions
             var bytes = ArrayPool<byte>.Shared.Rent(512);
             var total = 0;
 
-            try
+            while (true)
             {
-                while (true)
+                if (total == bytes.Length)
+                    bytes = ResizeBuffer(bytes);
+
+                var count = await stream
+                    .ReadAsync(bytes.AsMemory(total), cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (count == 0)
                 {
-                    if (total == bytes.Length)
-                        bytes = ResizeBuffer(bytes);
-
-                    var count = await stream
-                        .ReadAsync(bytes.AsMemory(total), cancellationToken)
-                        .ConfigureAwait(false);
-
-                    if (count == 0)
-                        return bytes.AsSpan(0, total).ToArray();
-
-                    total += count;
+                    var result = bytes.AsSpan(0, total).ToArray();
+                    ArrayPool<byte>.Shared.Return(bytes);
+                    return result;
                 }
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(bytes);
+
+                total += count;
             }
 
             static byte[] ResizeBuffer(byte[] bytes)
