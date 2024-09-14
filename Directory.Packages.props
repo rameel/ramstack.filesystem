@@ -7,9 +7,9 @@
     <PackageVersion Include="AWSSDK.S3" Version="3.7.402.11" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.21.2" />
     <PackageVersion Include="Azure.Storage.Blobs.Batch" Version="12.18.1" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="6.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="MinVer" Version="6.0.0" />
