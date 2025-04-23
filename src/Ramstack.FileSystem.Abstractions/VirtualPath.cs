@@ -1,7 +1,6 @@
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 using Ramstack.FileSystem.Utilities;
 
@@ -345,8 +344,17 @@ public static class VirtualPath
     /// otherwise, <see langword="false" />.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasLeadingSlash(ReadOnlySpan<char> path) =>
-        path.Length != 0 && (path[0] == '/' || path[0] == '\\');
+    public static bool HasLeadingSlash(ReadOnlySpan<char> path)
+    {
+        if (path.Length != 0)
+        {
+            var ch = path[0];
+            if (ch == '/' || ch == '\\')
+                return true;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Determines whether the specified path string ends in a directory separator.
@@ -361,8 +369,9 @@ public static class VirtualPath
     {
         if (path.Length != 0)
         {
-            var ch = Unsafe.Add(ref MemoryMarshal.GetReference(path), (nint)(uint)path.Length - 1);
-            return ch == '/' || ch == '\\';
+            var ch = path[^1];
+            if (ch == '/' || ch == '\\')
+                return true;
         }
 
         return false;

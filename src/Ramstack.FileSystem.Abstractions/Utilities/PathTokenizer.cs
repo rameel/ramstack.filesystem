@@ -1,20 +1,18 @@
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Ramstack.FileSystem.Utilities;
 
 /// <summary>
 /// Tokenizes a file path into its constituent components.
 /// </summary>
-/// <param name="path">The file path to tokenize.</param>
+/// <param name="path">The path of the file to tokenize.</param>
 internal readonly struct PathTokenizer(string path)
 {
     /// <summary>
     /// Returns an enumerator that iterates through the collection.
     /// </summary>
     /// <returns>
-    /// An enumerator that can be used to iterate through the collection.
+    /// An enumerator to iterate through the collection.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Enumerator GetEnumerator() =>
@@ -38,30 +36,31 @@ internal readonly struct PathTokenizer(string path)
     public struct Enumerator
     {
         private readonly string _path;
-        private nint _start;
-        private nint _count;
+        private int _start;
+        private int _count;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Enumerator"/> structure.
         /// </summary>
         /// <param name="path">The file path to tokenize.</param>
-        public Enumerator(string path) =>
+        internal Enumerator(string path) =>
             (_path, _count) = (path, -1);
 
         /// <summary>
         /// Gets the current path component.
         /// </summary>
-        public ReadOnlySpan<char> Current
-        {
-            get
-            {
-                Debug.Assert(_path.AsSpan((int)_start, (int)_count).Length >= 0);
-
-                return MemoryMarshal.CreateReadOnlySpan(
-                    ref Unsafe.Add(ref Unsafe.AsRef(in _path.GetPinnableReference()), _start),
-                    (int)_count);
-            }
-        }
+        public ReadOnlySpan<char> Current =>
+            //
+            // Using AsSpan(_start) followed by slicing is more efficient
+            // than AsSpan(_start, _count) because:
+            // 1) MoveNext already validated _start bounds
+            // 2) We only need to check _count <= length (simpler than checking start+count)
+            //
+            // The alternative AsSpan(start, count) does a combined bounds check
+            // which the JIT can't optimize away:
+            // (ulong)(uint)_start + (ulong)(uint)_count <= (ulong)(uint)Length
+            //
+            _path.AsSpan(_start)[.._count];
 
         /// <summary>
         /// Advances the enumerator to the next path component.
@@ -75,17 +74,13 @@ internal readonly struct PathTokenizer(string path)
         {
             _start = _start + _count + 1;
 
-            if ((int)_start < _path.Length)
+            if ((uint)_start < (uint)_path.Length)
             {
-                Debug.Assert(_path.AsSpan((int)_start, _path.Length - (int)_start).Length >= 0);
-
-                var s = MemoryMarshal.CreateReadOnlySpan(
-                    ref Unsafe.Add(ref Unsafe.AsRef(in _path.GetPinnableReference()), _start),
-                    _path.Length - (int)_start);
+                var s = _path.AsSpan(_start);
 
                 _count = s.IndexOfAny('/', '\\');
                 if (_count < 0)
-                    _count = (nint)(uint)s.Length;
+                    _count = s.Length;
 
                 return true;
             }
