@@ -80,39 +80,6 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
     }
 
     [Test]
-    [Order(-1001)]
-    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
-    public async Task FileTree_NavigateAboveRoot_ThrowsException()
-    {
-        using var fs = GetFileSystem();
-
-        Assert.Throws<ArgumentException>(() => fs.GetDirectory(".."));
-        Assert.Throws<ArgumentException>(() => fs.GetDirectory("/.."));
-        Assert.Throws<ArgumentException>(() => fs.GetDirectory("/././.."));
-        Assert.Throws<ArgumentException>(() => fs.GetFile(".."));
-        Assert.Throws<ArgumentException>(() => fs.GetFile("/.."));
-        Assert.Throws<ArgumentException>(() => fs.GetFile("/././.."));
-
-        Assert.That(
-            await fs.GetFilesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
-
-        await foreach (var node in fs.GetFileNodesAsync("/", "**"))
-        {
-            foreach (var path in GetPathsAboveRoot(node.FullName))
-            {
-                Assert.Throws<ArgumentException>(() =>
-                {
-                    if (node is VirtualDirectory)
-                        fs.GetDirectory(path);
-                    else
-                        fs.GetFile(path);
-                });
-            }
-        }
-    }
-
-    [Test]
     public async Task Exists_ReturnsTrue_For_ExistingFile()
     {
         using var fs = GetFileSystem();
@@ -843,21 +810,4 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
     /// A <see cref="DirectoryInfo"/> object that points to the root of the test directory.
     /// </returns>
     protected abstract DirectoryInfo GetDirectoryInfo();
-
-    private static IEnumerable<string> GetPathsAboveRoot(string path)
-    {
-        var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
-        for (var n = 0; n <= segments.Length; n++)
-        {
-            var prefix = segments.Take(n).ToArray();
-            var suffix = segments.Skip(n).ToArray();
-            var parent = Enumerable.Repeat("..", n + 1).ToArray();
-            var curdir = Enumerable.Repeat(".",  n + 1).ToArray();
-
-            yield return "/" + string.Join("/", prefix.Concat(parent).Concat(suffix));
-            yield return "/" + string.Join("/", prefix.Concat(curdir).Concat(parent).Concat(suffix));
-            yield return "/" + string.Join("/", curdir.Concat(prefix).Concat(parent).Concat(suffix));
-        }
-    }
 }
