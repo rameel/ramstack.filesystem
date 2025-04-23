@@ -49,23 +49,18 @@ internal readonly struct PathTokenizer(string path)
         /// <summary>
         /// Gets the current path component.
         /// </summary>
-        public ReadOnlySpan<char> Current
-        {
-            get
-            {
-                //
-                // Using AsSpan(_start) followed by slicing is more efficient
-                // than AsSpan(_start, _count) because:
-                // 1) MoveNext already validated _start bounds
-                // 2) We only need to check _count <= length (simpler than checking start+count)
-                //
-                // The alternative AsSpan(start, count) does a combined bounds check
-                // which the JIT can't optimize away:
-                // (ulong)(uint)_start + (ulong)(uint)_count <= (ulong)(uint)Length
-                //
-                return _path.AsSpan(_start)[.._count];
-            }
-        }
+        public ReadOnlySpan<char> Current =>
+            //
+            // Using AsSpan(_start) followed by slicing is more efficient
+            // than AsSpan(_start, _count) because:
+            // 1) MoveNext already validated _start bounds
+            // 2) We only need to check _count <= length (simpler than checking start+count)
+            //
+            // The alternative AsSpan(start, count) does a combined bounds check
+            // which the JIT can't optimize away:
+            // (ulong)(uint)_start + (ulong)(uint)_count <= (ulong)(uint)Length
+            //
+            _path.AsSpan(_start)[.._count];
 
         /// <summary>
         /// Advances the enumerator to the next path component.
