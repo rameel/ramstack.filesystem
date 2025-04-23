@@ -1,6 +1,4 @@
 using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 
 using Ramstack.FileSystem.Utilities;
 
@@ -168,7 +166,7 @@ public static class VirtualPath
         {
             var prior = path[0];
 
-            for (var j = 1; j < path.Length; j++)
+            for (var j = 1; (uint)j < (uint)path.Length; j++)
             {
                 var ch = path[j];
                 if (ch == '\\' || ch == '/' && prior == '/')
@@ -176,20 +174,18 @@ public static class VirtualPath
 
                 if (ch == '.' && prior == '/')
                 {
-                    if ((uint)j + 1 >= path.Length)
+                    if ((uint)j + 1 >= (uint)path.Length)
                         return false;
 
-                    var nch = path[j + 1];
-                    if (nch == '/' || nch == '\\')
+                    if (path[j + 1] is '/' or '\\')
                         return false;
 
-                    if (nch == '.')
+                    if (path[j + 1] == '.')
                     {
-                        if ((uint)j + 2 >= path.Length)
+                        if ((uint)j + 2 >= (uint)path.Length)
                             return false;
 
-                        var sch = path[j + 2];
-                        if (sch == '/' || sch == '\\')
+                        if (path[j + 2] is '/' or '\\')
                             return false;
                     }
                 }
@@ -319,7 +315,6 @@ public static class VirtualPath
     /// <see langword="true" /> if the path has a leading directory separator;
     /// otherwise, <see langword="false" />.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasLeadingSlash(string path) =>
         path.StartsWith('/') || path.StartsWith('\\');
 
@@ -331,7 +326,6 @@ public static class VirtualPath
     /// <see langword="true" /> if the path has a trailing directory separator;
     /// otherwise, <see langword="false" />.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasTrailingSlash(string path) =>
         path.EndsWith('/') || path.EndsWith('\\');
 
@@ -343,7 +337,6 @@ public static class VirtualPath
     /// <see langword="true" /> if the path has a leading directory separator;
     /// otherwise, <see langword="false" />.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasLeadingSlash(ReadOnlySpan<char> path)
     {
         if (path.Length != 0)
@@ -364,7 +357,6 @@ public static class VirtualPath
     /// <see langword="true" /> if the path has a trailing directory separator;
     /// otherwise, <see langword="false" />.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasTrailingSlash(ReadOnlySpan<char> path)
     {
         if (path.Length != 0)
@@ -392,8 +384,4 @@ public static class VirtualPath
 
         return index;
     }
-
-    [DoesNotReturn]
-    private static void Error_InvalidPath() =>
-        throw new ArgumentException("Invalid path");
 }

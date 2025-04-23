@@ -49,7 +49,8 @@ internal readonly struct PathTokenizer(string path)
         /// <summary>
         /// Gets the current path component.
         /// </summary>
-        public ReadOnlySpan<char> Current =>
+        public ReadOnlySpan<char> Current
+        {
             //
             // Using AsSpan(_start) followed by slicing is more efficient
             // than AsSpan(_start, _count) because:
@@ -60,7 +61,9 @@ internal readonly struct PathTokenizer(string path)
             // which the JIT can't optimize away:
             // (ulong)(uint)_start + (ulong)(uint)_count <= (ulong)(uint)Length
             //
-            _path.AsSpan(_start)[.._count];
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _path.AsSpan(_start)[.._count];
+        }
 
         /// <summary>
         /// Advances the enumerator to the next path component.

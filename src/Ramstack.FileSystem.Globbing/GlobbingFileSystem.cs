@@ -55,8 +55,8 @@ public sealed class GlobbingFileSystem : IVirtualFileSystem
         ArgumentNullException.ThrowIfNull(patterns);
 
         _fs = fileSystem;
-        _patterns = patterns.ToArray();
-        _excludes = excludes?.ToArray() ?? [];
+        _patterns = [..patterns];
+        _excludes = [..excludes ?? []];
     }
 
     /// <inheritdoc />
