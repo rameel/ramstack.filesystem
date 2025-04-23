@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Ramstack.FileSystem.Utilities;
@@ -54,8 +53,6 @@ internal readonly struct PathTokenizer(string path)
         {
             get
             {
-                Debug.Assert(_path.AsSpan(_start, _count).Length >= 0);
-
                 //
                 // Using AsSpan(_start) followed by slicing is more efficient
                 // than AsSpan(_start, _count) because:
