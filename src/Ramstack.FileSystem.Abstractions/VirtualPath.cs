@@ -168,7 +168,7 @@ public static class VirtualPath
         {
             var prior = path[0];
 
-            for (var j = 1; j < path.Length; j++)
+            for (var j = 1; (uint)j < (uint)path.Length; j++)
             {
                 var ch = path[j];
                 if (ch == '\\' || ch == '/' && prior == '/')
