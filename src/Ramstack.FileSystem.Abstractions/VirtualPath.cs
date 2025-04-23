@@ -244,10 +244,10 @@ public static class VirtualPath
                 // Unwind back to the last separator
                 index = buffer[..index].LastIndexOf('/');
 
-                // Path.GetFullPath in this case does not throw an exception,
-                // it simply clears out the buffer.
+                // If no separator is found, reset to start
+                // (mimics Path.GetFullPath behavior)
                 if (index < 0)
-                    Error_InvalidPath();
+                    index = 0;
             }
             else
             {

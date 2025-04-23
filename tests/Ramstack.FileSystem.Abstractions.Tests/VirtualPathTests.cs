@@ -107,16 +107,16 @@ public class VirtualPathTests
     [TestCase("/home/../home/user//documents", "/home/user/documents")]
     [TestCase("/home/../home/user/../../home/config/documents", "/home/config/documents")]
     [TestCase("/home/../home/user/./.././.././home/config/documents", "/home/config/documents")]
+    [TestCase("..", "/")]
+    [TestCase("../..", "/")]
+    [TestCase("../../../", "/")]
+    [TestCase("/home/../..", "/")]
+    [TestCase("/home/../../..", "/")]
     public void Normalize(string path, string expected)
     {
         foreach (var p in GetPathVariations(path))
             Assert.That(VirtualPath.Normalize(p),Is.EqualTo(expected));
     }
-
-    [TestCase("..")]
-    [TestCase("/home/../..")]
-    public void Normalize_Error(string path) =>
-        Assert.Throws<ArgumentException>(() => VirtualPath.Normalize(path));
 
     private static string[] GetPathVariations(string path) =>
         [path, path.Replace('/', '\\')];
