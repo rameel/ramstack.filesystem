@@ -102,7 +102,7 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
         // FileSystemCasing? FilePathCasing?
 
         if (path.StartsWith(prefix, StringComparison.Ordinal) && path[prefix.Length] == '/')
-            return path[prefix.Length..];
+            return new string(path.AsSpan(prefix.Length));
 
         return null;
     }
