@@ -1,4 +1,6 @@
 # Ramstack.FileSystem
+[![NuGet](https://img.shields.io/nuget/v/Ramstack.FileSystem.Abstractions.svg)](https://nuget.org/packages/Ramstack.FileSystem.Abstractions)
+[![MIT](https://img.shields.io/github/license/rameel/ramstack.filesystem)](https://github.com/rameel/ramstack.filesystem/blob/main/LICENSE)
 
 A .NET library providing a virtual file system abstraction.
 
@@ -12,7 +14,7 @@ The primary interface is `IVirtualFileSystem`, which exposes methods to:
 
 ### VirtualFile
 
-The `VirtualFile` class provides properties and methods for creating, deleting, copying and opening files within the virtual file system.
+The `VirtualFile` class provides properties and methods for creating, deleting, copying, and opening files within the virtual file system.
 
 ```csharp
 using Ramstack.FileSystem;
@@ -160,5 +162,5 @@ Bug reports and contributions are welcome.
 ## License
 
 This package is released as open source under the **MIT License**.
-See the [LICENSE](https://github.com/rameel/ramstack.virtualfiles/blob/main/LICENSE) file for more details.
+See the [LICENSE](https://github.com/rameel/ramstack.filesystem/blob/main/LICENSE) file for more details.
 
