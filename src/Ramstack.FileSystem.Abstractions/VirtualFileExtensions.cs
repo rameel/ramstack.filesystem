@@ -8,12 +8,12 @@ namespace Ramstack.FileSystem;
 /// </summary>
 public static class VirtualFileExtensions
 {
-    private static Encoding? _utf8NoBom;
+    private static Encoding? s_utf8NoBom;
 
     /// <summary>
     /// Gets an instance of <c>UTF8</c> encoding without BOM.
     /// </summary>
-    private static Encoding Utf8NoBom => _utf8NoBom ??= new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+    private static Encoding Utf8NoBom => s_utf8NoBom ??= new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
     /// <summary>
     /// Asynchronously returns a <see cref="StreamReader"/> with <see cref="Encoding.UTF8"/>

@@ -15,7 +15,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
     /// including system and hidden files, not recurse through subdirectories,
     /// and ignore inaccessible files.
     /// </summary>
-    private static readonly EnumerationOptions DefaultOptions = new()
+    private static readonly EnumerationOptions s_defaultOptions = new()
     {
         AttributesToSkip = 0,
         RecurseSubdirectories = false,
@@ -85,7 +85,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
         // its existence was checked.
 
         var nodes = Directory.Exists(_physicalPath)
-            ? new FileSystemEnumerable<VirtualNode>(_physicalPath, FindTransform, DefaultOptions)
+            ? new FileSystemEnumerable<VirtualNode>(_physicalPath, FindTransform, s_defaultOptions)
             : Enumerable.Empty<VirtualNode>();
 
         return nodes.ToAsyncEnumerable();
@@ -108,7 +108,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
 
         if (Directory.Exists(_physicalPath))
         {
-            nodes = new FileSystemEnumerable<VirtualFile>(_physicalPath, FindTransform, DefaultOptions)
+            nodes = new FileSystemEnumerable<VirtualFile>(_physicalPath, FindTransform, s_defaultOptions)
             {
                 ShouldIncludePredicate = (ref FileSystemEntry entry) => !entry.IsDirectory
             };
@@ -134,7 +134,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
 
         if (Directory.Exists(_physicalPath))
         {
-            nodes = new FileSystemEnumerable<VirtualDirectory>(_physicalPath, FindTransform, DefaultOptions)
+            nodes = new FileSystemEnumerable<VirtualDirectory>(_physicalPath, FindTransform, s_defaultOptions)
             {
                 ShouldIncludePredicate = (ref FileSystemEntry entry) => entry.IsDirectory
             };
