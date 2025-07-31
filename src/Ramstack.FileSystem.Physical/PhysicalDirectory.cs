@@ -110,7 +110,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
         {
             nodes = new FileSystemEnumerable<VirtualFile>(_physicalPath, FindTransform, s_defaultOptions)
             {
-                ShouldIncludePredicate = (ref FileSystemEntry entry) => !entry.IsDirectory
+                ShouldIncludePredicate = (ref entry) => !entry.IsDirectory
             };
         }
 
@@ -136,7 +136,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
         {
             nodes = new FileSystemEnumerable<VirtualDirectory>(_physicalPath, FindTransform, s_defaultOptions)
             {
-                ShouldIncludePredicate = (ref FileSystemEntry entry) => entry.IsDirectory
+                ShouldIncludePredicate = (ref entry) => entry.IsDirectory
             };
         }
 
