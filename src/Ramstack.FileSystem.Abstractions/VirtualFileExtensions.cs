@@ -11,7 +11,7 @@ public static class VirtualFileExtensions
     private static Encoding? s_utf8NoBom;
 
     /// <summary>
-    /// Gets an instance of <c>UTF8</c> encoding without BOM.
+    /// Gets an instance of the <see cref="UTF8Encoding"/> without BOM.
     /// </summary>
     private static Encoding Utf8NoBom => s_utf8NoBom ??= new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
