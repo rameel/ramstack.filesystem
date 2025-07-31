@@ -118,7 +118,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
 
         VirtualFile FindTransform(ref FileSystemEntry entry)
         {
-            Debug.Assert(entry.IsDirectory == false);
+            Debug.Assert(!entry.IsDirectory);
 
             var fullName = VirtualPath.Join(FullName, entry.FileName);
             var physicalPath = entry.ToFullPath();
