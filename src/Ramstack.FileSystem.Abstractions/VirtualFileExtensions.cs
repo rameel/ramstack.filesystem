@@ -279,7 +279,7 @@ public static class VirtualFileExtensions
         WriteAllTextAsync(file, contents.AsMemory(), encoding, cancellationToken);
 
     /// <summary>
-    /// Asynchronously writes the specified string to current the file. If the file already exists, it is truncated and overwritten.
+    /// Asynchronously writes the specified string to the current file. If the file already exists, it is truncated and overwritten.
     /// </summary>
     /// <param name="file">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>

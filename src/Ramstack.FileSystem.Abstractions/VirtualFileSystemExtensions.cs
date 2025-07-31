@@ -189,7 +189,7 @@ public static partial class VirtualFileSystemExtensions
         fs.GetFile(path).WriteAllTextAsync(contents, encoding, cancellationToken);
 
     /// <summary>
-    /// Asynchronously writes the specified string to specified the file. If the file already exists, it is truncated and overwritten.
+    /// Asynchronously writes the specified string to the specified the file. If the file already exists, it is truncated and overwritten.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to write to.</param>

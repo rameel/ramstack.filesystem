@@ -83,7 +83,7 @@ Console.WriteLine(await reader.ReadToEndAsync());
 
 ### VirtualDirectory
 
-The `VirtualDirectory` class provides properties and methods for creating, deleting, and enumerating directories and subdirectories.
+The `VirtualDirectory` class provides properties and methods for creating, deleting and enumerating directories and subdirectories.
 
 ```csharp
 public static async Task PrintFilesAsync(VirtualDirectory directory, string padding = "", CancellationToken cancellationToken = default)

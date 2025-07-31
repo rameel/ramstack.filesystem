@@ -65,7 +65,7 @@ internal sealed class PhysicalFile : VirtualFile
 
         var stream = new FileStream(_physicalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
 
-        // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
+        // Since FileMode.OpenOrCreate doesn't truncate the file, we manually
         // set the file length to zero to remove any leftover data.
         stream.SetLength(0);
 
@@ -90,7 +90,7 @@ internal sealed class PhysicalFile : VirtualFile
 
             await using var fs = new FileStream(_physicalPath, fileMode, FileAccess.Write, FileShare.None, DefaultBufferSize, options);
 
-            // Since, FileMode.OpenOrCreate doesn't truncate the file, we manually
+            // Since FileMode.OpenOrCreate doesn't truncate the file, we manually
             // set the file length to zero to remove any leftover data.
             fs.SetLength(0);
 
