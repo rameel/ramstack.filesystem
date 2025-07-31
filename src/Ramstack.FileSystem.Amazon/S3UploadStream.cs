@@ -124,7 +124,7 @@ internal sealed class S3UploadStream : Stream
         WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
 
     /// <inheritdoc />
-    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new CancellationToken())
+    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         try
         {
