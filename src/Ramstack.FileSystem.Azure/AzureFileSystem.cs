@@ -118,7 +118,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     ///   <item>
     ///     <description>
     ///       <see cref="PublicAccessType.BlobContainer" />: Specifies full public read access for both the container and blob data.
-    ///       Clients can enumerate blobs within the container via anonymous requests, but cannot enumerate containers within the storage account.
+    ///       Clients can enumerate blobs within the container via anonymous requests but cannot enumerate containers within the storage account.
     ///     </description>
     ///   </item>
     ///   <item>

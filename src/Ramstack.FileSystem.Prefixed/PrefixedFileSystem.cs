@@ -29,7 +29,7 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
         prefix = VirtualPath.Normalize(prefix);
         (_prefix, _fs) = (prefix, fileSystem);
 
-        // Create artificial directory list
+        // Create an artificial directory list
         _directories = CreateArtificialDirectories(this, prefix);
 
         static VirtualDirectory[] CreateArtificialDirectories(PrefixedFileSystem fs, string path)

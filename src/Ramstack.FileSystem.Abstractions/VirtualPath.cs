@@ -82,7 +82,7 @@ public static class VirtualPath
     /// <summary>
     /// Returns the file name and extension for the specified path.
     /// </summary>
-    /// <param name="path">The path from which to obtain the file name and extension.</param>
+    /// <param name="path">The path from which to get the file name and extension.</param>
     /// <returns>
     /// The file name and extension for the <paramref name="path"/>.
     /// </returns>
@@ -100,7 +100,7 @@ public static class VirtualPath
     /// <summary>
     /// Returns the file name and extension for the specified path.
     /// </summary>
-    /// <param name="path">The path from which to obtain the file name and extension.</param>
+    /// <param name="path">The path from which to get the file name and extension.</param>
     /// <returns>
     /// The file name and extension for the <paramref name="path"/>.
     /// </returns>
@@ -118,7 +118,7 @@ public static class VirtualPath
     /// </summary>
     /// <param name="path">The path to retrieve the directory portion from.</param>
     /// <returns>
-    /// Directory portion for <paramref name="path"/>, or an empty string if path denotes a root directory.
+    /// Directory portion for <paramref name="path"/>, or an empty string if the path denotes a root directory.
     /// </returns>
     public static string GetDirectoryName(string path)
     {
