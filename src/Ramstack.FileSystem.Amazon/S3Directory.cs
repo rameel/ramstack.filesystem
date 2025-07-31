@@ -103,4 +103,52 @@ internal sealed class S3Directory : VirtualDirectory
         }
         while (request.ContinuationToken is not null && !cancellationToken.IsCancellationRequested);
     }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        var request = new ListObjectsV2Request
+        {
+            BucketName = _fs.BucketName,
+            Prefix = _prefix,
+            Delimiter = "/"
+        };
+
+        do
+        {
+            var response = await _fs.AmazonClient
+                .ListObjectsV2Async(request, cancellationToken)
+                .ConfigureAwait(false);
+
+            foreach (var obj in response.S3Objects)
+                yield return new S3File(_fs, VirtualPath.Normalize(obj.Key));
+
+            request.ContinuationToken = response.NextContinuationToken;
+        }
+        while (request.ContinuationToken is not null && !cancellationToken.IsCancellationRequested);
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        var request = new ListObjectsV2Request
+        {
+            BucketName = _fs.BucketName,
+            Prefix = _prefix,
+            Delimiter = "/"
+        };
+
+        do
+        {
+            var response = await _fs.AmazonClient
+                .ListObjectsV2Async(request, cancellationToken)
+                .ConfigureAwait(false);
+
+            foreach (var prefix in response.CommonPrefixes)
+                yield return new S3Directory(_fs, VirtualPath.Normalize(prefix));
+
+            request.ContinuationToken = response.NextContinuationToken;
+        }
+        while (request.ContinuationToken is not null && !cancellationToken.IsCancellationRequested);
+    }
 }
