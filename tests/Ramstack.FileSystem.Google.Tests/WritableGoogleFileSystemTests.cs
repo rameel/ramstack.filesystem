@@ -213,6 +213,6 @@ public class WritableGoogleFileSystemTests : VirtualFileSystemSpecificationTests
         var client = StorageClient.Create(
             GoogleCredential.FromFile("credentials.json"));
 
-        return new GoogleFileSystem(bucketName: bucket, client: client);
+        return new GoogleFileSystem(client, bucketName: bucket);
     }
 }

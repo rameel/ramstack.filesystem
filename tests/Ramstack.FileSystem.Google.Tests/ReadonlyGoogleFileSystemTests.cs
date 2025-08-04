@@ -57,7 +57,7 @@ public class ReadonlyGoogleFileSystemTests : VirtualFileSystemSpecificationTests
         var client = StorageClient.Create(
             GoogleCredential.FromFile("credentials.json"));
 
-        return new GoogleFileSystem(bucketName: "ramstack-test-bucket", client: client)
+        return new GoogleFileSystem(client, "ramstack-test-bucket")
         {
             IsReadOnly = isReadOnly
         };
