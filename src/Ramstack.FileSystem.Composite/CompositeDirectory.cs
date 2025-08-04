@@ -23,11 +23,8 @@ internal sealed class CompositeDirectory : VirtualDirectory
         _fs = fileSystem;
 
     /// <inheritdoc />
-    protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
-    {
-        var properties = VirtualNodeProperties.CreateDirectoryProperties(default, default, default);
-        return new ValueTask<VirtualNodeProperties?>(properties);
-    }
+    protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken) =>
+        new ValueTask<VirtualNodeProperties?>(VirtualNodeProperties.None);
 
     /// <inheritdoc />
     protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken) =>

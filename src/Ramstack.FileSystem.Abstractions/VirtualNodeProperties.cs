@@ -9,10 +9,16 @@ namespace Ramstack.FileSystem;
 public sealed class VirtualNodeProperties
 {
     /// <summary>
-    /// Gets an instance of <see cref="VirtualNodeProperties"/> that represents a node with no data or an unavailable state.
+    /// Gets an instance of <see cref="VirtualNodeProperties"/> that represents a node with an unavailable state.
     /// </summary>
     public static VirtualNodeProperties Unavailable { get; } =
         new VirtualNodeProperties(default, default, default, -1);
+
+    /// <summary>
+    /// Gets an instance of <see cref="VirtualNodeProperties"/> that represents a node with no data.
+    /// </summary>
+    public static VirtualNodeProperties None { get; } =
+        new VirtualNodeProperties(default, default, default, 0);
 
     /// <summary>
     /// Gets the time when the current file or directory was created.
