@@ -1,29 +1,40 @@
-# Ramstack.FileSystem.Sub
+# Ramstack.FileSystem.Google
 
-Provides an implementation of `Ramstack.FileSystem` that wraps an underlying file system for managing files under a specific subpath.
+Provides an implementation of `Ramstack.FileSystem` using Google Cloud Storage.
 
 ## Getting Started
 
-To install the `Ramstack.FileSystem.Sub` [NuGet package](https://www.nuget.org/packages/Ramstack.FileSystem.Sub)
+To install the `Ramstack.FileSystem.Google` [NuGet package](https://www.nuget.org/packages/Ramstack.FileSystem.Google)
 in your project, run the following command:
 ```console
-dotnet add package Ramstack.FileSystem.Sub
+dotnet add package Ramstack.FileSystem.Google
 ```
+
 ## Usage
 
 ```csharp
-using Ramstack.FileSystem.Sub;
+using Ramstack.FileSystem.Google;
 
-IVirtualFileSystem fileSystem = new PhysicalFileSystem(@"C:\project");
+var client = StorageClient.Create(
+    GoogleCredential.FromFile("/path/to/credentials.json"));
 
-// Restrict the file system to only the contents within the "/app/assets" directory
-// of the parent file system. Files and directories above the specified path will be inaccessible.
-SubFileSystem fs = new SubFileSystem(path: "/app/assets", fileSystem);
+GoogleFileSystem fs = new GoogleFileSystem(client, bucketName: "my-bucket");
+
+// Create GCS bucket if it doesn't exist
+await fs.CreateBucketAsync("my-project-id");
 
 await foreach (VirtualFile file in fs.GetFilesAsync("/"))
 {
-    Console.WriteLine(file.FullName);
+    Console.WriteLine(node.Name);
 }
+```
+
+You can also configure the file system to be read-only:
+```csharp
+GoogleFileSystem fs = new GoogleFileSystem(client, bucketName: "my-bucket")
+{
+    IsReadOnly = true
+};
 ```
 
 ## Related Projects
@@ -31,11 +42,11 @@ await foreach (VirtualFile file in fs.GetFilesAsync("/"))
 - [Ramstack.FileSystem.Physical](https://www.nuget.org/packages/Ramstack.FileSystem.Physical) - Provides an implementation based on the local file system.
 - [Ramstack.FileSystem.Azure](https://www.nuget.org/packages/Ramstack.FileSystem.Azure) - Provides an implementation using Azure Blob storage.
 - [Ramstack.FileSystem.Amazon](https://www.nuget.org/packages/Ramstack.FileSystem.Amazon) - Provides an implementation using Amazon S3 storage.
-- [Ramstack.FileSystem.Google](https://www.nuget.org/packages/Ramstack.FileSystem.Google) - Provides an implementation using Google Cloud storage.
 - [Ramstack.FileSystem.Zip](https://www.nuget.org/packages/Ramstack.FileSystem.Zip) - Provides an implementation based on ZIP archives.
 - [Ramstack.FileSystem.Readonly](https://www.nuget.org/packages/Ramstack.FileSystem.Readonly) - Provides a read-only wrapper for the underlying file system.
 - [Ramstack.FileSystem.Globbing](https://www.nuget.org/packages/Ramstack.FileSystem.Globbing) - Wraps the file system, filtering files and directories using glob patterns.
 - [Ramstack.FileSystem.Prefixed](https://www.nuget.org/packages/Ramstack.FileSystem.Prefixed) - Adds a prefix to file paths within the underlying file system.
+- [Ramstack.FileSystem.Sub](https://www.nuget.org/packages/Ramstack.FileSystem.Sub) - Wraps the underlying file system, restricting access to a specific subpath.
 - [Ramstack.FileSystem.Adapters](https://www.nuget.org/packages/Ramstack.FileSystem.Adapters) - Provides integration with `Microsoft.Extensions.FileProviders`.
 - [Ramstack.FileSystem.Composite](https://www.nuget.org/packages/Ramstack.FileSystem.Composite) - Provides an implementation that combines multiple file systems into a single composite file system.
 
