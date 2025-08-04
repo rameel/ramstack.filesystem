@@ -46,8 +46,8 @@ internal sealed class VirtualDirectoryAdapter : VirtualDirectory
     protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
     {
         var properties = _file?.Exists ?? _directory!.Exists
-            ? VirtualNodeProperties.CreateDirectoryProperties(default, default, default)
-            : null;
+            ? VirtualNodeProperties.None
+            : VirtualNodeProperties.Unavailable;
 
         return new ValueTask<VirtualNodeProperties?>(properties);
     }

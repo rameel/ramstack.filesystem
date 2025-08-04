@@ -24,15 +24,12 @@ internal sealed class S3Directory : VirtualDirectory
     public S3Directory(AmazonS3FileSystem fileSystem, string path) : base(path)
     {
         _fs = fileSystem;
-        _prefix = FullName == "/" ? "" : $"{FullName[1..]}/";
+        _prefix = path == "/" ? "" : $"{path[1..]}/";
     }
 
     /// <inheritdoc />
-    protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
-    {
-        var properties = VirtualNodeProperties.CreateDirectoryProperties(default, default, default);
-        return new ValueTask<VirtualNodeProperties?>(properties);
-    }
+    protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken) =>
+        new ValueTask<VirtualNodeProperties?>(VirtualNodeProperties.None);
 
     /// <inheritdoc />
     protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken) =>

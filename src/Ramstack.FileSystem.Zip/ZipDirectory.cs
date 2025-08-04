@@ -20,16 +20,13 @@ internal sealed class ZipDirectory : VirtualDirectory
     /// Initializes a new instance of the <see cref="ZipDirectory"/> class.
     /// </summary>
     /// <param name="fileSystem">The file system associated with this directory.</param>
-    /// <param name="path">The path of directory.</param>
+    /// <param name="path">The path of the directory.</param>
     public ZipDirectory(ZipFileSystem fileSystem, string path) : base(path) =>
         _fileSystem = fileSystem;
 
     /// <inheritdoc />
-    protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
-    {
-        var properties = VirtualNodeProperties.CreateDirectoryProperties(default, default, default);
-        return new ValueTask<VirtualNodeProperties?>(properties);
-    }
+    protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken) =>
+        new ValueTask<VirtualNodeProperties?>(VirtualNodeProperties.None);
 
     /// <inheritdoc />
     protected override ValueTask<bool> ExistsCoreAsync(CancellationToken cancellationToken) =>
