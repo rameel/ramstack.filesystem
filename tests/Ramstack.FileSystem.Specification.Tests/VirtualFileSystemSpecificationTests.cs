@@ -65,8 +65,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         using var fs = GetFileSystem();
 
         Assert.That(
-            await fs.GetFilesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
+            await fs.GetFilesAsync("/", "**").AnyAsync(),
+            Is.True);
 
         await foreach (var node in fs.GetFileNodesAsync("/", "**"))
         {
@@ -85,8 +85,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         using var fs = GetFileSystem();
 
         Assert.That(
-            await fs.GetFilesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
+            await fs.GetFilesAsync("/", "**").AnyAsync(),
+            Is.True);
 
         await foreach (var node in fs.GetFileNodesAsync("/", "**"))
         {
@@ -114,8 +114,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
         using var fs = GetFileSystem();
 
         Assert.That(
-            await fs.GetFilesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
+            await fs.GetFilesAsync("/", "**").AnyAsync(),
+            Is.True);
 
         await foreach (var file in fs.GetFilesAsync("/", "**"))
         {
@@ -148,8 +148,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             return;
 
         Assert.That(
-            await fs.GetFilesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
+            await fs.GetFilesAsync("/", "**").AnyAsync(),
+            Is.True);
 
         await foreach (var file in fs.GetFilesAsync("/", "**"))
         {
@@ -205,8 +205,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             return;
 
         Assert.That(
-            await fs.GetFilesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
+            await fs.GetFilesAsync("/", "**").AnyAsync(),
+            Is.True);
 
         await foreach (var file in fs.GetFilesAsync("/", "**"))
         {
@@ -233,8 +233,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             return;
 
         Assert.That(
-            await fs.GetFilesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
+            await fs.GetFilesAsync("/", "**").AnyAsync(),
+            Is.True);
 
         await foreach (var file in fs.GetFilesAsync("/", "**"))
         {
@@ -324,8 +324,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             return;
 
         Assert.That(
-            await fs.GetFilesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
+            await fs.GetFilesAsync("/", "**").AnyAsync(),
+            Is.True);
 
         await foreach (var file in fs.GetFilesAsync("/", "**"))
         {
@@ -362,8 +362,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             return;
 
         Assert.That(
-            await fs.GetFilesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
+            await fs.GetFilesAsync("/", "**").AnyAsync(),
+            Is.True);
 
         await foreach (var file in fs.GetFilesAsync("/", "**"))
         {
@@ -395,8 +395,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             return;
 
         Assert.That(
-            await fs.GetFilesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
+            await fs.GetFilesAsync("/", "**").AnyAsync(),
+            Is.True);
 
         await foreach (var file in fs.GetFilesAsync("/", "**"))
             Assert.That(() => file.DeleteAsync(), Throws.Exception);
@@ -705,8 +705,8 @@ public abstract class VirtualFileSystemSpecificationTests(string safePath = "/")
             return;
 
         Assert.That(
-            await fs.GetDirectoriesAsync("/", "**").CountAsync(),
-            Is.Not.Zero);
+            await fs.GetDirectoriesAsync("/", "**").AnyAsync(),
+            Is.True);
 
         await foreach (var directory in fs.GetDirectoriesAsync("/", "**"))
             await directory.CreateAsync();
