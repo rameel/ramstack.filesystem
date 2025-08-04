@@ -92,13 +92,6 @@ internal sealed class S3UploadStream : Stream
     }
 
     /// <inheritdoc />
-    public override long Seek(long offset, SeekOrigin origin)
-    {
-        Error_NotSupported();
-        return 0;
-    }
-
-    /// <inheritdoc />
     public override void Write(byte[] buffer, int offset, int count) =>
         Write(buffer.AsSpan(offset, count));
 
@@ -137,6 +130,13 @@ internal sealed class S3UploadStream : Stream
             await AbortAsync(cancellationToken).ConfigureAwait(false);
             ExceptionDispatchInfo.Throw(exception);
         }
+    }
+
+    /// <inheritdoc />
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+        Error_NotSupported();
+        return 0;
     }
 
     /// <inheritdoc />

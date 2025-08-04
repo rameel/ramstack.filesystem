@@ -24,7 +24,7 @@ internal sealed class S3Directory : VirtualDirectory
     public S3Directory(AmazonS3FileSystem fileSystem, string path) : base(path)
     {
         _fs = fileSystem;
-        _prefix = FullName == "/" ? "" : $"{FullName[1..]}/";
+        _prefix = path == "/" ? "" : $"{path[1..]}/";
     }
 
     /// <inheritdoc />
