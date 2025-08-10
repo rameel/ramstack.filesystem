@@ -2,6 +2,8 @@ using System.Runtime.CompilerServices;
 
 using Amazon.S3.Model;
 
+using Ramstack.Globbing;
+
 namespace Ramstack.FileSystem.Amazon;
 
 /// <summary>
@@ -11,7 +13,6 @@ namespace Ramstack.FileSystem.Amazon;
 internal sealed class S3Directory : VirtualDirectory
 {
     private readonly AmazonS3FileSystem _fs;
-    private readonly string _prefix;
 
     /// <inheritdoc />
     public override IVirtualFileSystem FileSystem => _fs;
@@ -21,11 +22,8 @@ internal sealed class S3Directory : VirtualDirectory
     /// </summary>
     /// <param name="fileSystem">The file system associated with this directory.</param>
     /// <param name="path">The path to the directory within the specified Amazon S3 bucket.</param>
-    public S3Directory(AmazonS3FileSystem fileSystem, string path) : base(path)
-    {
+    public S3Directory(AmazonS3FileSystem fileSystem, string path) : base(path) =>
         _fs = fileSystem;
-        _prefix = path == "/" ? "" : $"{path[1..]}/";
-    }
 
     /// <inheritdoc />
     protected override ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken) =>
@@ -41,7 +39,7 @@ internal sealed class S3Directory : VirtualDirectory
         var lr = new ListObjectsV2Request
         {
             BucketName = _fs.BucketName,
-            Prefix = _prefix
+            Prefix = GetPrefix(FullName)
         };
 
         var dr = new DeleteObjectsRequest
@@ -80,7 +78,7 @@ internal sealed class S3Directory : VirtualDirectory
         var request = new ListObjectsV2Request
         {
             BucketName = _fs.BucketName,
-            Prefix = _prefix,
+            Prefix = GetPrefix(FullName),
             Delimiter = "/"
         };
 
@@ -94,7 +92,7 @@ internal sealed class S3Directory : VirtualDirectory
                 yield return new S3Directory(_fs, VirtualPath.Normalize(prefix));
 
             foreach (var obj in response.S3Objects)
-                yield return new S3File(_fs, VirtualPath.Normalize(obj.Key));
+                yield return CreateVirtualFile(obj);
 
             request.ContinuationToken = response.NextContinuationToken;
         }
@@ -107,7 +105,7 @@ internal sealed class S3Directory : VirtualDirectory
         var request = new ListObjectsV2Request
         {
             BucketName = _fs.BucketName,
-            Prefix = _prefix,
+            Prefix = GetPrefix(FullName),
             Delimiter = "/"
         };
 
@@ -118,7 +116,7 @@ internal sealed class S3Directory : VirtualDirectory
                 .ConfigureAwait(false);
 
             foreach (var obj in response.S3Objects)
-                yield return new S3File(_fs, VirtualPath.Normalize(obj.Key));
+                yield return CreateVirtualFile(obj);
 
             request.ContinuationToken = response.NextContinuationToken;
         }
@@ -131,7 +129,7 @@ internal sealed class S3Directory : VirtualDirectory
         var request = new ListObjectsV2Request
         {
             BucketName = _fs.BucketName,
-            Prefix = _prefix,
+            Prefix = GetPrefix(FullName),
             Delimiter = "/"
         };
 
@@ -148,4 +146,223 @@ internal sealed class S3Directory : VirtualDirectory
         }
         while (request.ContinuationToken is not null && !cancellationToken.IsCancellationRequested);
     }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        //
+        // Cloud storage optimization strategy:
+        // 1. List all objects in one batch using prefix filtering (matches our virtual directory).
+        // 2. Perform pattern matching and exclusion filters locally.
+        //
+        // Benefits:
+        // - Single API call instead of per-directory requests
+        // - Reduced network latency, especially for deep directory structures
+        // - More efficient than recursive directory scanning
+        //
+
+        var request = new ListObjectsV2Request
+        {
+            BucketName = _fs.BucketName,
+            Prefix = GetPrefix(FullName)
+        };
+
+        var directories = new HashSet<string>
+        {
+            FullName
+        };
+
+        do
+        {
+            var response = await _fs.AmazonClient
+                .ListObjectsV2Async(request, cancellationToken)
+                .ConfigureAwait(false);
+
+            foreach (var obj in response.S3Objects)
+            {
+                var directoryPath = VirtualPath.GetDirectoryName(
+                    VirtualPath.Join("/", obj.Key));
+
+                while (directoryPath.Length != 0 && directories.Add(directoryPath))
+                {
+                    //
+                    // Directories are yielded in reverse order (deepest first).
+                    //
+                    // Note: We could use a Stack<string> to control the order,
+                    // but since order isn't guaranteed anyway and to avoid
+                    // unnecessary memory allocation, we process them directly.
+                    //
+                    if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
+                        yield return new S3Directory(_fs, VirtualPath.Normalize(directoryPath));
+
+                    directoryPath = VirtualPath.GetDirectoryName(directoryPath);
+                }
+
+                if (IsMatched(obj.Key.AsSpan(request.Prefix.Length), patterns, excludes))
+                    yield return CreateVirtualFile(obj);
+            }
+
+            request.ContinuationToken = response.NextContinuationToken;
+        }
+        while (request.ContinuationToken is not null && !cancellationToken.IsCancellationRequested);
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        //
+        // Cloud storage optimization strategy:
+        // 1. List all objects in one batch using prefix filtering (matches our virtual directory).
+        // 2. Perform pattern matching and exclusion filters locally.
+        //
+        // Benefits:
+        // - Single API call instead of per-directory requests
+        // - Reduced network latency, especially for deep directory structures
+        // - More efficient than recursive directory scanning
+        //
+
+        var request = new ListObjectsV2Request
+        {
+            BucketName = _fs.BucketName,
+            Prefix = GetPrefix(FullName)
+        };
+
+        do
+        {
+            var response = await _fs.AmazonClient
+                .ListObjectsV2Async(request, cancellationToken)
+                .ConfigureAwait(false);
+
+            foreach (var obj in response.S3Objects)
+                if (IsMatched(obj.Key.AsSpan(request.Prefix.Length), patterns, excludes))
+                    yield return CreateVirtualFile(obj);
+
+            request.ContinuationToken = response.NextContinuationToken;
+        }
+        while (request.ContinuationToken is not null && !cancellationToken.IsCancellationRequested);
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        //
+        // Cloud storage optimization strategy:
+        // 1. List all objects in one batch using prefix filtering (matches our virtual directory).
+        // 2. Perform pattern matching and exclusion filters locally.
+        //
+        // Benefits:
+        // - Single API call instead of per-directory requests
+        // - Reduced network latency, especially for deep directory structures
+        // - More efficient than recursive directory scanning
+        //
+
+        var request = new ListObjectsV2Request
+        {
+            BucketName = _fs.BucketName,
+            Prefix = GetPrefix(FullName)
+        };
+
+        var directories = new HashSet<string>
+        {
+            FullName
+        };
+
+        do
+        {
+            var response = await _fs.AmazonClient
+                .ListObjectsV2Async(request, cancellationToken)
+                .ConfigureAwait(false);
+
+            foreach (var obj in response.S3Objects)
+            {
+                var directoryPath = VirtualPath.GetDirectoryName(
+                    VirtualPath.Join("/", obj.Key));
+
+                while (directoryPath.Length != 0 && directories.Add(directoryPath))
+                {
+                    //
+                    // Directories are yielded in reverse order (deepest first).
+                    //
+                    // Note: We could use a Stack<string> to control the order,
+                    // but since order isn't guaranteed anyway and to avoid
+                    // unnecessary memory allocation, we process them directly.
+                    //
+                    if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
+                        yield return new S3Directory(_fs, VirtualPath.Normalize(directoryPath));
+
+                    directoryPath = VirtualPath.GetDirectoryName(directoryPath);
+                }
+            }
+
+            request.ContinuationToken = response.NextContinuationToken;
+        }
+        while (request.ContinuationToken is not null && !cancellationToken.IsCancellationRequested);
+    }
+
+    /// <summary>
+    /// Creates a <see cref="S3File"/> instance based on the specified object.
+    /// </summary>
+    /// <param name="obj">The <see cref="S3Object"/> representing the file.</param>
+    /// <returns>
+    /// A new <see cref="S3File"/> instance representing the file.
+    /// </returns>
+    private S3File CreateVirtualFile(S3Object obj)
+    {
+        var properties = VirtualNodeProperties
+            .CreateFileProperties(
+                creationTime: default,
+                lastAccessTime: default,
+                lastWriteTime: obj.LastModified,
+                length: obj.Size);
+
+        var path = VirtualPath.Normalize(obj.Key);
+        return new S3File(_fs, path, properties);
+    }
+
+    /// <summary>
+    /// Determines whether the specified path matches any of the inclusion patterns and none of the exclusion patterns.
+    /// </summary>
+    /// <param name="path">The path to match.</param>
+    /// <param name="patterns">The inclusion patterns to match against the path.</param>
+    /// <param name="excludes">An optional array of exclusion patterns. If the path matches any of these,
+    /// the method returns <see langword="false"/>.</param>
+    /// <returns>
+    /// <see langword="true"/> if the path matches at least one inclusion pattern and no exclusion patterns;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsMatched(scoped ReadOnlySpan<char> path, string[] patterns, string[]? excludes)
+    {
+        if (excludes is not null)
+            foreach (var pattern in excludes)
+                if (Matcher.IsMatch(path, pattern, MatchFlags.Unix))
+                    return false;
+
+        foreach (var pattern in patterns)
+            if (Matcher.IsMatch(path, pattern, MatchFlags.Unix))
+                return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Returns a cloud storage compatible prefix for the specified directory path.
+    /// </summary>
+    /// <param name="path">The directory path.</param>
+    /// <returns>
+    /// A string formatted for cloud storage prefix filtering:
+    /// <list type="bullet">
+    ///   <item><description>Empty string for the root directory ("/")</description></item>
+    ///   <item><description>Path without leading slash but with trailing slash for subdirectories</description></item>
+    /// </list>
+    /// </returns>
+    /// <example>
+    /// <code>
+    ///   GetPrefix("/")           // returns ""
+    ///   GetPrefix("/folder")     // returns "folder/"
+    ///   GetPrefix("/sub/folder") // returns "sub/folder/"
+    /// </code>
+    /// </example>
+    private static string GetPrefix(string path) =>
+        path == "/" ? "" : $"{path[1..]}/";
 }

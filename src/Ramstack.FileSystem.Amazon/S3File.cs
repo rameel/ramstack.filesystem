@@ -24,6 +24,15 @@ internal sealed class S3File : VirtualFile
     public S3File(AmazonS3FileSystem fileSystem, string path) : base(path) =>
         (_fs, _key) = (fileSystem, path[1..]);
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VirtualFile"/> class with the specified path and properties.
+    /// </summary>
+    /// <param name="fileSystem">The file system associated with this file.</param>
+    /// <param name="path">The full path of the file.</param>
+    /// <param name="properties">The properties of the file.</param>
+    public S3File(AmazonS3FileSystem fileSystem, string path, VirtualNodeProperties? properties) : base(path, properties) =>
+        (_fs, _key) = (fileSystem, path[1..]);
+
     /// <inheritdoc />
     protected override async ValueTask<VirtualNodeProperties?> GetPropertiesCoreAsync(CancellationToken cancellationToken)
     {
