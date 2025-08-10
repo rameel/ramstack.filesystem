@@ -1,4 +1,4 @@
-using Ramstack.Globbing;
+using Ramstack.FileSystem.Globbing.Internal;
 
 namespace Ramstack.FileSystem.Globbing;
 
@@ -92,7 +92,7 @@ public sealed class GlobbingFileSystem : IVirtualFileSystem
     /// otherwise, <see langword="false" />.
     /// </returns>
     internal bool IsFileIncluded(string path) =>
-        !IsExcluded(path) && IsIncluded(path);
+        !PathHelper.IsMatch(path, _excludes) && PathHelper.IsMatch(path, _patterns);
 
     /// <summary>
     /// Determines if a directory is included based on the specified exclusions.
@@ -103,39 +103,5 @@ public sealed class GlobbingFileSystem : IVirtualFileSystem
     /// otherwise, <see langword="false" />.
     /// </returns>
     internal bool IsDirectoryIncluded(string path) =>
-        !IsExcluded(path);
-
-    /// <summary>
-    /// Checks if a path matches any of the include patterns.
-    /// </summary>
-    /// <param name="path">The path to check.</param>
-    /// <returns>
-    /// <see langword="true" /> if the path matches an include pattern;
-    /// otherwise, <see langword="false" />.
-    /// </returns>
-    internal bool IsIncluded(string path)
-    {
-        foreach (var pattern in _patterns)
-            if (Matcher.IsMatch(path, pattern, MatchFlags.Unix))
-                return true;
-
-        return false;
-    }
-
-    /// <summary>
-    /// Checks if a path matches any of the exclude patterns.
-    /// </summary>
-    /// <param name="path">The path to check.</param>
-    /// <returns>
-    /// <see langword="true" /> if the path matches an exclude pattern;
-    /// otherwise, <see langword="false" />.
-    /// </returns>
-    internal bool IsExcluded(string path)
-    {
-        foreach (var pattern in _excludes)
-            if (Matcher.IsMatch(path, pattern, MatchFlags.Unix))
-                return true;
-
-        return false;
-    }
+        path == "/" || !PathHelper.IsMatch(path, _excludes) && PathHelper.IsPartialMatch(path, _patterns);
 }
