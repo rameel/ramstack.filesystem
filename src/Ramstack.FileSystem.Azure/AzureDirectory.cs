@@ -5,6 +5,8 @@ using Azure;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 
+using Ramstack.Globbing;
+
 namespace Ramstack.FileSystem.Azure;
 
 /// <summary>
@@ -141,14 +143,137 @@ internal sealed class AzureDirectory : VirtualDirectory
                 yield return new AzureDirectory(_fs, VirtualPath.Normalize(item.Prefix));
     }
 
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        //
+        // Cloud storage optimization strategy:
+        // 1. List all blobs in one batch using prefix filtering (matches our virtual directory).
+        // 2. Perform pattern matching and exclusion filters locally.
+        //
+        // Benefits:
+        // - Single API call instead of per-directory requests
+        // - Reduced network latency, especially for deep directory structures
+        // - More efficient than recursive directory scanning
+        //
+
+        var prefix = GetPrefix(FullName);
+        var directories = new HashSet<string> { FullName };
+
+        await foreach (var page in _fs.AzureClient
+            .GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken)
+            .AsPages()
+            .WithCancellation(cancellationToken)
+            .ConfigureAwait(false))
+        {
+            foreach (var blob in page.Values)
+            {
+                var directoryPath = VirtualPath.GetDirectoryName(
+                    VirtualPath.Join("/", blob.Name));
+
+                while (directoryPath.Length != 0 && directories.Add(directoryPath))
+                {
+                    //
+                    // Directories are yielded in reverse order (deepest first).
+                    //
+                    // Note: We could use a Stack<string> to control the order,
+                    // but since order isn't guaranteed anyway and to avoid
+                    // unnecessary memory allocation, we process them directly.
+                    //
+                    if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
+                        yield return new AzureDirectory(_fs, VirtualPath.Normalize(directoryPath));
+
+                    directoryPath = VirtualPath.GetDirectoryName(directoryPath);
+                }
+
+                if (IsMatched(blob.Name.AsSpan(prefix.Length), patterns, excludes))
+                    yield return CreateVirtualFile(blob);
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        //
+        // Cloud storage optimization strategy:
+        // 1. List all blobs in one batch using prefix filtering (matches our virtual directory).
+        // 2. Perform pattern matching and exclusion filters locally.
+        //
+        // Benefits:
+        // - Single API call instead of per-directory requests
+        // - Reduced network latency, especially for deep directory structures
+        // - More efficient than recursive directory scanning
+        //
+
+        var prefix = GetPrefix(FullName);
+
+        await foreach (var page in _fs.AzureClient
+            .GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken)
+            .AsPages()
+            .WithCancellation(cancellationToken)
+            .ConfigureAwait(false))
+        {
+            foreach (var blob in page.Values)
+                if (IsMatched(blob.Name.AsSpan(prefix.Length), patterns, excludes))
+                    yield return CreateVirtualFile(blob);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        //
+        // Cloud storage optimization strategy:
+        // 1. List all blobs in one batch using prefix filtering (matches our virtual directory).
+        // 2. Perform pattern matching and exclusion filters locally.
+        //
+        // Benefits:
+        // - Single API call instead of per-directory requests
+        // - Reduced network latency, especially for deep directory structures
+        // - More efficient than recursive directory scanning
+        //
+
+        var prefix = GetPrefix(FullName);
+        var directories = new HashSet<string> { FullName };
+
+        await foreach (var page in _fs.AzureClient
+            .GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken)
+            .AsPages()
+            .WithCancellation(cancellationToken)
+            .ConfigureAwait(false))
+        {
+            foreach (var blob in page.Values)
+            {
+                var directoryPath = VirtualPath.GetDirectoryName(
+                    VirtualPath.Join("/", blob.Name));
+
+                while (directoryPath.Length != 0 && directories.Add(directoryPath))
+                {
+                    //
+                    // Directories are yielded in reverse order (deepest first).
+                    //
+                    // Note: We could use a Stack<string> to control the order,
+                    // but since order isn't guaranteed anyway and to avoid
+                    // unnecessary memory allocation, we process them directly.
+                    //
+                    if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
+                        yield return new AzureDirectory(_fs, VirtualPath.Normalize(directoryPath));
+
+                    directoryPath = VirtualPath.GetDirectoryName(directoryPath);
+                }
+            }
+        }
+    }
+
     /// <summary>
-    /// Creates a <see cref="VirtualFile"/> instance based on the specified blob item.
+    /// Creates a <see cref="AzureFile"/> instance based on the specified blob item.
     /// </summary>
     /// <param name="blob">The <see cref="BlobItem"/> representing the file.</param>
     /// <returns>
     /// A new <see cref="AzureFile"/> instance representing the file.
     /// </returns>
-    private VirtualFile CreateVirtualFile(BlobItem blob)
+    private AzureFile CreateVirtualFile(BlobItem blob)
     {
         var info = blob.Properties;
         var properties = VirtualNodeProperties.CreateFileProperties(
@@ -162,12 +287,48 @@ internal sealed class AzureDirectory : VirtualDirectory
     }
 
     /// <summary>
-    /// Returns the blob prefix for the specified directory path.
+    /// Determines whether the specified path matches any of the inclusion patterns and none of the exclusion patterns.
     /// </summary>
-    /// <param name="directoryPath">The directory path for which to get the prefix.</param>
+    /// <param name="path">The path to match.</param>
+    /// <param name="patterns">The inclusion patterns to match against the path.</param>
+    /// <param name="excludes">An optional array of exclusion patterns. If the path matches any of these,
+    /// the method returns <see langword="false"/>.</param>
     /// <returns>
-    /// The blob prefix associated with the directory.
+    /// <see langword="true"/> if the path matches at least one inclusion pattern and no exclusion patterns;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
-    private static string GetPrefix(string directoryPath) =>
-        directoryPath == "/" ? "" : $"{directoryPath[1..]}/";
+    private static bool IsMatched(scoped ReadOnlySpan<char> path, string[] patterns, string[]? excludes)
+    {
+        if (excludes is not null)
+            foreach (var pattern in excludes)
+                if (Matcher.IsMatch(path, pattern, MatchFlags.Unix))
+                    return false;
+
+        foreach (var pattern in patterns)
+            if (Matcher.IsMatch(path, pattern, MatchFlags.Unix))
+                return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Returns a cloud storage compatible prefix for the specified directory path.
+    /// </summary>
+    /// <param name="path">The directory path.</param>
+    /// <returns>
+    /// A string formatted for cloud storage prefix filtering:
+    /// <list type="bullet">
+    ///   <item><description>Empty string for the root directory ("/")</description></item>
+    ///   <item><description>Path without leading slash but with trailing slash for subdirectories</description></item>
+    /// </list>
+    /// </returns>
+    /// <example>
+    /// <code>
+    ///   GetPrefix("/")           // returns ""
+    ///   GetPrefix("/folder")     // returns "folder/"
+    ///   GetPrefix("/sub/folder") // returns "sub/folder/"
+    /// </code>
+    /// </example>
+    private static string GetPrefix(string path) =>
+        path == "/" ? "" : $"{path[1..]}/";
 }
