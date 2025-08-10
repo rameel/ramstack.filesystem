@@ -8,23 +8,34 @@ namespace Ramstack.FileSystem.Composite;
 [TestFixture]
 public class CompositeFileSystemTests : VirtualFileSystemSpecificationTests
 {
-    private readonly TempFileStorage _storage = new TempFileStorage();
+    private readonly TempFileStorage _storage1;
+    private readonly TempFileStorage _storage2;
+    private readonly TempFileStorage _storage3;
     private readonly CompositeFileSystem _fs;
 
     public CompositeFileSystemTests()
     {
-        var root = Path.Join(_storage.Root, "project");
+        _storage1 = new TempFileStorage();
+        _storage2 = new TempFileStorage(_storage1);
+        _storage3 = new TempFileStorage(_storage1);
 
-        foreach (var file in Directory.GetFiles(root))
+        foreach (var directory in Directory.GetDirectories(Path.Join(_storage2.Root, "project")))
+            Directory.Delete(directory, recursive: true);
+
+        foreach (var file in Directory.GetFiles(Path.Join(_storage3.Root, "project")))
             File.Delete(file);
 
-        var list = new List<IVirtualFileSystem>();
-        foreach (var directory in Directory.GetDirectories(root))
+        var list = new List<IVirtualFileSystem>
         {
-            var fileName = Path.GetFileName(directory);
-            Console.WriteLine(fileName);
+            new PhysicalFileSystem(_storage2.Root)
+        };
 
-            var fs = new PrefixedFileSystem(fileName, new PhysicalFileSystem(directory));
+        foreach (var directory in Directory.GetDirectories(Path.Join(_storage3.Root, "project")))
+        {
+            var fs = new PrefixedFileSystem(
+                $"/project/{Path.GetFileName(directory)}",
+                new PhysicalFileSystem(directory)
+                );
             list.Add(fs);
         }
 
@@ -35,11 +46,14 @@ public class CompositeFileSystemTests : VirtualFileSystemSpecificationTests
     public void Cleanup()
     {
         _fs.Dispose();
+        _storage1.Dispose();
+        _storage2.Dispose();
+        _storage3.Dispose();
     }
 
     protected override IVirtualFileSystem GetFileSystem() =>
         _fs;
 
     protected override DirectoryInfo GetDirectoryInfo() =>
-        new DirectoryInfo(Path.Join(_storage.Root, "project"));
+        new DirectoryInfo(_storage1.Root);
 }
