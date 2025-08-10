@@ -1,4 +1,5 @@
 using Ramstack.FileSystem.Physical;
+using Ramstack.FileSystem.Prefixed;
 using Ramstack.FileSystem.Specification.Tests;
 using Ramstack.FileSystem.Specification.Tests.Utilities;
 
@@ -14,8 +15,10 @@ public class SubFileSystemTests : VirtualFileSystemSpecificationTests
         _storage.Dispose();
 
     protected override IVirtualFileSystem GetFileSystem() =>
-        new SubFileSystem("project/docs", new PhysicalFileSystem(_storage.Root));
+        new SubFileSystem("/bin/app",
+            new PrefixedFileSystem("/bin/app",
+                new PhysicalFileSystem(_storage.Root)));
 
     protected override DirectoryInfo GetDirectoryInfo() =>
-        new(Path.Join(_storage.Root, "project", "docs"));
+        new DirectoryInfo(_storage.Root);
 }
