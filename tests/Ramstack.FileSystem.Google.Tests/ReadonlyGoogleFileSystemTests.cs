@@ -16,9 +16,6 @@ public class ReadonlyGoogleFileSystemTests : VirtualFileSystemSpecificationTests
     [OneTimeSetUp]
     public async Task Setup()
     {
-        // if (Environment.GetEnvironmentVariable("STORAGE_EMULATOR_HOST") is null)
-        //     Environment.SetEnvironmentVariable("STORAGE_EMULATOR_HOST", "http://localhost:4443/storage/v1/");
-
         using var fs = CreateFileSystem(isReadOnly: false);
         await fs.CreateBucketAsync("ramstack-project");
 
@@ -46,14 +43,6 @@ public class ReadonlyGoogleFileSystemTests : VirtualFileSystemSpecificationTests
 
     private static GoogleFileSystem CreateFileSystem(bool isReadOnly)
     {
-        // var builder = new StorageClientBuilder
-        // {
-        //     BaseUri = Environment.GetEnvironmentVariable("STORAGE_EMULATOR_HOST"),
-        //     UnauthenticatedAccess = true
-        // };
-        //
-        // var client = builder.Build();
-
         var client = StorageClient.Create(
             GoogleCredential.FromFile("credentials.json"));
 

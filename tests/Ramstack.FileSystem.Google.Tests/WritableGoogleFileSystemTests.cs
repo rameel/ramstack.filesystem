@@ -20,9 +20,6 @@ public class WritableGoogleFileSystemTests : VirtualFileSystemSpecificationTests
     [OneTimeSetUp]
     public async Task Setup()
     {
-        // if (Environment.GetEnvironmentVariable("STORAGE_EMULATOR_HOST") is null)
-        //     Environment.SetEnvironmentVariable("STORAGE_EMULATOR_HOST", "http://localhost:4443/storage/v1/");
-
         using var fs = GetFileSystem();
         await fs.CreateBucketAsync("ramstack-project");
 
@@ -203,12 +200,6 @@ public class WritableGoogleFileSystemTests : VirtualFileSystemSpecificationTests
     private GoogleFileSystem CreateFileSystem(string bucket)
     {
         _buckets.Add(bucket);
-
-        // var client = new StorageClientBuilder
-        // {
-        //     BaseUri = Environment.GetEnvironmentVariable("STORAGE_EMULATOR_HOST"),
-        //     UnauthenticatedAccess = true
-        // }.Build();
 
         var client = StorageClient.Create(
             GoogleCredential.FromFile("credentials.json"));

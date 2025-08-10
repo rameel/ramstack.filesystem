@@ -118,7 +118,8 @@ public static class VirtualPath
     /// </summary>
     /// <param name="path">The path to retrieve the directory portion from.</param>
     /// <returns>
-    /// Directory portion for <paramref name="path"/>, or an empty string if the path denotes a root directory.
+    /// The directory portion of <paramref name="path"/>, or an empty span if <paramref name="path"/>
+    /// is empty or denotes a root directory.
     /// </returns>
     public static string GetDirectoryName(string path)
     {
@@ -140,7 +141,8 @@ public static class VirtualPath
     /// </summary>
     /// <param name="path">The path to retrieve the directory portion from.</param>
     /// <returns>
-    /// Directory portion for <paramref name="path"/>, or an empty string if path denotes a root directory.
+    /// The directory portion of <paramref name="path"/>, or an empty span if <paramref name="path"/>
+    /// is empty or denotes a root directory.
     /// </returns>
     public static ReadOnlySpan<char> GetDirectoryName(ReadOnlySpan<char> path)
     {

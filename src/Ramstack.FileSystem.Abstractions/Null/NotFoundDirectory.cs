@@ -5,7 +5,7 @@ namespace Ramstack.FileSystem.Null;
 /// <summary>
 /// Represents a non-existing directory.
 /// </summary>
-public class NotFoundDirectory : VirtualDirectory
+public sealed class NotFoundDirectory : VirtualDirectory
 {
     /// <inheritdoc />
     public override IVirtualFileSystem FileSystem { get; }
@@ -27,8 +27,11 @@ public class NotFoundDirectory : VirtualDirectory
         default;
 
     /// <inheritdoc />
-    protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken) =>
-        default;
+    protected override ValueTask CreateCoreAsync(CancellationToken cancellationToken)
+    {
+        Error_UnauthorizedAccess(FullName);
+        return default;
+    }
 
     /// <inheritdoc />
     protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
@@ -37,4 +40,8 @@ public class NotFoundDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(CancellationToken cancellationToken) =>
         Array.Empty<VirtualNode>().ToAsyncEnumerable();
+
+    [DoesNotReturn]
+    private static void Error_UnauthorizedAccess(string path) =>
+        throw new UnauthorizedAccessException($"Access to the path '{path}' is denied.");
 }

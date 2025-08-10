@@ -60,17 +60,15 @@ internal sealed class GlobbingDirectory : VirtualDirectory
         {
             await foreach (var node in _directory.GetFileNodesAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (!_fs.IsExcluded(node.FullName))
+                if (node is VirtualFile file)
                 {
-                    if (node is VirtualFile file)
-                    {
-                        if (_fs.IsIncluded(node.FullName))
-                            yield return new GlobbingFile(_fs, file, true);
-                    }
-                    else
-                    {
-                        yield return new GlobbingDirectory(_fs, (VirtualDirectory)node, true);
-                    }
+                    if (_fs.IsFileIncluded(file.FullName))
+                        yield return new GlobbingFile(_fs, file, included: true);
+                }
+                else
+                {
+                    if (_fs.IsDirectoryIncluded(node.FullName))
+                        yield return new GlobbingDirectory(_fs, (VirtualDirectory)node, included: true);
                 }
             }
         }
@@ -84,7 +82,7 @@ internal sealed class GlobbingDirectory : VirtualDirectory
             await foreach (var file in _directory.GetFilesAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (_fs.IsFileIncluded(file.FullName))
-                    yield return new GlobbingFile(_fs, file, true);
+                    yield return new GlobbingFile(_fs, file, included: true);
             }
         }
     }
@@ -97,7 +95,7 @@ internal sealed class GlobbingDirectory : VirtualDirectory
             await foreach (var directory in _directory.GetDirectoriesAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (_fs.IsDirectoryIncluded(directory.FullName))
-                    yield return new GlobbingDirectory(_fs, directory, true);
+                    yield return new GlobbingDirectory(_fs, directory, included: true);
             }
         }
     }

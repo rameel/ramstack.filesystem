@@ -72,10 +72,9 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
             {
                 await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[1024]));
             }
-            catch (Exception exception)
+            catch
             {
-                Console.WriteLine("Exception expected!");
-                Console.WriteLine(exception);
+                // Ignore
             }
         }
 
@@ -160,6 +159,9 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         Assert.That(
             await reader.ReadToEndAsync(),
             Is.EqualTo(content));
+
+        await source.DeleteAsync();
+        await destination.DeleteAsync();
     }
 
     [Test]
@@ -188,6 +190,9 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         Assert.That(
             await reader.ReadToEndAsync(),
             Is.EqualTo(content));
+
+        await source.DeleteAsync();
+        await destination.DeleteAsync();
     }
 
 
@@ -212,8 +217,8 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         await fs.DeleteDirectoryAsync("/temp");
 
         Assert.That(
-            await fs.GetFilesAsync("/temp").CountAsync(),
-            Is.EqualTo(0));
+            await fs.GetFilesAsync("/temp").AnyAsync(),
+            Is.False);
     }
 
     protected override AmazonS3FileSystem GetFileSystem() =>

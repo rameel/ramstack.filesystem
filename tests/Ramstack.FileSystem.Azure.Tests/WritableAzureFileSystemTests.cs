@@ -119,8 +119,8 @@ public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
         await fs.DeleteDirectoryAsync("/temp");
 
         Assert.That(
-            await fs.GetFilesAsync("/temp").CountAsync(),
-            Is.EqualTo(0));
+            await fs.GetFilesAsync("/temp").AnyAsync(),
+            Is.False);
     }
 
     protected override AzureFileSystem GetFileSystem() =>

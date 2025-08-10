@@ -139,7 +139,7 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
 
         /// <inheritdoc />
         protected override ValueTask DeleteCoreAsync(CancellationToken cancellationToken) =>
-            _fs.GetDirectory(_fs._prefix).DeleteAsync(cancellationToken);
+            throw new UnauthorizedAccessException($"Access to the path '{FullName}' is denied.");
 
         /// <inheritdoc />
         protected override IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(CancellationToken cancellationToken) =>
