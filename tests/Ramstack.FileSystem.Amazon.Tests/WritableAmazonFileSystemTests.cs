@@ -72,10 +72,9 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
             {
                 await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[1024]));
             }
-            catch (Exception exception)
+            catch
             {
-                Console.WriteLine("Exception expected!");
-                Console.WriteLine(exception);
+                // Ignore
             }
         }
 
