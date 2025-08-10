@@ -5,7 +5,7 @@ namespace Ramstack.FileSystem.Null;
 /// <summary>
 /// Represents a non-existing directory.
 /// </summary>
-public class NotFoundDirectory : VirtualDirectory
+public sealed class NotFoundDirectory : VirtualDirectory
 {
     /// <inheritdoc />
     public override IVirtualFileSystem FileSystem { get; }
