@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Ramstack.FileSystem.Null;
 
 /// <summary>
@@ -43,7 +41,7 @@ public sealed class NotFoundFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken)
     {
-        Error_FileNotFound(FullName);
+        Error_UnauthorizedAccess(FullName);
         return default;
     }
 
@@ -54,4 +52,8 @@ public sealed class NotFoundFile : VirtualFile
     [DoesNotReturn]
     private static void Error_FileNotFound(string path) =>
         throw new FileNotFoundException($"Unable to find file '{path}'.", path);
+
+    [DoesNotReturn]
+    private static void Error_UnauthorizedAccess(string path) =>
+        throw new UnauthorizedAccessException($"Access to the path '{path}' is denied.");
 }
