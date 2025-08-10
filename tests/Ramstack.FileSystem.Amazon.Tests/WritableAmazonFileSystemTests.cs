@@ -159,6 +159,9 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         Assert.That(
             await reader.ReadToEndAsync(),
             Is.EqualTo(content));
+
+        await source.DeleteAsync();
+        await destination.DeleteAsync();
     }
 
     [Test]
@@ -187,6 +190,9 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         Assert.That(
             await reader.ReadToEndAsync(),
             Is.EqualTo(content));
+
+        await source.DeleteAsync();
+        await destination.DeleteAsync();
     }
 
 
