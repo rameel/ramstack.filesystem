@@ -117,12 +117,13 @@ internal sealed class GcsWriteStream : Stream
         Error_NotSupported();
 
     /// <inheritdoc />
-    public override void Flush() =>
-        _stream.Flush();
+    public override void Flush()
+    {
+    }
 
     /// <inheritdoc />
     public override Task FlushAsync(CancellationToken cancellationToken) =>
-        _stream.FlushAsync(cancellationToken);
+        Task.CompletedTask;
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
