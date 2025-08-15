@@ -83,6 +83,8 @@ internal sealed class GcsWriteStream : Stream
         catch
         {
             _disposed = true;
+            _stream.Close();
+
             throw;
         }
     }
@@ -101,6 +103,8 @@ internal sealed class GcsWriteStream : Stream
         catch
         {
             _disposed = true;
+            _stream.Close();
+
             throw;
         }
     }
