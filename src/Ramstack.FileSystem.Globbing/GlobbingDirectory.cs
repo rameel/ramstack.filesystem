@@ -80,10 +80,8 @@ internal sealed class GlobbingDirectory : VirtualDirectory
         if (_included)
         {
             await foreach (var file in _directory.GetFilesAsync(cancellationToken).ConfigureAwait(false))
-            {
                 if (_fs.IsFileIncluded(file.FullName))
                     yield return new GlobbingFile(_fs, file, included: true);
-            }
         }
     }
 
@@ -93,10 +91,51 @@ internal sealed class GlobbingDirectory : VirtualDirectory
         if (_included)
         {
             await foreach (var directory in _directory.GetDirectoriesAsync(cancellationToken).ConfigureAwait(false))
-            {
                 if (_fs.IsDirectoryIncluded(directory.FullName))
                     yield return new GlobbingDirectory(_fs, directory, included: true);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        if (_included)
+        {
+            await foreach (var node in _directory.GetFileNodesAsync(patterns, excludes, cancellationToken).ConfigureAwait(false))
+            {
+                if (node is VirtualFile file)
+                {
+                    if (_fs.IsFileIncluded(file.FullName))
+                        yield return new GlobbingFile(_fs, file, included: true);
+                }
+                else
+                {
+                    if (_fs.IsDirectoryIncluded(node.FullName))
+                        yield return new GlobbingDirectory(_fs, (VirtualDirectory)node, included: true);
+                }
             }
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        if (_included)
+        {
+            await foreach (var file in _directory.GetFilesAsync(patterns, excludes, cancellationToken).ConfigureAwait(false))
+                if (_fs.IsFileIncluded(file.FullName))
+                    yield return new GlobbingFile(_fs, file, included: true);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        if (_included)
+        {
+            await foreach (var directory in _directory.GetDirectoriesAsync(patterns, excludes, cancellationToken).ConfigureAwait(false))
+                if (_fs.IsDirectoryIncluded(directory.FullName))
+                    yield return new GlobbingDirectory(_fs, directory, included: true);
         }
     }
 }
