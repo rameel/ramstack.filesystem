@@ -92,11 +92,11 @@ internal sealed class GcsWriteStream : Stream
         WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
 
     /// <inheritdoc />
-    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         try
         {
-            return _stream.WriteAsync(buffer, cancellationToken);
+            await _stream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
         }
         catch
         {
