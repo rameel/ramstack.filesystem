@@ -60,20 +60,55 @@ internal class PrefixedDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetFilesAsync(cancellationToken).ConfigureAwait(false))
+        await foreach (var file in _directory.GetFilesAsync(cancellationToken).ConfigureAwait(false))
         {
-            var path = VirtualPath.Join(FullName, node.Name);
-            yield return new PrefixedFile(_fs, path, node);
+            var path = VirtualPath.Join(FullName, file.Name);
+            yield return new PrefixedFile(_fs, path, file);
         }
     }
 
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetDirectoriesAsync(cancellationToken).ConfigureAwait(false))
+        await foreach (var directory in _directory.GetDirectoriesAsync(cancellationToken).ConfigureAwait(false))
         {
-            var path = VirtualPath.Join(FullName, node.Name);
-            yield return new PrefixedDirectory(_fs, path, node);
+            var path = VirtualPath.Join(FullName, directory.Name);
+            yield return new PrefixedDirectory(_fs, path, directory);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await foreach (var node in _directory.GetFileNodesAsync(patterns, excludes, cancellationToken).ConfigureAwait(false))
+        {
+            var path = _fs.WrapWithPrefix(node.FullName);
+
+            yield return node switch
+            {
+                VirtualDirectory directory => new PrefixedDirectory(_fs, path, directory),
+                _ => new PrefixedFile(_fs, path, (VirtualFile)node)
+            };
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await foreach (var file in _directory.GetFilesAsync(patterns, excludes, cancellationToken).ConfigureAwait(false))
+        {
+            var path = _fs.WrapWithPrefix(file.FullName);
+            yield return new PrefixedFile(_fs, path, file);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await foreach (var directory in _directory.GetDirectoriesAsync(patterns, excludes, cancellationToken).ConfigureAwait(false))
+        {
+            var path = _fs.WrapWithPrefix(directory.FullName);
+            yield return new PrefixedDirectory(_fs, path, directory);
         }
     }
 }

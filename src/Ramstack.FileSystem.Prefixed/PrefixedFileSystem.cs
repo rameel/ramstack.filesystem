@@ -56,7 +56,7 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
     {
         path = VirtualPath.Normalize(path);
 
-        var underlying = TryGetPath(path, _prefix);
+        var underlying = TryUnwrapPrefix(path, _prefix);
         if (underlying is not null)
             return new PrefixedFile(this, path, _fs.GetFile(underlying));
 
@@ -72,7 +72,7 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
             if (directory.FullName == path)
                 return directory;
 
-        var underlying = TryGetPath(path, _prefix);
+        var underlying = TryUnwrapPrefix(path, _prefix);
         if (underlying is not null)
             return new PrefixedDirectory(this, path, _fs.GetDirectory(underlying));
 
@@ -84,22 +84,37 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
         _fs.Dispose();
 
     /// <summary>
-    /// Attempts to match a given path against the prefix. If successful, returns the remainder of the path relative to the prefix.
+    /// Converts a path from the wrapped file system to a full path in this prefixed file system.
     /// </summary>
-    /// <param name="path">The full path to match against the prefix.</param>
+    /// <param name="underlyingPath">The path relative to the wrapped file system (must be normalized).</param>
+    /// <returns>
+    /// The full path including this file system's prefix.
+    /// </returns>
+    internal string WrapWithPrefix(string underlyingPath)
+    {
+        Debug.Assert(VirtualPath.IsNormalized(underlyingPath));
+
+        if (underlyingPath == "/")
+            return _prefix;
+
+        return VirtualPath.Join(_prefix, underlyingPath);
+    }
+
+    /// <summary>
+    /// Attempts to extract the underlying path by removing this file system's prefix from a full path.
+    /// </summary>
+    /// <param name="path">The full path that may include this file system's prefix (must be normalized).</param>
     /// <param name="prefix">The prefix to compare against the path.</param>
     /// <returns>
-    /// The relative path if the prefix matches; otherwise, null.
+    /// The underlying path relative to the wrapped file system if the prefix matches;
+    /// otherwise, <see langword="null"/> if the path doesn't belong to this prefixed file system.
     /// </returns>
-    private static string? TryGetPath(string path, string prefix)
+    private static string? TryUnwrapPrefix(string path, string prefix)
     {
-        Debug.Assert(path == VirtualPath.Normalize(path));
+        Debug.Assert(VirtualPath.IsNormalized(path));
 
         if (path == prefix)
             return "/";
-
-        // TODO: Consider adding support for different file casing options.
-        // FileSystemCasing? FilePathCasing?
 
         if (path.StartsWith(prefix, StringComparison.Ordinal) && path[prefix.Length] == '/')
             return new string(path.AsSpan(prefix.Length));
