@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 using Azure;
@@ -330,6 +331,9 @@ internal sealed class AzureDirectory : VirtualDirectory
     ///   GetPrefix("/sub/folder") // returns "sub/folder/"
     /// </code>
     /// </example>
-    private static string GetPrefix(string path) =>
-        path == "/" ? "" : $"{path[1..]}/";
+    private static string GetPrefix(string path)
+    {
+        Debug.Assert(VirtualPath.IsNormalized(path));
+        return path == "/" ? "" : $"{path[1..]}/";
+    }
 }
