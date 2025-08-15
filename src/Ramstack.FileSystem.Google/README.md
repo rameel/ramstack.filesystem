@@ -1,4 +1,6 @@
 # Ramstack.FileSystem.Google
+[![NuGet](https://img.shields.io/nuget/v/Ramstack.FileSystem.Google.svg)](https://nuget.org/packages/Ramstack.FileSystem.Google)
+[![MIT](https://img.shields.io/github/license/rameel/ramstack.filesystem)](https://github.com/rameel/ramstack.filesystem/blob/main/LICENSE)
 
 Provides an implementation of `Ramstack.FileSystem` using Google Cloud Storage.
 
@@ -52,9 +54,9 @@ GoogleFileSystem fs = new GoogleFileSystem(client, bucketName: "my-bucket")
 
 ## Supported versions
 
-|      | Version    |
-|------|------------|
-| .NET | 6, 7, 8, 9 |
+|      | Version        |
+|------|----------------|
+| .NET | 6, 7, 8, 9, 10 |
 
 ## Contributions
 

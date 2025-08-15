@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ramstack.FileSystem.Google;
 
@@ -56,8 +56,11 @@ internal sealed class GcsWriteStream : Stream
     }
 
     /// <inheritdoc />
-    public override int Read(byte[] array, int offset, int count) =>
-        _stream.Read(array, offset, count);
+    public override int Read(byte[] array, int offset, int count)
+    {
+        Error_NotSupported();
+        return 0;
+    }
 
     /// <inheritdoc />
     public override int Read(Span<byte> buffer)
@@ -80,6 +83,8 @@ internal sealed class GcsWriteStream : Stream
         catch
         {
             _disposed = true;
+            _stream.Close();
+
             throw;
         }
     }
@@ -89,15 +94,17 @@ internal sealed class GcsWriteStream : Stream
         WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
 
     /// <inheritdoc />
-    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         try
         {
-            return _stream.WriteAsync(buffer, cancellationToken);
+            await _stream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
         }
         catch
         {
             _disposed = true;
+            _stream.Close();
+
             throw;
         }
     }
@@ -114,12 +121,13 @@ internal sealed class GcsWriteStream : Stream
         Error_NotSupported();
 
     /// <inheritdoc />
-    public override void Flush() =>
-        _stream.Flush();
+    public override void Flush()
+    {
+    }
 
     /// <inheritdoc />
     public override Task FlushAsync(CancellationToken cancellationToken) =>
-        _stream.FlushAsync(cancellationToken);
+        Task.CompletedTask;
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)

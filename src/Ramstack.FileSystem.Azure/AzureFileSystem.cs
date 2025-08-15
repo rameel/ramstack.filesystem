@@ -158,7 +158,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// </returns>
     internal BlobClient CreateBlobClient(string path)
     {
-        Debug.Assert(path == VirtualPath.Normalize(path));
+        Debug.Assert(VirtualPath.IsNormalized(path));
         return AzureClient.GetBlobClient(path[1..]);
     }
 }

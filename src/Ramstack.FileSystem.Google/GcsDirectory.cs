@@ -1,4 +1,5 @@
-﻿using System.Net;
+using System.Diagnostics;
+using System.Net;
 using System.Runtime.CompilerServices;
 
 using Google;
@@ -306,6 +307,9 @@ internal sealed class GcsDirectory : VirtualDirectory
     ///   GetPrefix("/sub/folder") // returns "sub/folder/"
     /// </code>
     /// </example>
-    private static string GetPrefix(string path) =>
-        path == "/" ? "" : $"{path[1..]}/";
+    private static string GetPrefix(string path)
+    {
+        Debug.Assert(VirtualPath.IsNormalized(path));
+        return path == "/" ? "" : $"{path[1..]}/";
+    }
 }

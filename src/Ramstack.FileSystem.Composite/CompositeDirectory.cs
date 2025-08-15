@@ -46,12 +46,46 @@ internal sealed class CompositeDirectory : VirtualDirectory
                 if (node is NotFoundFile or NotFoundDirectory)
                     continue;
 
-                if (!set.Add(node.FullName))
+                if (set.Add(node.FullName))
+                    yield return node is VirtualFile file
+                        ? new CompositeFile(_fs, node.FullName, file)
+                        : new CompositeDirectory(_fs, node.FullName);
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        var set = new HashSet<string>();
+
+        foreach (var fs in _fs.InternalFileSystems)
+        {
+            await foreach (var file in fs.GetFilesAsync(FullName, cancellationToken).ConfigureAwait(false))
+            {
+                if (file is NotFoundFile)
                     continue;
 
-                yield return node is VirtualFile file
-                    ? new CompositeFile(_fs, node.FullName, file)
-                    : new CompositeDirectory(_fs, node.FullName);
+                if (set.Add(file.FullName))
+                    yield return new CompositeFile(_fs, file.FullName, file);
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        var set = new HashSet<string>();
+
+        foreach (var fs in _fs.InternalFileSystems)
+        {
+            await foreach (var directory in fs.GetDirectoriesAsync(FullName, cancellationToken).ConfigureAwait(false))
+            {
+                if (directory is NotFoundDirectory)
+                    continue;
+
+                if (set.Add(directory.FullName))
+                    yield return new CompositeDirectory(_fs, directory.FullName);
             }
         }
     }

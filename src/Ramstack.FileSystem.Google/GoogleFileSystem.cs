@@ -1,4 +1,4 @@
-﻿using Google;
+using Google;
 using Google.Cloud.Storage.V1;
 using Google.Apis.Auth.OAuth2;
 

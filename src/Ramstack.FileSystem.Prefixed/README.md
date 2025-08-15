@@ -1,4 +1,6 @@
 # Ramstack.FileSystem.Prefixed
+[![NuGet](https://img.shields.io/nuget/v/Ramstack.FileSystem.Prefixed.svg)](https://nuget.org/packages/Ramstack.FileSystem.Prefixed)
+[![MIT](https://img.shields.io/github/license/rameel/ramstack.filesystem)](https://github.com/rameel/ramstack.filesystem/blob/main/LICENSE)
 
 Provides an implementation of `Ramstack.FileSystem` that adds a specified prefix to the file paths within the underlying file system.
 
@@ -44,9 +46,9 @@ await foreach (VirtualFile file in fs.GetFilesAsync("/public/assets"))
 
 ## Supported versions
 
-|      | Version    |
-|------|------------|
-| .NET | 6, 7, 8, 9 |
+|      | Version        |
+|------|----------------|
+| .NET | 6, 7, 8, 9, 10 |
 
 ## Contributions
 

@@ -63,7 +63,7 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
     /// </returns>
     private string GetPhysicalPath(string path)
     {
-        Debug.Assert(path == VirtualPath.Normalize(path));
+        Debug.Assert(VirtualPath.IsNormalized(path));
         return Path.Join(_root, path);
     }
 }

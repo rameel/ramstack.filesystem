@@ -12,6 +12,8 @@ namespace Ramstack.FileSystem;
 ///   For compatibility across different implementations of <see cref="IVirtualFileSystem"/>
 ///   and operating systems, directory separators are unified to use both
 ///   backslashes and forward slashes ("/" and "\").
+/// </para>
+/// <para>
 ///   <strong>This approach will be reviewed once a better solution is found.</strong>
 /// </para>
 /// <para>
@@ -221,6 +223,14 @@ public static class VirtualPath
     /// </remarks>
     public static string Normalize(string path)
     {
+        // Short-circuit optimization:
+        // Many paths are already normalized except for a missing leading slash.
+        // It's faster and more memory-efficient to first check/add the leading slash
+        // before performing full normalization.
+
+        if (!path.StartsWith('/'))
+            path = $"/{path}";
+
         if (IsNormalized(path))
             return path;
 
