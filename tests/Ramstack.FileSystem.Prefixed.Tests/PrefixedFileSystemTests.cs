@@ -27,7 +27,7 @@ public class PrefixedFileSystemTests : VirtualFileSystemSpecificationTests
     public async Task Directory_Delete_ArtificialDirectory_ThrowsException()
     {
         using var storage = new TempFileStorage();
-        using var fs = new PrefixedFileSystem("/bin/apps/myapp1", new PhysicalFileSystem(storage.Root));;
+        using var fs = new PrefixedFileSystem("/bin/apps/myapp1", new PhysicalFileSystem(storage.Root));
 
         await Assert.ThatAsync(
             async () => await fs.DeleteDirectoryAsync("/"),

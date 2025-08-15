@@ -116,7 +116,7 @@ public class VirtualPathTests
     public void Normalize(string path, string expected)
     {
         foreach (var p in GetPathVariations(path))
-            Assert.That(VirtualPath.Normalize(p),Is.EqualTo(expected));
+            Assert.That(VirtualPath.Normalize(p), Is.EqualTo(expected));
     }
 
     private static string[] GetPathVariations(string path) =>
