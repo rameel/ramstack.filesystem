@@ -119,6 +119,30 @@ public class VirtualPathTests
             Assert.That(VirtualPath.Normalize(p), Is.EqualTo(expected));
     }
 
+    [TestCase("/", "/", "//")]
+    [TestCase("", "/", "/")]
+    [TestCase("/", "", "/")]
+    [TestCase("a", "b", "a/b")]
+    [TestCase("a/", "b", "a/b")]
+    [TestCase("a", "/b", "a/b")]
+    [TestCase("a/", "/b", "a//b")]
+    [TestCase("a", "", "a")]
+    [TestCase("", "a", "a")]
+    [TestCase("/a", "/b", "/a/b")]
+    [TestCase("a", "/b", "a/b")]
+    [TestCase("/a/", "/b/", "/a//b/")]
+
+    [TestCase("a\\", "b", "a\\b")]
+    [TestCase("a", "\\b", "a\\b")]
+    [TestCase("a\\", "\\b", "a\\\\b")]
+    [TestCase("a\\", "/b", "a\\/b")]
+    [TestCase("a/", "\\b", "a/\\b")]
+
+    [TestCase("a/", "/", "a//")]
+    [TestCase("/", "/a", "//a")]
+    public void Join(string a, string b, string expected) =>
+        Assert.That(VirtualPath.Join(a, b), Is.EqualTo(expected));
+
     private static string[] GetPathVariations(string path) =>
         [path, path.Replace('/', '\\')];
 }
