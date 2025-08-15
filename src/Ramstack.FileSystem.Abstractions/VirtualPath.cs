@@ -12,6 +12,8 @@ namespace Ramstack.FileSystem;
 ///   For compatibility across different implementations of <see cref="IVirtualFileSystem"/>
 ///   and operating systems, directory separators are unified to use both
 ///   backslashes and forward slashes ("/" and "\").
+/// </para>
+/// <para>
 ///   <strong>This approach will be reviewed once a better solution is found.</strong>
 /// </para>
 /// <para>
