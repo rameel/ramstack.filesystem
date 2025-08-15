@@ -1,4 +1,6 @@
 # Ramstack.FileSystem.Composite
+[![NuGet](https://img.shields.io/nuget/v/Ramstack.FileSystem.Composite.svg)](https://nuget.org/packages/Ramstack.FileSystem.Composite)
+[![MIT](https://img.shields.io/github/license/rameel/ramstack.filesystem)](https://github.com/rameel/ramstack.filesystem/blob/main/LICENSE)
 
 Provides an implementation of `Ramstack.FileSystem` that combines multiple file systems into a single composite file system.
 
@@ -40,9 +42,9 @@ await foreach (VirtualFile file in fs.GetFilesAsync("/"))
 
 ## Supported versions
 
-|      | Version    |
-|------|------------|
-| .NET | 6, 7, 8, 9 |
+|      | Version        |
+|------|----------------|
+| .NET | 6, 7, 8, 9, 10 |
 
 ## Contributions
 

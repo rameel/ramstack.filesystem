@@ -1,4 +1,6 @@
 # Ramstack.FileSystem.Specification.Tests
+[![NuGet](https://img.shields.io/nuget/v/Ramstack.FileSystem.Specification.Tests.svg)](https://nuget.org/packages/Ramstack.FileSystem.Specification.Tests)
+[![MIT](https://img.shields.io/github/license/rameel/ramstack.filesystem)](https://github.com/rameel/ramstack.filesystem/blob/main/LICENSE)
 
 Provides a suite of `NUnit` tests to validate specifications for `Ramstack.FileSystem`.
 
@@ -43,9 +45,9 @@ public class PhysicalFileSystemSpecificationTests : VirtualFileSystemSpecificati
 
 ## Supported Versions
 
-|      | Version |
-|------|---------|
-| .NET | 6, 7, 8 |
+|      | Version        |
+|------|----------------|
+| .NET | 6, 7, 8, 9, 10 |
 
 ## Contributions
 

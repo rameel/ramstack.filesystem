@@ -1,4 +1,6 @@
-# Ramstack.FileSystem
+# Ramstack.FileSystem.Abstractions
+[![NuGet](https://img.shields.io/nuget/v/Ramstack.FileSystem.Abstractions.svg)](https://nuget.org/packages/Ramstack.FileSystem.Abstractions)
+[![MIT](https://img.shields.io/github/license/rameel/ramstack.filesystem)](https://github.com/rameel/ramstack.filesystem/blob/main/LICENSE)
 
 Provides a virtual file system abstraction.
 
@@ -158,9 +160,9 @@ if (!fs.IsReadOnly)
 
 ## Supported Versions
 
-|      | Version    |
-|------|------------|
-| .NET | 6, 7, 8, 9 |
+|      | Version        |
+|------|----------------|
+| .NET | 6, 7, 8, 9, 10 |
 
 ## Contributions
 

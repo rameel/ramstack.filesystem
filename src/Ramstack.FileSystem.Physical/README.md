@@ -1,4 +1,6 @@
 # Ramstack.FileSystem.Physical
+[![NuGet](https://img.shields.io/nuget/v/Ramstack.FileSystem.Physical.svg)](https://nuget.org/packages/Ramstack.FileSystem.Physical)
+[![MIT](https://img.shields.io/github/license/rameel/ramstack.filesystem)](https://github.com/rameel/ramstack.filesystem/blob/main/LICENSE)
 
 Provides an implementation of `Ramstack.FileSystem` based on local file system.
 
@@ -47,9 +49,9 @@ PhysicalFileSystem fs = new PhysicalFileSystem(@"C:\path\to\directory")
 
 ## Supported versions
 
-|      | Version    |
-|------|------------|
-| .NET | 6, 7, 8, 9 |
+|      | Version        |
+|------|----------------|
+| .NET | 6, 7, 8, 9, 10 |
 
 ## Contributions
 

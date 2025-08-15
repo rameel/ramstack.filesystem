@@ -1,4 +1,6 @@
 # Ramstack.FileSystem.Readonly
+[![NuGet](https://img.shields.io/nuget/v/Ramstack.FileSystem.Readonly.svg)](https://nuget.org/packages/Ramstack.FileSystem.Readonly)
+[![MIT](https://img.shields.io/github/license/rameel/ramstack.filesystem)](https://github.com/rameel/ramstack.filesystem/blob/main/LICENSE)
 
 Provides an implementation of `Ramstack.FileSystem` that wraps the underlying file system, preventing any destructive operations.
 
@@ -41,9 +43,9 @@ await fs.DeleteFileAsync("/hello.txt");
 
 ## Supported versions
 
-|      | Version    |
-|------|------------|
-| .NET | 6, 7, 8, 9 |
+|      | Version        |
+|------|----------------|
+| .NET | 6, 7, 8, 9, 10 |
 
 ## Contributions
 

@@ -1,4 +1,6 @@
 # Ramstack.FileSystem.Globbing
+[![NuGet](https://img.shields.io/nuget/v/Ramstack.FileSystem.Globbing.svg)](https://nuget.org/packages/Ramstack.FileSystem.Globbing)
+[![MIT](https://img.shields.io/github/license/rameel/ramstack.filesystem)](https://github.com/rameel/ramstack.filesystem/blob/main/LICENSE)
 
 Provides an implementation of `Ramstack.FileSystem` that applies glob-based filtering rules to determine
 which files and directories of the underlying file system to include or exclude.
@@ -45,9 +47,9 @@ await foreach (VirtualFile file in fs.GetFilesAsync("/"))
 
 ## Supported versions
 
-|      | Version    |
-|------|------------|
-| .NET | 6, 7, 8, 9 |
+|      | Version        |
+|------|----------------|
+| .NET | 6, 7, 8, 9, 10 |
 
 ## Contributions
 
