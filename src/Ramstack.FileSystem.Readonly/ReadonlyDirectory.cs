@@ -57,14 +57,41 @@ internal sealed class ReadonlyDirectory : VirtualDirectory
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetFilesAsync(cancellationToken).ConfigureAwait(false))
-            yield return new ReadonlyFile(_fs, node);
+        await foreach (var file in _directory.GetFilesAsync(cancellationToken).ConfigureAwait(false))
+            yield return new ReadonlyFile(_fs, file);
     }
 
     /// <inheritdoc />
     protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var node in _directory.GetDirectoriesAsync(cancellationToken).ConfigureAwait(false))
-            yield return new ReadonlyDirectory(_fs, node);
+        await foreach (var directory in _directory.GetDirectoriesAsync(cancellationToken).ConfigureAwait(false))
+            yield return new ReadonlyDirectory(_fs, directory);
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualNode> GetFileNodesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await foreach (var node in _directory.GetFileNodesAsync(patterns, excludes, cancellationToken).ConfigureAwait(false))
+        {
+            yield return node switch
+            {
+                VirtualDirectory directory => new ReadonlyDirectory(_fs, directory),
+                _ => new ReadonlyFile(_fs, (VirtualFile)node)
+            };
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualFile> GetFilesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await foreach (var file in _directory.GetFilesAsync(patterns, excludes, cancellationToken).ConfigureAwait(false))
+            yield return new ReadonlyFile(_fs, file);
+    }
+
+    /// <inheritdoc />
+    protected override async IAsyncEnumerable<VirtualDirectory> GetDirectoriesCoreAsync(string[] patterns, string[]? excludes, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await foreach (var directory in _directory.GetDirectoriesAsync(patterns, excludes, cancellationToken).ConfigureAwait(false))
+            yield return new ReadonlyDirectory(_fs, directory);
     }
 }
