@@ -180,8 +180,8 @@ internal sealed class S3Directory : VirtualDirectory
 
             foreach (var obj in response.S3Objects)
             {
-                var directoryPath = VirtualPath.GetDirectoryName(
-                    VirtualPath.Join("/", obj.Key));
+                var path = VirtualPath.Normalize(obj.Key);
+                var directoryPath = VirtualPath.GetDirectoryName(path);
 
                 while (directoryPath.Length != 0 && directories.Add(directoryPath))
                 {
@@ -193,13 +193,13 @@ internal sealed class S3Directory : VirtualDirectory
                     // unnecessary memory allocation, we process them directly.
                     //
                     if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
-                        yield return new S3Directory(_fs, VirtualPath.Normalize(directoryPath));
+                        yield return new S3Directory(_fs, directoryPath);
 
                     directoryPath = VirtualPath.GetDirectoryName(directoryPath);
                 }
 
                 if (IsMatched(obj.Key.AsSpan(request.Prefix.Length), patterns, excludes))
-                    yield return CreateVirtualFile(obj);
+                    yield return CreateVirtualFile(obj, path);
             }
 
             request.ContinuationToken = response.NextContinuationToken;
@@ -276,7 +276,7 @@ internal sealed class S3Directory : VirtualDirectory
             foreach (var obj in response.S3Objects)
             {
                 var directoryPath = VirtualPath.GetDirectoryName(
-                    VirtualPath.Join("/", obj.Key));
+                    VirtualPath.Normalize(obj.Key));
 
                 while (directoryPath.Length != 0 && directories.Add(directoryPath))
                 {
@@ -288,7 +288,7 @@ internal sealed class S3Directory : VirtualDirectory
                     // unnecessary memory allocation, we process them directly.
                     //
                     if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
-                        yield return new S3Directory(_fs, VirtualPath.Normalize(directoryPath));
+                        yield return new S3Directory(_fs, directoryPath);
 
                     directoryPath = VirtualPath.GetDirectoryName(directoryPath);
                 }
@@ -303,10 +303,11 @@ internal sealed class S3Directory : VirtualDirectory
     /// Creates a <see cref="S3File"/> instance based on the specified object.
     /// </summary>
     /// <param name="obj">The <see cref="S3Object"/> representing the file.</param>
+    /// <param name="normalizedName">The normalized name of the object.</param>
     /// <returns>
     /// A new <see cref="S3File"/> instance representing the file.
     /// </returns>
-    private S3File CreateVirtualFile(S3Object obj)
+    private S3File CreateVirtualFile(S3Object obj, string? normalizedName = null)
     {
         var properties = VirtualNodeProperties
             .CreateFileProperties(
@@ -315,7 +316,7 @@ internal sealed class S3Directory : VirtualDirectory
                 lastWriteTime: obj.LastModified,
                 length: obj.Size);
 
-        var path = VirtualPath.Normalize(obj.Key);
+        var path = normalizedName ?? VirtualPath.Normalize(obj.Key);
         return new S3File(_fs, path, properties);
     }
 

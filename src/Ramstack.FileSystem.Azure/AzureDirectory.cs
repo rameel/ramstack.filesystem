@@ -168,8 +168,8 @@ internal sealed class AzureDirectory : VirtualDirectory
         {
             foreach (var blob in page.Values)
             {
-                var directoryPath = VirtualPath.GetDirectoryName(
-                    VirtualPath.Join("/", blob.Name));
+                var path = VirtualPath.Normalize(blob.Name);
+                var directoryPath = VirtualPath.GetDirectoryName(path);
 
                 while (directoryPath.Length != 0 && directories.Add(directoryPath))
                 {
@@ -181,13 +181,13 @@ internal sealed class AzureDirectory : VirtualDirectory
                     // unnecessary memory allocation, we process them directly.
                     //
                     if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
-                        yield return new AzureDirectory(_fs, VirtualPath.Normalize(directoryPath));
+                        yield return new AzureDirectory(_fs, directoryPath);
 
                     directoryPath = VirtualPath.GetDirectoryName(directoryPath);
                 }
 
                 if (IsMatched(blob.Name.AsSpan(prefix.Length), patterns, excludes))
-                    yield return CreateVirtualFile(blob);
+                    yield return CreateVirtualFile(blob, path);
             }
         }
     }
@@ -246,7 +246,7 @@ internal sealed class AzureDirectory : VirtualDirectory
             foreach (var blob in page.Values)
             {
                 var directoryPath = VirtualPath.GetDirectoryName(
-                    VirtualPath.Join("/", blob.Name));
+                    VirtualPath.Normalize(blob.Name));
 
                 while (directoryPath.Length != 0 && directories.Add(directoryPath))
                 {
@@ -258,7 +258,7 @@ internal sealed class AzureDirectory : VirtualDirectory
                     // unnecessary memory allocation, we process them directly.
                     //
                     if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
-                        yield return new AzureDirectory(_fs, VirtualPath.Normalize(directoryPath));
+                        yield return new AzureDirectory(_fs, directoryPath);
 
                     directoryPath = VirtualPath.GetDirectoryName(directoryPath);
                 }
@@ -270,10 +270,11 @@ internal sealed class AzureDirectory : VirtualDirectory
     /// Creates a <see cref="AzureFile"/> instance based on the specified blob item.
     /// </summary>
     /// <param name="blob">The <see cref="BlobItem"/> representing the file.</param>
+    /// <param name="normalizedPath">The normalized name of the blob.</param>
     /// <returns>
     /// A new <see cref="AzureFile"/> instance representing the file.
     /// </returns>
-    private AzureFile CreateVirtualFile(BlobItem blob)
+    private AzureFile CreateVirtualFile(BlobItem blob, string? normalizedPath = null)
     {
         var info = blob.Properties;
         var properties = VirtualNodeProperties.CreateFileProperties(
@@ -282,7 +283,7 @@ internal sealed class AzureDirectory : VirtualDirectory
             lastWriteTime: info.LastModified.GetValueOrDefault(),
             length: info.ContentLength.GetValueOrDefault(defaultValue: -1));
 
-        var path = VirtualPath.Normalize(blob.Name);
+        var path = normalizedPath ?? VirtualPath.Normalize(blob.Name);
         return new AzureFile(_fs, path, properties);
     }
 
