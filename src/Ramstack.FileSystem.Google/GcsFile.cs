@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 using Google;
 using Google.Cloud.Storage.V1;

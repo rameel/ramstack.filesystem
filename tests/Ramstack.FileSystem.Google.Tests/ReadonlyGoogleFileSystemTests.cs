@@ -1,4 +1,4 @@
-﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 
 using Ramstack.FileSystem.Specification.Tests;

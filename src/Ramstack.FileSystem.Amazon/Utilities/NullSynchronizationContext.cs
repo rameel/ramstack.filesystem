@@ -1,4 +1,4 @@
-﻿namespace Ramstack.FileSystem.Amazon.Utilities;
+namespace Ramstack.FileSystem.Amazon.Utilities;
 
 /// <summary>
 /// Provides a mechanism to temporarily set the <see cref="SynchronizationContext"/> to <see langword="null"/>.

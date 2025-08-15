@@ -1,4 +1,4 @@
-﻿namespace Ramstack.FileSystem.Amazon;
+namespace Ramstack.FileSystem.Amazon;
 
 /// <summary>
 /// An enumeration of all possible CannedACLs that can be used

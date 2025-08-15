@@ -1,4 +1,4 @@
-﻿namespace Ramstack.FileSystem.Composite;
+namespace Ramstack.FileSystem.Composite;
 
 internal sealed class TestFileSystem : IVirtualFileSystem
 {

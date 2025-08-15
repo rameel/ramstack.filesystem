@@ -1,4 +1,4 @@
-﻿using Ramstack.FileSystem.Null;
+using Ramstack.FileSystem.Null;
 
 namespace Ramstack.FileSystem.Composite;
 
