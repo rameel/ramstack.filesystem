@@ -56,8 +56,11 @@ internal sealed class GcsWriteStream : Stream
     }
 
     /// <inheritdoc />
-    public override int Read(byte[] array, int offset, int count) =>
-        _stream.Read(array, offset, count);
+    public override int Read(byte[] array, int offset, int count)
+    {
+        Error_NotSupported();
+        return 0;
+    }
 
     /// <inheritdoc />
     public override int Read(Span<byte> buffer)
