@@ -223,10 +223,12 @@ public static class VirtualPath
     /// </remarks>
     public static string Normalize(string path)
     {
+        //
         // Short-circuit optimization:
         // Many paths are already normalized except for a missing leading slash.
-        // It's faster and more memory-efficient to first check/add the leading slash
+        // It's more efficient to first check/add the leading slash
         // before performing full normalization.
+        //
 
         if (!path.StartsWith('/'))
             path = $"/{path}";
