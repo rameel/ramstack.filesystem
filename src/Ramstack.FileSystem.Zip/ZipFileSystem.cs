@@ -7,6 +7,21 @@ namespace Ramstack.FileSystem.Zip;
 /// <summary>
 /// Represents a file system backed by a ZIP archive.
 /// </summary>
+/// <remarks>
+/// <b>WARNING:</b>
+/// <para>
+///   The <see cref="ZipFileSystem"/> is not thread-safe and allows reading only one file at a time, as it relies on
+///   <see cref="ZipArchive"/>, which does not support parallel read operations or simultaneous opening of multiple streams.
+/// </para>
+/// <para>
+///   You may use this class only if you can guarantee that:
+///   <list type="bullet">
+///     <item><description>Only one file is open for reading at a time.</description></item>
+///     <item><description>No file is accessed concurrently.</description></item>
+///   </list>
+/// </para>
+/// </remarks>
+[Obsolete("Deprecated due to thread safety limitations and parallel file access capabilities.")]
 public sealed class ZipFileSystem : IVirtualFileSystem
 {
     private readonly ZipArchive _archive;
