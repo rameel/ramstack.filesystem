@@ -4,6 +4,18 @@
 
 Provides an implementation of `Ramstack.FileSystem` based on ZIP archives.
 
+> [!CAUTION]
+> The `ZipFileSystem` is **not thread-safe** and allows reading only one file at a time, as it relies on `ZipArchive`,
+> which does not support parallel read operations or simultaneous opening of multiple streams.
+
+> [!WARNING]
+> Due to this limitation, the `ZipFileSystem` class is marked as `[Obsolete]`.
+
+> [!IMPORTANT]
+> You may use `ZipFileSystem` only if you can guarantee that:
+> - Only one file is open for reading at a time.
+> - No file is accessed concurrently.
+
 ## Getting Started
 
 To install the `Ramstack.FileSystem.Zip` [NuGet package](https://www.nuget.org/packages/Ramstack.FileSystem.Zip)
