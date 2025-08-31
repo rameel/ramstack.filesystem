@@ -5,6 +5,7 @@ namespace Ramstack.FileSystem.Zip;
 /// <summary>
 /// Represents a file within a ZIP archive.
 /// </summary>
+[Obsolete]
 internal sealed class ZipFile : VirtualFile
 {
     private readonly ZipFileSystem _fileSystem;

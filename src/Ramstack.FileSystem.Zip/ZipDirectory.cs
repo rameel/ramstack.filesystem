@@ -7,6 +7,7 @@ namespace Ramstack.FileSystem.Zip;
 /// <summary>
 /// Represents directory contents and file information within a ZIP archive for the specified path.
 /// </summary>
+[Obsolete]
 [DebuggerTypeProxy(typeof(ZipDirectoryDebuggerProxy))]
 internal sealed class ZipDirectory : VirtualDirectory
 {

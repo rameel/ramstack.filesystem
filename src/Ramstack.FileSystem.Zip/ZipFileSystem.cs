@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Runtime.CompilerServices;
 
 using Ramstack.FileSystem.Null;
 
@@ -100,22 +101,29 @@ public sealed class ZipFileSystem : IVirtualFileSystem
     {
         foreach (var entry in archive.Entries)
         {
-            // Skipping directories
-            // --------------------
-            // Directory entries are denoted by a trailing slash '/' in their names.
             //
-            // Since we can't rely on all archivers to include directory entries in archives,
-            // it's simpler to assume their absence and ignore any entries ending with a forward slash '/'.
+            // Strip common path prefixes from zip entries to handle archives
+            // saved with absolute paths.
+            //
+            var path = VirtualPath.Normalize(
+                entry.FullName[GetPrefixLength(entry.FullName)..]);
 
-            if (entry.FullName.EndsWith('/'))
+            if (VirtualPath.HasTrailingSlash(entry.FullName))
+            {
+                GetOrCreateDirectory(path);
                 continue;
+            }
 
-            var path = VirtualPath.Normalize(entry.FullName);
             var directory = GetOrCreateDirectory(VirtualPath.GetDirectoryName(path));
             var file = new ZipFile(this, path, entry);
 
-            directory.RegisterNode(file);
-            cache.Add(path, file);
+            //
+            // Archives legitimately may contain entries with identical names,
+            // so skip if a file with this name has already been added,
+            // avoiding duplicates in the directory file list.
+            //
+            if (cache.TryAdd(path, file))
+                directory.RegisterNode(file);
         }
 
         ZipDirectory GetOrCreateDirectory(string path)
@@ -131,4 +139,36 @@ public sealed class ZipFileSystem : IVirtualFileSystem
             return (ZipDirectory)di;
         }
     }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static int GetPrefixLength(string path)
+    {
+        //
+        // Check only well-known prefixes.
+        // Note: Since entry names can be arbitrary,
+        // we specifically target only common absolute path patterns.
+        //
+
+        if (path.StartsWith(@"\\?\UNC\", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(@"\\.\UNC\", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("//?/UNC/", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("//./UNC/", StringComparison.OrdinalIgnoreCase))
+            return 8;
+
+        if (path.StartsWith(@"\\?\", StringComparison.Ordinal)
+            || path.StartsWith(@"\\.\", StringComparison.Ordinal)
+            || path.StartsWith("//?/", StringComparison.Ordinal)
+            || path.StartsWith("//./", StringComparison.Ordinal))
+            return path.Length >= 6 && IsAsciiLetter(path[4]) && path[5] == ':' ? 6 : 4;
+
+        if (path.Length >= 2
+            && IsAsciiLetter(path[0]) && path[1] == ':')
+            return 2;
+
+        return 0;
+
+        static bool IsAsciiLetter(char ch) =>
+            (uint)((ch | 0x20) - 'a') <= 'z' - 'a';
+    }
+
 }
