@@ -38,6 +38,9 @@
     <Compile Include="..\Ramstack.FileSystem.Abstractions\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\Ramstack.FileSystem.Abstractions\Utilities\EnumerableExtensions.cs">
+      <Link>Utilities\EnumerableExtensions.cs</Link>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

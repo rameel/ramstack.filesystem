@@ -3,7 +3,7 @@ namespace Ramstack.FileSystem.Utilities;
 /// <summary>
 /// Provides extension methods for the <see cref="IEnumerable{T}"/>.
 /// </summary>
-public static class EnumerableExtensions
+internal static class EnumerableExtensions
 {
     /// <summary>
     /// Converts an enumerable sequence to an async-enumerable sequence.
