@@ -118,7 +118,7 @@ internal static class PathHelper
         static bool IsGlobStar(ref char s, int index, int final) =>
             index + 2 == final && Unsafe.ReadUnaligned<int>(
                 ref Unsafe.As<char, byte>(
-                    ref Unsafe.Add(ref s, (nint)(uint)index))) == ('*' << 16 | '*');
+                    ref Unsafe.Add(ref s, (nint)(uint)index))) == (('*' << 16) | '*');
     }
 
     #region Vector helper methods
