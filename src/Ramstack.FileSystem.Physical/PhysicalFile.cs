@@ -45,7 +45,7 @@ internal sealed class PhysicalFile : VirtualFile
     {
         // SequentialScan is a performance hint that requires extra sys-call on non-Windows systems.
         // https://github.com/dotnet/runtime/blob/46c9a4fff83f35ec659e6659050440aadccf3201/src/libraries/System.Private.CoreLib/src/System/IO/File.cs#L694
-        var options = Path.DirectorySeparatorChar == '\\'
+        var options = OperatingSystem.IsWindows()
             ? FileOptions.Asynchronous | FileOptions.SequentialScan
             : FileOptions.Asynchronous;
 
@@ -108,7 +108,7 @@ internal sealed class PhysicalFile : VirtualFile
             const int WIN32_ERROR_FILE_EXISTS = unchecked((int)0x80070050);
             const int POSIX_EEXIST = 17;
 
-            var exists = Path.DirectorySeparatorChar == '\\'
+            var exists = OperatingSystem.IsWindows()
                 ? exception.HResult == WIN32_ERROR_FILE_EXISTS
                 : exception.HResult == POSIX_EEXIST;
 
