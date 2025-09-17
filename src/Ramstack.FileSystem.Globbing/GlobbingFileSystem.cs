@@ -103,5 +103,5 @@ public sealed class GlobbingFileSystem : IVirtualFileSystem
     /// otherwise, <see langword="false" />.
     /// </returns>
     internal bool IsDirectoryIncluded(string path) =>
-        path == "/" || !PathHelper.IsMatch(path, _excludes) && PathHelper.IsPartialMatch(path, _patterns);
+        path == "/" || (!PathHelper.IsMatch(path, _excludes) && PathHelper.IsPartialMatch(path, _patterns));
 }
