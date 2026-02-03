@@ -232,7 +232,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         _list.Add(storageName);
 
         return new AmazonS3FileSystem(
-            new BasicAWSCredentials("minioadmin", "minioadmin"),
+            new BasicAWSCredentials("rustfsadmin", "rustfsadmin"),
             new AmazonS3Config
             {
                 RegionEndpoint = RegionEndpoint.USEast1,

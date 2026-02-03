@@ -43,7 +43,7 @@ public class ReadonlyAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 
     private AmazonS3FileSystem CreateFileSystem(bool isReadOnly)
     {
-        var credentials = new BasicAWSCredentials("minioadmin", "minioadmin");
+        var credentials = new BasicAWSCredentials("rustfsadmin", "rustfsadmin");
         var config = new AmazonS3Config
         {
             RegionEndpoint = RegionEndpoint.USEast1,
