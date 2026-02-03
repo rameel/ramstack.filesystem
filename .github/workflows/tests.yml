@@ -25,6 +25,7 @@ jobs:
             7.x
             8.x
             9.x
+            10.x
       - name: Checkout
         uses: actions/checkout@v4
       - name: Build
@@ -33,7 +34,7 @@ jobs:
         run: dotnet test --no-build --filter "TestCategory!~Cloud"
 
   azure:
-    name: "Test: AzureFileSystem, Azurite"
+    name: "Test: AzureFileSystem"
     runs-on: ubuntu-latest
     services:
       azurite:
@@ -59,16 +60,14 @@ jobs:
         run: dotnet test --no-build --filter TestCategory=Cloud:Azure
 
   s3:
-    name: "Test: S3FileSystem, Minio"
+    name: "Test: S3FileSystem"
     runs-on: ubuntu-latest
     services:
-      minio:
-        image: bitnami/minio:latest
+      rustfs:
+        image: docker.io/rustfs/rustfs:latest
         ports:
           - 9000:9000
-        env:
-          MINIO_ROOT_USER: minioadmin
-          MINIO_ROOT_PASSWORD: minioadmin
+          - 9001:9001
     steps:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
