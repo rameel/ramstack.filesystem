@@ -1,0 +1,37 @@
+<Solution>
+  <Folder Name="/SolutionItems/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Ramstack.FileSystem.Abstractions/Ramstack.FileSystem.Abstractions.csproj" />
+    <Project Path="src/Ramstack.FileSystem.Adapters/Ramstack.FileSystem.Adapters.csproj" />
+    <Project Path="src/Ramstack.FileSystem.Amazon/Ramstack.FileSystem.Amazon.csproj" />
+    <Project Path="src/Ramstack.FileSystem.Azure/Ramstack.FileSystem.Azure.csproj" />
+    <Project Path="src/Ramstack.FileSystem.Composite/Ramstack.FileSystem.Composite.csproj" />
+    <Project Path="src/Ramstack.FileSystem.Globbing/Ramstack.FileSystem.Globbing.csproj" />
+    <Project Path="src/Ramstack.FileSystem.Google/Ramstack.FileSystem.Google.csproj" />
+    <Project Path="src/Ramstack.FileSystem.Physical/Ramstack.FileSystem.Physical.csproj" />
+    <Project Path="src/Ramstack.FileSystem.Prefixed/Ramstack.FileSystem.Prefixed.csproj" />
+    <Project Path="src/Ramstack.FileSystem.Readonly/Ramstack.FileSystem.Readonly.csproj" />
+    <Project Path="src/Ramstack.FileSystem.Sub/Ramstack.FileSystem.Sub.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Ramstack.FileSystem.Abstractions.Tests/Ramstack.FileSystem.Abstractions.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.Amazon.Tests/Ramstack.FileSystem.Amazon.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.Azure.Tests/Ramstack.FileSystem.Azure.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.Composite.Tests/Ramstack.FileSystem.Composite.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.FileProvider.Tests/Ramstack.FileSystem.FileProvider.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.Globbing.Tests/Ramstack.FileSystem.Globbing.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.Google.Tests/Ramstack.FileSystem.Google.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.Physical.Tests/Ramstack.FileSystem.Physical.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.Prefixed.Tests/Ramstack.FileSystem.Prefixed.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.Readonly.Tests/Ramstack.FileSystem.Readonly.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.Specification.Tests/Ramstack.FileSystem.Specification.Tests.csproj" />
+    <Project Path="tests/Ramstack.FileSystem.Sub.Tests/Ramstack.FileSystem.Sub.Tests.csproj" />
+  </Folder>
+</Solution>
