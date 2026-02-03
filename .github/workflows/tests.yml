@@ -52,6 +52,7 @@ jobs:
             7.x
             8.x
             9.x
+            10.x
       - name: Checkout
         uses: actions/checkout@v4
       - name: Build
@@ -77,6 +78,7 @@ jobs:
             7.x
             8.x
             9.x
+            10.x
       - name: Checkout
         uses: actions/checkout@v4
       - name: Build
