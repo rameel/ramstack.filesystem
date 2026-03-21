@@ -45,6 +45,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Ramstack.FileSystem.Abstractions\Ramstack.FileSystem.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\Ramstack.FileSystem.Physical\Ramstack.FileSystem.Physical.csproj" />
   </ItemGroup>
 
   <ItemGroup>
