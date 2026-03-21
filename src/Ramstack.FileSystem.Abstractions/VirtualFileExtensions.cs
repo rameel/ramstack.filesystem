@@ -301,7 +301,7 @@ public static class VirtualFileExtensions
     /// </returns>
     public static async ValueTask WriteAllTextAsync(this VirtualFile file, ReadOnlyMemory<char> contents, Encoding? encoding, CancellationToken cancellationToken = default)
     {
-        var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
+        await using var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
         await using var writer = new StreamWriter(stream, encoding!);
         await writer.WriteAsync(contents, cancellationToken).ConfigureAwait(false);
     }
@@ -330,7 +330,7 @@ public static class VirtualFileExtensions
     /// </returns>
     public static async ValueTask WriteAllLinesAsync(this VirtualFile file, IEnumerable<string> contents, Encoding? encoding, CancellationToken cancellationToken = default)
     {
-        var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
+        await using var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
         await using var writer = new StreamWriter(stream, encoding, bufferSize: -1, leaveOpen: false);
 
         foreach (var line in contents)
