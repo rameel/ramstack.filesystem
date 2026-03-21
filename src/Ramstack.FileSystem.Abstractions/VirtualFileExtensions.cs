@@ -8,13 +8,6 @@ namespace Ramstack.FileSystem;
 /// </summary>
 public static class VirtualFileExtensions
 {
-    private static Encoding? s_utf8NoBom;
-
-    /// <summary>
-    /// Gets an instance of the <see cref="UTF8Encoding"/> without BOM.
-    /// </summary>
-    private static Encoding Utf8NoBom => s_utf8NoBom ??= new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
-
     /// <summary>
     /// Asynchronously returns a <see cref="StreamReader"/> with <see cref="Encoding.UTF8"/>
     /// character encoding that reads from the specified text file.
@@ -26,7 +19,7 @@ public static class VirtualFileExtensions
     /// The result is a <see cref="StreamReader"/> that reads from the text file.
     /// </returns>
     public static ValueTask<StreamReader> OpenTextAsync(this VirtualFile file, CancellationToken cancellationToken = default) =>
-        file.OpenTextAsync(Encoding.UTF8, cancellationToken);
+        file.OpenTextAsync(encoding: null, cancellationToken);
 
     /// <summary>
     /// Asynchronously returns a <see cref="StreamReader"/> with the specified character encoding
@@ -67,7 +60,7 @@ public static class VirtualFileExtensions
     /// containing the full text from the current file.
     /// </returns>
     public static ValueTask<string> ReadAllTextAsync(this VirtualFile file, CancellationToken cancellationToken = default) =>
-        ReadAllTextAsync(file, Encoding.UTF8, cancellationToken);
+        ReadAllTextAsync(file, encoding: null, cancellationToken);
 
     /// <summary>
     /// Asynchronously reads all the text in the current file with the specified encoding.
@@ -81,9 +74,15 @@ public static class VirtualFileExtensions
     /// </returns>
     public static async ValueTask<string> ReadAllTextAsync(this VirtualFile file, Encoding? encoding, CancellationToken cancellationToken = default)
     {
+        //
+        // Use a manual read loop since .NET 6 lacks a StreamReader.ReadToEndAsync overload that accepts a CancellationToken.
+        // This ensures the operation remains responsive to cancellation requests.
+        //
+
         const int BufferSize = 4096;
 
-        var stream = await file.OpenReadAsync(cancellationToken).ConfigureAwait(false);
+        // ReSharper disable once UseAwaitUsing
+        using var stream = await file.OpenReadAsync(cancellationToken).ConfigureAwait(false);
         var reader = new StreamReader(stream, encoding ??= Encoding.UTF8);
         var buffer = (char[]?)null;
 
@@ -217,20 +216,20 @@ public static class VirtualFileExtensions
                 total += count;
             }
 
-            static byte[] ResizeBuffer(byte[] bytes)
+            static byte[] ResizeBuffer(byte[] oldArray)
             {
-                var length = (uint)bytes.Length * 2;
+                var length = (uint)oldArray.Length * 2;
                 if (length > (uint)Array.MaxLength)
-                    length = (uint)Math.Max(Array.MaxLength, bytes.Length + 1);
+                    length = (uint)Math.Max(Array.MaxLength, oldArray.Length + 1);
 
-                var tmp = ArrayPool<byte>.Shared.Rent((int)length);
-                Buffer.BlockCopy(bytes, 0, tmp, 0, bytes.Length);
+                var newArray = ArrayPool<byte>.Shared.Rent((int)length);
+                oldArray.AsSpan().TryCopyTo(newArray);
 
-                var rented = bytes;
-                bytes = tmp;
+                var rented = oldArray;
+                oldArray = newArray;
 
                 ArrayPool<byte>.Shared.Return(rented);
-                return bytes;
+                return oldArray;
             }
         }
 
@@ -302,7 +301,7 @@ public static class VirtualFileExtensions
     /// </returns>
     public static async ValueTask WriteAllTextAsync(this VirtualFile file, ReadOnlyMemory<char> contents, Encoding? encoding, CancellationToken cancellationToken = default)
     {
-        var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
+        await using var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
         await using var writer = new StreamWriter(stream, encoding!);
         await writer.WriteAsync(contents, cancellationToken).ConfigureAwait(false);
     }
@@ -331,13 +330,11 @@ public static class VirtualFileExtensions
     /// </returns>
     public static async ValueTask WriteAllLinesAsync(this VirtualFile file, IEnumerable<string> contents, Encoding? encoding, CancellationToken cancellationToken = default)
     {
-        var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
+        await using var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
         await using var writer = new StreamWriter(stream, encoding, bufferSize: -1, leaveOpen: false);
 
         foreach (var line in contents)
             await writer.WriteLineAsync(line).ConfigureAwait(false);
-
-        await writer.FlushAsync().ConfigureAwait(false);
     }
 
     /// <summary>
