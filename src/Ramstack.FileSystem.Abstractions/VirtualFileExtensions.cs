@@ -263,7 +263,7 @@ public static class VirtualFileExtensions
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
     public static ValueTask WriteAllTextAsync(this VirtualFile file, string contents, CancellationToken cancellationToken = default) =>
-        WriteAllTextAsync(file, contents.AsMemory(), Utf8NoBom, cancellationToken);
+        WriteAllTextAsync(file, contents.AsMemory(), encoding: null, cancellationToken);
 
     /// <summary>
     /// Asynchronously writes the specified string to the current file. If the file already exists, it is truncated and overwritten.
@@ -302,38 +302,9 @@ public static class VirtualFileExtensions
     /// </returns>
     public static async ValueTask WriteAllTextAsync(this VirtualFile file, ReadOnlyMemory<char> contents, Encoding? encoding, CancellationToken cancellationToken = default)
     {
-        const int ChunkSize = 8192;
-
-        if (contents.IsEmpty)
-            return;
-
-        encoding ??= Utf8NoBom;
         var stream = await file.OpenWriteAsync(cancellationToken).ConfigureAwait(false);
-
-        var preamble = encoding.GetPreamble();
-        if (preamble.Length != 0)
-            stream.Write(preamble.AsSpan());
-
-        var bytes = ArrayPool<byte>.Shared.Rent(
-            encoding.GetMaxCharCount(Math.Min(ChunkSize, contents.Length)));
-
-        try
-        {
-            var encoder = encoding.GetEncoder();
-            while (contents.Length != 0)
-            {
-                var data = contents[..Math.Min(ChunkSize, contents.Length)];
-                contents = contents[data.Length..];
-
-                var encoded = encoder.GetBytes(data.Span, bytes.AsSpan(), flush: contents.IsEmpty);
-                await stream.WriteAsync(bytes.AsMemory(0, encoded), cancellationToken).ConfigureAwait(false);
-            }
-        }
-        finally
-        {
-            await stream.DisposeAsync().ConfigureAwait(false);
-            ArrayPool<byte>.Shared.Return(bytes);
-        }
+        await using var writer = new StreamWriter(stream, encoding!);
+        await writer.WriteAsync(contents, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
