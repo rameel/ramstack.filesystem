@@ -335,8 +335,6 @@ public static class VirtualFileExtensions
 
         foreach (var line in contents)
             await writer.WriteLineAsync(line).ConfigureAwait(false);
-
-        await writer.FlushAsync().ConfigureAwait(false);
     }
 
     /// <summary>
