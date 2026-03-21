@@ -264,8 +264,6 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         await using (var stream = await fs.OpenWriteAsync("/empty-flush-test.txt"))
             await stream.FlushAsync();
 
-        fs.WriteAllBytesAsync()
-
         var file = fs.GetFile("/empty-flush-test.txt");
         Assert.That(await file.ExistsAsync(), Is.True);
         Assert.That(await file.GetLengthAsync(), Is.EqualTo(0));
