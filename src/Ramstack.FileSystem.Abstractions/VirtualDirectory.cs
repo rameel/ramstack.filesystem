@@ -1,3 +1,4 @@
+using Ramstack.Globbing;
 using Ramstack.Globbing.Traversal;
 
 namespace Ramstack.FileSystem;
@@ -228,6 +229,7 @@ public abstract class VirtualDirectory : VirtualNode
         {
             Patterns = patterns,
             Excludes = excludes ?? [],
+            Flags = MatchFlags.Unix,
             FileNameSelector = node => node.Name,
             ShouldRecursePredicate = node => node is VirtualDirectory,
             ChildrenSelector = (node, token) => ((VirtualDirectory)node).GetFileNodesCoreAsync(token),
@@ -251,6 +253,7 @@ public abstract class VirtualDirectory : VirtualNode
         {
             Patterns = patterns,
             Excludes = excludes ?? [],
+            Flags = MatchFlags.Unix,
             FileNameSelector = node => node.Name,
             ShouldIncludePredicate = node => node is VirtualFile,
             ShouldRecursePredicate = node => node is VirtualDirectory,
@@ -275,6 +278,7 @@ public abstract class VirtualDirectory : VirtualNode
         {
             Patterns = patterns,
             Excludes = excludes ?? [],
+            Flags = MatchFlags.Unix,
             FileNameSelector = node => node.Name,
             ShouldIncludePredicate = node => node is VirtualDirectory,
             ShouldRecursePredicate = node => node is VirtualDirectory,
