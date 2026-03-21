@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using Ramstack.FileSystem.Physical;
+
 namespace Ramstack.FileSystem.Specification.Tests;
 
 /// <summary>
@@ -351,6 +353,38 @@ public abstract class VirtualFileSystemSpecificationTests
         await Assert.ThatAsync(
             async () => await fs.DeleteFileAsync("/project/c180408e8005.png"),
             Throws.Exception);
+    }
+
+    [Test]
+    public async Task File_Readonly_ReadonlyToWritable_Succeeds()
+    {
+        using var fs = GetFileSystem();
+        using var ds = new PhysicalFileSystem(
+            Path.Combine(
+                Path.GetTempPath(),
+                Path.GetRandomFileName()));
+
+        if (!fs.IsReadOnly)
+            return;
+
+        var src = fs.GetFile("/project/README.md");
+        var dst = ds.GetFile("/README.md");
+
+        await src.CopyToAsync(dst);
+
+        Assert.That(
+            await dst.ExistsAsync(),
+            Is.True);
+
+        Assert.That(
+            await ds.FileExistsAsync("/README.md"),
+            Is.True);
+
+        Assert.That(
+            await src.ReadAllTextAsync(),
+            Is.EqualTo(await src.ReadAllTextAsync()));
+
+        Directory.Delete(ds.Root, true);
     }
 
     [Test]

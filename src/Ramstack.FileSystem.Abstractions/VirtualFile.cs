@@ -143,7 +143,7 @@ public abstract class VirtualFile : VirtualNode
     /// </remarks>
     public ValueTask CopyToAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken = default)
     {
-        EnsureWritable();
+        destination.EnsureWritable();
         destination.Refresh();
 
         if (destination.FileSystem != FileSystem)
