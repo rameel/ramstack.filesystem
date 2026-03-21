@@ -44,9 +44,9 @@ internal sealed class PhysicalDirectory : VirtualDirectory
 
         var properties = info.Exists
             ? VirtualNodeProperties.CreateDirectoryProperties(
-                creationTime: info.CreationTimeUtc,
+                creationTime: info.CreationTime,
                 lastAccessTime: info.LastAccessTime,
-                lastWriteTime: info.LastWriteTimeUtc)
+                lastWriteTime: info.LastWriteTime)
             : null;
 
         return new ValueTask<VirtualNodeProperties?>(properties);

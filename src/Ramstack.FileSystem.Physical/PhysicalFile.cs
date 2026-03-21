@@ -31,9 +31,9 @@ internal sealed class PhysicalFile : VirtualFile
         var file = new FileInfo(_physicalPath);
         var properties = file.Exists
             ? VirtualNodeProperties.CreateFileProperties(
-                creationTime: file.CreationTimeUtc,
+                creationTime: file.CreationTime,
                 lastAccessTime: file.LastAccessTime,
-                lastWriteTime: file.LastWriteTimeUtc,
+                lastWriteTime: file.LastWriteTime,
                 length: file.Length)
             : null;
 
