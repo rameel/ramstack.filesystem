@@ -17,6 +17,9 @@ internal sealed class S3UploadStream : Stream
 {
     private const long PartSize = 5 * 1024 * 1024;
 
+    // https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
+    private const long MaxPartSize = 5L * 1024 * 1024 * 1024;
+
     private readonly IAmazonS3 _client;
     private readonly string _bucketName;
     private readonly string _key;
@@ -146,16 +149,11 @@ internal sealed class S3UploadStream : Stream
     /// <inheritdoc />
     public override void Flush()
     {
-        _stream.Flush();
-        UploadPart();
     }
 
     /// <inheritdoc />
-    public override async Task FlushAsync(CancellationToken cancellationToken)
-    {
-        await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
-        await UploadPartAsync(cancellationToken).ConfigureAwait(false);
-    }
+    public override Task FlushAsync(CancellationToken cancellationToken) =>
+        Task.CompletedTask;
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
@@ -232,24 +230,28 @@ internal sealed class S3UploadStream : Stream
             {
                 _stream.Position = 0;
 
-                // https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
-                // The maximum allowed part size is 5 gigabytes.
-
-                var request = new UploadPartRequest
+                do
                 {
-                    BucketName = _bucketName,
-                    Key = _key,
-                    UploadId = _uploadId,
-                    PartNumber = _partETags.Count + 1,
-                    InputStream = _stream,
-                    PartSize = _stream.Length
-                };
+                    var remaining = _stream.Length - _stream.Position;
+                    var partSize = Math.Min(remaining, MaxPartSize);
 
-                var response = await _client
-                    .UploadPartAsync(request, cancellationToken)
-                    .ConfigureAwait(false);
+                    var request = new UploadPartRequest
+                    {
+                        BucketName = _bucketName,
+                        Key = _key,
+                        UploadId = _uploadId,
+                        PartNumber = _partETags.Count + 1,
+                        InputStream = _stream,
+                        PartSize = partSize
+                    };
 
-                _partETags.Add(new PartETag(response));
+                    var response = await _client
+                        .UploadPartAsync(request, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    _partETags.Add(new PartETag(response));
+                }
+                while (_stream.Position < _stream.Length);
 
                 _stream.Position = 0;
                 _stream.SetLength(0);
