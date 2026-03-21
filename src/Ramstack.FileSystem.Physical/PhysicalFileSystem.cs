@@ -5,10 +5,13 @@ namespace Ramstack.FileSystem.Physical;
 /// <summary>
 /// Represents an implementation of <see cref="IVirtualFileSystem"/> for physical files.
 /// </summary>
-[DebuggerDisplay("Root = {_root,nq}")]
+[DebuggerDisplay("Root = {Root,nq}")]
 public sealed class PhysicalFileSystem : IVirtualFileSystem
 {
-    private readonly string _root;
+    /// <summary>
+    /// Gets the physical path of the root directory for this instance.
+    /// </summary>
+    public string Root { get; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the file system is read-only.
@@ -18,13 +21,13 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
     /// <summary>
     /// Initializes a new instance of the <see cref="PhysicalFileSystem"/> class.
     /// </summary>
-    /// <param name="path">The physical path of the directory.</param>
+    /// <param name="path">The physical path of root the directory.</param>
     public PhysicalFileSystem(string path)
     {
         if (!Path.IsPathRooted(path))
             Error(path);
 
-        _root = Path.GetFullPath(path);
+        Root = Path.GetFullPath(path);
 
         static void Error(string path) =>
             throw new ArgumentException($"The path '{path}' must be absolute.");
@@ -64,6 +67,6 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
     private string GetPhysicalPath(string path)
     {
         Debug.Assert(VirtualPath.IsNormalized(path));
-        return Path.Join(_root, path);
+        return Path.Join(Root, path);
     }
 }
