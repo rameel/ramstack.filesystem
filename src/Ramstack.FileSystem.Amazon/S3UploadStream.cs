@@ -15,10 +15,8 @@ namespace Ramstack.FileSystem.Amazon;
 /// </summary>
 internal sealed class S3UploadStream : Stream
 {
-    private const long PartSize = 5 * 1024 * 1024;
-
     // https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
-    private const long MaxPartSize = 5L * 1024 * 1024 * 1024;
+    private const long PartSize = 5L * 1024 * 1024;
 
     private readonly IAmazonS3 _client;
     private readonly string _bucketName;
@@ -230,28 +228,30 @@ internal sealed class S3UploadStream : Stream
             {
                 _stream.Position = 0;
 
-                do
+                // https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
+                // The maximum allowed part size is 5 GiB.
+                // -----------------------------------------------------------------------------------
+                // We don't need to worry about S3's 5 GiB part limit because:
+                // 1. All Write/WriteAsync methods are inherently limited by Array.MaxLength (~2 GiB).
+                // 2. The upload starts as soon as the buffer reaches MinPartSize (5 MiB).
+                // Even if a single write matches Array.MaxLength, the data is
+                // uploaded immediately, staying within AWS limits.
+
+                var request = new UploadPartRequest
                 {
-                    var remaining = _stream.Length - _stream.Position;
-                    var partSize = Math.Min(remaining, MaxPartSize);
+                    BucketName = _bucketName,
+                    Key = _key,
+                    UploadId = _uploadId,
+                    PartNumber = _partETags.Count + 1,
+                    InputStream = _stream,
+                    PartSize = _stream.Length
+                };
 
-                    var request = new UploadPartRequest
-                    {
-                        BucketName = _bucketName,
-                        Key = _key,
-                        UploadId = _uploadId,
-                        PartNumber = _partETags.Count + 1,
-                        InputStream = _stream,
-                        PartSize = partSize
-                    };
+                var response = await _client
+                    .UploadPartAsync(request, cancellationToken)
+                    .ConfigureAwait(false);
 
-                    var response = await _client
-                        .UploadPartAsync(request, cancellationToken)
-                        .ConfigureAwait(false);
-
-                    _partETags.Add(new PartETag(response));
-                }
-                while (_stream.Position < _stream.Length);
+                _partETags.Add(new PartETag(response));
 
                 _stream.Position = 0;
                 _stream.SetLength(0);
