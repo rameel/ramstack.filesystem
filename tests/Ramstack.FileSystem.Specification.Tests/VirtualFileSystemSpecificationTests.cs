@@ -240,6 +240,103 @@ public abstract class VirtualFileSystemSpecificationTests
     }
 
     [Test]
+    public async Task File_Write_EmptyStream_CreatesFile()
+    {
+        using var fs = GetFileSystem();
+
+        if (fs.IsReadOnly)
+            return;
+
+        var file = fs.GetFile("/project/e3a1c7f0_empty_write.txt");
+
+        Assert.That(await file.ExistsAsync(), Is.False);
+
+        await file.WriteAsync(Stream.Null);
+
+        Assert.That(await file.ExistsAsync(), Is.True);
+        Assert.That(await file.GetLengthAsync(), Is.Zero);
+
+        await file.DeleteAsync();
+    }
+
+    [Test]
+    public async Task File_Write_EmptyStream_ExistingFile_ResultsInZeroLength()
+    {
+        using var fs = GetFileSystem();
+
+        if (fs.IsReadOnly)
+            return;
+
+        var path = "/project/b7d2e9f1_overwrite_empty.txt";
+        var file = fs.GetFile(path);
+
+        var ms = new MemoryStream("Some content"u8.ToArray());
+        await file.WriteAsync(ms);
+
+        Assert.That(await file.ExistsAsync(), Is.True);
+        Assert.That(await file.GetLengthAsync(), Is.GreaterThan(0));
+
+        // Write empty stream over existing file
+        await file.WriteAsync(Stream.Null, overwrite: true);
+
+        Assert.That(await file.ExistsAsync(), Is.True);
+        Assert.That(await file.GetLengthAsync(), Is.Zero);
+
+        await file.DeleteAsync();
+    }
+
+    [Test]
+    public async Task File_OpenWrite_NoWrite_CreatesFile()
+    {
+        using var fs = GetFileSystem();
+
+        if (fs.IsReadOnly)
+            return;
+
+        var file = fs.GetFile("/project/a4f8d2e0_openwrite_empty.txt");
+
+        Assert.That(await file.ExistsAsync(), Is.False);
+
+        await using (await file.OpenWriteAsync())
+        {
+            // Do not write anything, just close
+        }
+
+        Assert.That(await file.ExistsAsync(), Is.True);
+        Assert.That(await file.GetLengthAsync(), Is.Zero);
+
+        await file.DeleteAsync();
+    }
+
+    [Test]
+    public async Task File_OpenWrite_ExistingFile_ResultsInZeroLength()
+    {
+        using var fs = GetFileSystem();
+
+        if (fs.IsReadOnly)
+            return;
+
+        var file = fs.GetFile("/project/c5e9a3b1_openwrite_truncate.txt");
+
+        var ms = new MemoryStream("Some content"u8.ToArray());
+        await file.WriteAsync(ms);
+
+        Assert.That(await file.ExistsAsync(), Is.True);
+        Assert.That(await file.GetLengthAsync(), Is.GreaterThan(0));
+
+        // Open for write and close without writing
+        await using (await file.OpenWriteAsync())
+        {
+            // Do not write anything, just close
+        }
+
+        Assert.That(await file.ExistsAsync(), Is.True);
+        Assert.That(await file.GetLengthAsync(), Is.Zero);
+
+        await file.DeleteAsync();
+    }
+
+    [Test]
     public async Task File_Delete_For_ExistingFile()
     {
         using var fs = GetFileSystem();
