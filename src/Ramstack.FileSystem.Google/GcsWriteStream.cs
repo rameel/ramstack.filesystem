@@ -138,11 +138,8 @@ internal sealed class GcsWriteStream : Stream
             {
                 _stream.Position = 0;
 
-                if (_stream.Length != 0)
-                {
-                    var destination = new global::Google.Apis.Storage.v1.Data.Object { Bucket = _fs.BucketName, Name = _objectName };
-                    _fs.StorageClient.UploadObject(destination, _stream);
-                }
+                var destination = new global::Google.Apis.Storage.v1.Data.Object { Bucket = _fs.BucketName, Name = _objectName };
+                _fs.StorageClient.UploadObject(destination, _stream);
             }
             finally
             {
@@ -163,14 +160,11 @@ internal sealed class GcsWriteStream : Stream
             {
                 _stream.Position = 0;
 
-                if (_stream.Length != 0)
-                {
-                    var destination = new global::Google.Apis.Storage.v1.Data.Object { Bucket = _fs.BucketName, Name = _objectName };
+                var destination = new global::Google.Apis.Storage.v1.Data.Object { Bucket = _fs.BucketName, Name = _objectName };
 
-                    await _fs.StorageClient
-                        .UploadObjectAsync(destination, _stream)
-                        .ConfigureAwait(false);
-                }
+                await _fs.StorageClient
+                    .UploadObjectAsync(destination, _stream)
+                    .ConfigureAwait(false);
             }
             finally
             {
