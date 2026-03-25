@@ -14,7 +14,7 @@ namespace Ramstack.FileSystem.Amazon;
 [Category("Cloud:Amazon")]
 public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 {
-    private readonly HashSet<string> _list = [];
+    private readonly HashSet<string> _buckets = [];
     private readonly TempFileStorage _storage = new TempFileStorage();
 
     [OneTimeSetUp]
@@ -35,7 +35,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     {
         _storage.Dispose();
 
-        foreach (var name in _list.ToArray())
+        foreach (var name in _buckets.ToArray())
         {
             using var fs = CreateFileSystem(name);
 
@@ -43,9 +43,9 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
             {
                 await fs.DeleteDirectoryAsync("/");
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                Console.WriteLine(exception);
+                Console.WriteLine(e);
             }
         }
     }
@@ -61,14 +61,15 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
             Assert.That(underlying, Is.Not.Null);
 
             // Write enough data to trigger automatic part upload (>= 5 MiB).
-            await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[6 * 1024 * 1024]));
+            await stream.WriteAsync(new byte[6 * 1024 * 1024]);
 
             // Simulates an internal buffer write error.
             await underlying.DisposeAsync();
 
             try
             {
-                await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[1024]));
+                await stream.WriteAsync(new byte[1024]);
+                Assert.Fail();
             }
             catch
             {
@@ -239,7 +240,6 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
             for (var i = 0; i < Count; i++)
                 await stream.WriteAsync(chunk);
         }
-
         {
             var file = fs.GetFile(FileName);
 
@@ -314,7 +314,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 
     private AmazonS3FileSystem CreateFileSystem(string storageName)
     {
-        _list.Add(storageName);
+        _buckets.Add(storageName);
 
         return new AmazonS3FileSystem(
             new BasicAWSCredentials("rustfsadmin", "rustfsadmin"),

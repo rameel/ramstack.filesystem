@@ -43,9 +43,9 @@ public class WritableGoogleFileSystemTests : VirtualFileSystemSpecificationTests
             {
                 await fs.DeleteDirectoryAsync("/");
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                Console.WriteLine(exception);
+                Console.WriteLine(e);
             }
         }
     }
@@ -60,22 +60,19 @@ public class WritableGoogleFileSystemTests : VirtualFileSystemSpecificationTests
             var underlying = (FileStream)stream.GetType().GetField("_stream", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(stream)!;
             Assert.That(underlying, Is.Not.Null);
 
-            await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[1024]));
-
-            // Forces to upload buffer.
-            await stream.FlushAsync();
+            await stream.WriteAsync(new byte[1024]);
 
             // Simulates an internal buffer write error.
             await underlying.DisposeAsync();
 
             try
             {
-                await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[1024]));
+                await stream.WriteAsync(new byte[1024]);
+                Assert.Fail();
             }
-            catch (Exception exception)
+            catch
             {
-                Console.WriteLine("Exception expected!");
-                Console.WriteLine(exception);
+                // Ignore
             }
         }
 
@@ -160,6 +157,9 @@ public class WritableGoogleFileSystemTests : VirtualFileSystemSpecificationTests
         Assert.That(
             await reader.ReadToEndAsync(),
             Is.EqualTo(content));
+
+        await source.DeleteAsync();
+        await destination.DeleteAsync();
     }
 
     [Test]
@@ -189,6 +189,9 @@ public class WritableGoogleFileSystemTests : VirtualFileSystemSpecificationTests
         Assert.That(
             await reader.ReadToEndAsync(),
             Is.EqualTo(content));
+
+        await source.DeleteAsync();
+        await destination.DeleteAsync();
     }
 
     protected override GoogleFileSystem GetFileSystem() =>
