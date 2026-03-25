@@ -60,10 +60,8 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
             var underlying = (FileStream)stream.GetType().GetField("_stream", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(stream)!;
             Assert.That(underlying, Is.Not.Null);
 
-            await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[1024]));
-
-            // Forces to upload buffer.
-            await stream.FlushAsync();
+            // Write enough data to trigger automatic part upload (>= 5 MiB).
+            await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[6 * 1024 * 1024]));
 
             // Simulates an internal buffer write error.
             await underlying.DisposeAsync();
@@ -195,6 +193,93 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         await destination.DeleteAsync();
     }
 
+    [Test]
+    public async Task File_OpenWrite_FlushDoesNotCauseUndersizedParts()
+    {
+        using var fs = GetFileSystem();
+
+        const string Content = "Hello, World!";
+
+        {
+            await using var stream = await fs.OpenWriteAsync("/flush-test.txt");
+            await using var writer = new StreamWriter(stream);
+
+            // Write small data and flush multiple times.
+            // Flush should be a no-op and not upload undersized parts.
+            foreach (var ch in Content)
+            {
+                await writer.WriteAsync(ch);
+                await writer.FlushAsync();
+            }
+        }
+        {
+            // ReSharper disable once UseAwaitUsing
+            using var stream = await fs.OpenReadAsync("/flush-test.txt");
+            using var reader = new StreamReader(stream);
+
+            Assert.That(await reader.ReadToEndAsync(), Is.EqualTo(Content));
+        }
+
+        await fs.DeleteFileAsync("/flush-test.txt");
+    }
+
+    [Test]
+    public async Task File_OpenWrite_FlushWithMultipartUpload()
+    {
+        using var fs = GetFileSystem();
+
+        const int Count = 5;
+        const string FileName = "/flush-multipart-test.bin";
+
+        var chunk = new byte[3 * 1024 * 1024];
+        Random.Shared.NextBytes(chunk);
+
+        {
+            await using var stream = await fs.OpenWriteAsync(FileName);
+            for (var i = 0; i < Count; i++)
+                await stream.WriteAsync(chunk);
+        }
+
+        {
+            var file = fs.GetFile(FileName);
+
+            Assert.That(await file.ExistsAsync(), Is.True);
+            Assert.That(await file.GetLengthAsync(), Is.EqualTo(chunk.Length * Count));
+
+            // ReSharper disable once UseAwaitUsing
+            using var stream = await file.OpenReadAsync();
+
+            var bytes = new byte[chunk.Length];
+
+            for (var i = 0; i < Count; i++)
+            {
+                var n = await ReadBlockAsync(stream, bytes);
+                Assert.That(n, Is.EqualTo(bytes.Length));
+
+                Assert.That(
+                    bytes.AsSpan().SequenceEqual(chunk),
+                    Is.True);
+            }
+        }
+
+        await fs.DeleteFileAsync(FileName);
+
+        static async Task<int> ReadBlockAsync(Stream stream, Memory<byte> memory)
+        {
+            var count = memory.Length;
+
+            while (!memory.IsEmpty)
+            {
+                var n = await stream.ReadAsync(memory);
+                if (n == 0)
+                    return 0;
+
+                memory = memory[n..];
+            }
+
+            return count;
+        }
+    }
 
     [Test]
     public async Task Directory_BatchDeleting()
