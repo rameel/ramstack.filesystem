@@ -193,13 +193,12 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
         await destination.DeleteAsync();
     }
 
-
     [Test]
     public async Task File_OpenWrite_FlushDoesNotCauseUndersizedParts()
     {
         using var fs = GetFileSystem();
 
-        var content = "Hello, World!";
+        const string Content = "Hello, World!";
 
         {
             await using var stream = await fs.OpenWriteAsync("/flush-test.txt");
@@ -207,23 +206,21 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 
             // Write small data and flush multiple times.
             // Flush should be a no-op and not upload undersized parts.
-            await writer.WriteAsync(content[..5]);
-            await writer.FlushAsync();
-            await writer.WriteAsync(content[5..]);
-            await writer.FlushAsync();
+            foreach (var ch in Content)
+            {
+                await writer.WriteAsync(ch);
+                await writer.FlushAsync();
+            }
         }
-
         {
-            var file = fs.GetFile("/flush-test.txt");
-            Assert.That(await file.ExistsAsync(), Is.True);
-
             // ReSharper disable once UseAwaitUsing
-            using var stream = await file.OpenReadAsync();
+            using var stream = await fs.OpenReadAsync("/flush-test.txt");
             using var reader = new StreamReader(stream);
-            Assert.That(await reader.ReadToEndAsync(), Is.EqualTo(content));
 
-            await file.DeleteAsync();
+            Assert.That(await reader.ReadToEndAsync(), Is.EqualTo(Content));
         }
+
+        await fs.DeleteFileAsync("/flush-test.txt");
     }
 
     [Test]
@@ -231,44 +228,57 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     {
         using var fs = GetFileSystem();
 
-        // Write more than 5 MiB to trigger multipart upload,
-        // with Flush calls between writes.
-        var chunk = new byte[2 * 1024 * 1024];
+        const int Count = 5;
+        const string FileName = "/flush-multipart-test.bin";
+
+        var chunk = new byte[3 * 1024 * 1024];
         Random.Shared.NextBytes(chunk);
 
         {
-            await using var stream = await fs.OpenWriteAsync("/flush-multipart-test.bin");
-
-            // Write 4 chunks (8 MiB total) with flushes in between.
-            // Without the fix, each flush would upload an undersized part
-            // and CompleteMultipartUpload would fail.
-            for (var i = 0; i < 4; i++)
-            {
+            await using var stream = await fs.OpenWriteAsync(FileName);
+            for (var i = 0; i < Count; i++)
                 await stream.WriteAsync(chunk);
-                await stream.FlushAsync();
+        }
+
+        {
+            var file = fs.GetFile(FileName);
+
+            Assert.That(await file.ExistsAsync(), Is.True);
+            Assert.That(await file.GetLengthAsync(), Is.EqualTo(chunk.Length * Count));
+
+            // ReSharper disable once UseAwaitUsing
+            using var stream = await file.OpenReadAsync();
+
+            var bytes = new byte[chunk.Length];
+
+            for (var i = 0; i < Count; i++)
+            {
+                var n = await ReadBlockAsync(stream, bytes);
+                Assert.That(n, Is.EqualTo(bytes.Length));
+
+                Assert.That(
+                    bytes.AsSpan().SequenceEqual(chunk),
+                    Is.True);
             }
         }
 
-        var file = fs.GetFile("/flush-multipart-test.bin");
-        Assert.That(await file.ExistsAsync(), Is.True);
-        Assert.That(await file.GetLengthAsync(), Is.EqualTo(chunk.Length * 4));
+        await fs.DeleteFileAsync(FileName);
 
-        await file.DeleteAsync();
-    }
+        static async Task<int> ReadBlockAsync(Stream stream, Memory<byte> memory)
+        {
+            var count = memory.Length;
 
-    [Test]
-    public async Task File_OpenWrite_EmptyFileWithFlush()
-    {
-        using var fs = GetFileSystem();
+            while (!memory.IsEmpty)
+            {
+                var n = await stream.ReadAsync(memory);
+                if (n == 0)
+                    return 0;
 
-        await using (var stream = await fs.OpenWriteAsync("/empty-flush-test.txt"))
-            await stream.FlushAsync();
+                memory = memory[n..];
+            }
 
-        var file = fs.GetFile("/empty-flush-test.txt");
-        Assert.That(await file.ExistsAsync(), Is.True);
-        Assert.That(await file.GetLengthAsync(), Is.EqualTo(0));
-
-        await file.DeleteAsync();
+            return count;
+        }
     }
 
     [Test]

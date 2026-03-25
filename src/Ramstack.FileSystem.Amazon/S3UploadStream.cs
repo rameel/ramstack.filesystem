@@ -10,13 +10,11 @@ namespace Ramstack.FileSystem.Amazon;
 
 /// <summary>
 /// Represents a stream for uploading data to Amazon S3 using multipart upload.
-/// This stream accumulates data in a temporary buffer and uploads it to S3 in parts
-/// once the buffer reaches a predefined size.
 /// </summary>
 internal sealed class S3UploadStream : Stream
 {
     // https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
-    private const long PartSize = 5L * 1024 * 1024;
+    private const long MinPartSize = 5L * 1024 * 1024;
 
     private readonly IAmazonS3 _client;
     private readonly string _bucketName;
@@ -82,7 +80,7 @@ internal sealed class S3UploadStream : Stream
             FileShare.None,
             bufferSize: 4096,
             FileOptions.DeleteOnClose
-            | FileOptions.Asynchronous);
+                | FileOptions.Asynchronous);
     }
 
     /// <inheritdoc />
@@ -103,7 +101,7 @@ internal sealed class S3UploadStream : Stream
         {
             _stream.Write(buffer);
 
-            if (_stream.Length >= PartSize)
+            if (_stream.Length >= MinPartSize)
                 UploadPart();
         }
         catch (Exception exception)
@@ -123,7 +121,7 @@ internal sealed class S3UploadStream : Stream
         try
         {
             await _stream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
-            if (_stream.Length >= PartSize)
+            if (_stream.Length >= MinPartSize)
                 await UploadPartAsync(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception)
