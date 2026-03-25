@@ -3,14 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 namespace Ramstack.FileSystem.Google;
 
 /// <summary>
-/// Represents a temporary write-only stream for Google Cloud Storage operations, redirecting all write operations to a temporary file.
-/// Upon disposing or closing the stream, the data is transferred to the Azure Blob storage.
+/// Represents a temporary write-only stream that buffers data to a temporary file before uploading it to Google Cloud Storage.
+/// Data is committed to the storage bucket when the stream is disposed or closed.
 /// </summary>
 internal sealed class GcsWriteStream : Stream
 {
     private readonly GoogleFileSystem _fs;
     private readonly string _objectName;
-    private readonly FileStream _stream = CreateTempFileStream();
+    private readonly FileStream _stream;
     private bool _disposed;
 
     /// <inheritdoc />
@@ -53,6 +53,16 @@ internal sealed class GcsWriteStream : Stream
     {
         _fs = fs;
         _objectName = objectName;
+        _stream = new FileStream(
+            Path.Combine(
+                Path.GetTempPath(),
+                Path.GetRandomFileName()),
+            FileMode.CreateNew,
+            FileAccess.ReadWrite,
+            FileShare.None,
+            bufferSize: 4096,
+            FileOptions.DeleteOnClose
+                | FileOptions.Asynchronous);
     }
 
     /// <inheritdoc />
@@ -84,7 +94,6 @@ internal sealed class GcsWriteStream : Stream
         {
             _disposed = true;
             _stream.Close();
-
             throw;
         }
     }
@@ -104,7 +113,6 @@ internal sealed class GcsWriteStream : Stream
         {
             _disposed = true;
             _stream.Close();
-
             throw;
         }
     }
@@ -174,15 +182,6 @@ internal sealed class GcsWriteStream : Stream
                 await base.DisposeAsync().ConfigureAwait(false);
             }
         }
-    }
-
-    private static FileStream CreateTempFileStream()
-    {
-        const int BufferSize = 4096;
-        const FileOptions Options = FileOptions.DeleteOnClose | FileOptions.Asynchronous;
-
-        var path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-        return new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, BufferSize, Options);
     }
 
     [DoesNotReturn]

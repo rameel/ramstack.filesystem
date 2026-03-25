@@ -100,14 +100,13 @@ internal sealed class S3UploadStream : Stream
         try
         {
             _stream.Write(buffer);
-
             if (_stream.Length >= MinPartSize)
                 UploadPart();
         }
-        catch (Exception exception)
+        catch
         {
             Abort();
-            ExceptionDispatchInfo.Throw(exception);
+            throw;
         }
     }
 
@@ -124,10 +123,10 @@ internal sealed class S3UploadStream : Stream
             if (_stream.Length >= MinPartSize)
                 await UploadPartAsync(cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception exception)
+        catch
         {
             await AbortAsync(cancellationToken).ConfigureAwait(false);
-            ExceptionDispatchInfo.Throw(exception);
+            throw;
         }
     }
 
@@ -254,10 +253,10 @@ internal sealed class S3UploadStream : Stream
                 _stream.Position = 0;
                 _stream.SetLength(0);
             }
-            catch (Exception exception)
+            catch
             {
                 await AbortAsync(cancellationToken).ConfigureAwait(false);
-                ExceptionDispatchInfo.Throw(exception);
+                throw;
             }
         }
     }
