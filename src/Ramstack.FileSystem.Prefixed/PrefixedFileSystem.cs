@@ -113,11 +113,15 @@ public sealed class PrefixedFileSystem : IVirtualFileSystem
     {
         Debug.Assert(VirtualPath.IsNormalized(path));
 
+        if (prefix == "/")
+            return path;
+
         if (path == prefix)
             return "/";
 
-        if (path.StartsWith(prefix, StringComparison.Ordinal) && path[prefix.Length] == '/')
-            return new string(path.AsSpan(prefix.Length));
+        if ((uint)prefix.Length < (uint)path.Length)
+            if (path.StartsWith(prefix, StringComparison.Ordinal) && path[prefix.Length] == '/')
+                return new string(path.AsSpan(prefix.Length));
 
         return null;
     }
