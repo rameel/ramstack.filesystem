@@ -47,7 +47,7 @@ internal sealed class S3File : VirtualFile
             return VirtualNodeProperties.CreateFileProperties(
                 creationTime: default,
                 lastAccessTime: default,
-                lastWriteTime: metadata.LastModified,
+                lastWriteTime: metadata.LastModified.GetValueOrDefault(),
                 length: metadata.ContentLength);
         }
         catch (AmazonS3Exception e) when (e.StatusCode == HttpStatusCode.NotFound)
