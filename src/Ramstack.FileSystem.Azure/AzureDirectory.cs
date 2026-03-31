@@ -47,6 +47,8 @@ internal sealed class AzureDirectory : VirtualDirectory
         var collection = _fs.AzureClient
             .GetBlobsAsync(
                 prefix: GetPrefix(FullName),
+                traits: BlobTraits.None,
+                states: BlobStates.None,
                 cancellationToken: cancellationToken);
 
         var client = _fs.AzureClient.GetBlobBatchClient();
@@ -105,6 +107,8 @@ internal sealed class AzureDirectory : VirtualDirectory
             .GetBlobsByHierarchyAsync(
                 delimiter: "/",
                 prefix: GetPrefix(FullName),
+                traits: BlobTraits.None,
+                states: BlobStates.None,
                 cancellationToken: cancellationToken);
 
         await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
@@ -121,6 +125,8 @@ internal sealed class AzureDirectory : VirtualDirectory
             .GetBlobsByHierarchyAsync(
                 delimiter: "/",
                 prefix: GetPrefix(FullName),
+                traits: BlobTraits.None,
+                states: BlobStates.None,
                 cancellationToken: cancellationToken);
 
         await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
@@ -136,6 +142,8 @@ internal sealed class AzureDirectory : VirtualDirectory
             .GetBlobsByHierarchyAsync(
                 delimiter: "/",
                 prefix: GetPrefix(FullName),
+                traits: BlobTraits.None,
+                states: BlobStates.None,
                 cancellationToken: cancellationToken);
 
         await foreach (var page in collection.AsPages().WithCancellation(cancellationToken).ConfigureAwait(false))
@@ -162,7 +170,11 @@ internal sealed class AzureDirectory : VirtualDirectory
         var directories = new HashSet<string> { FullName };
 
         await foreach (var page in _fs.AzureClient
-            .GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken)
+            .GetBlobsAsync(
+                prefix: prefix,
+                traits: BlobTraits.None,
+                states: BlobStates.None,
+                cancellationToken: cancellationToken)
             .AsPages()
             .WithCancellation(cancellationToken)
             .ConfigureAwait(false))
@@ -210,7 +222,11 @@ internal sealed class AzureDirectory : VirtualDirectory
         var prefix = GetPrefix(FullName);
 
         await foreach (var page in _fs.AzureClient
-            .GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken)
+            .GetBlobsAsync(
+                prefix: prefix,
+                traits: BlobTraits.None,
+                states: BlobStates.None,
+                cancellationToken: cancellationToken)
             .AsPages()
             .WithCancellation(cancellationToken)
             .ConfigureAwait(false))
@@ -239,7 +255,11 @@ internal sealed class AzureDirectory : VirtualDirectory
         var directories = new HashSet<string> { FullName };
 
         await foreach (var page in _fs.AzureClient
-            .GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken)
+            .GetBlobsAsync(
+                prefix: prefix,
+                traits: BlobTraits.None,
+                states: BlobStates.None,
+                cancellationToken: cancellationToken)
             .AsPages()
             .WithCancellation(cancellationToken)
             .ConfigureAwait(false))

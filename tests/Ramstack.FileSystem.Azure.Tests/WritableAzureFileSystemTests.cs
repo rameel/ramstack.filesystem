@@ -9,7 +9,8 @@ namespace Ramstack.FileSystem.Azure;
 public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
 {
     private readonly HashSet<string> _list = [];
-    private readonly TempFileStorage _storage = new TempFileStorage();
+    private readonly TempFileStorage _storage = new();
+    private readonly string _storageName = Guid.NewGuid().ToString("N");
 
     [OneTimeSetUp]
     public async Task Setup()
@@ -124,7 +125,7 @@ public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
     }
 
     protected override AzureFileSystem GetFileSystem() =>
-        CreateFileSystem("storage");
+        CreateFileSystem(_storageName);
 
     protected override DirectoryInfo GetDirectoryInfo() =>
         new DirectoryInfo(_storage.Root);
