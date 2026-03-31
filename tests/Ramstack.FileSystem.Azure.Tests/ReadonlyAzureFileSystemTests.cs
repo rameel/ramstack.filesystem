@@ -7,7 +7,8 @@ namespace Ramstack.FileSystem.Azure;
 [Category("Cloud:Azure")]
 public class ReadonlyAzureFileSystemTests : VirtualFileSystemSpecificationTests
 {
-    private readonly TempFileStorage _storage = new TempFileStorage();
+    private readonly TempFileStorage _storage = new();
+    private readonly string _storageName = Guid.NewGuid().ToString("N");
 
     [OneTimeSetUp]
     public async Task Setup()
@@ -38,11 +39,11 @@ public class ReadonlyAzureFileSystemTests : VirtualFileSystemSpecificationTests
     protected override DirectoryInfo GetDirectoryInfo() =>
         new DirectoryInfo(_storage.Root);
 
-    private static AzureFileSystem CreateFileSystem(bool isReadonly)
+    private AzureFileSystem CreateFileSystem(bool isReadonly)
     {
         const string ConnectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;";
 
-        return new AzureFileSystem(ConnectionString, "storage")
+        return new AzureFileSystem(ConnectionString, _storageName)
         {
             IsReadOnly = isReadonly
         };

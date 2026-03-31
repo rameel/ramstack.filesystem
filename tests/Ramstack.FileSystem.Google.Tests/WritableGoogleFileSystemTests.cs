@@ -204,8 +204,10 @@ public class WritableGoogleFileSystemTests : VirtualFileSystemSpecificationTests
     {
         _buckets.Add(bucket);
 
+        #pragma warning disable CS0618 // Type or member is obsolete
         var client = StorageClient.Create(
             GoogleCredential.FromFile("credentials.json"));
+        #pragma warning restore CS0618 // Type or member is obsolete
 
         return new GoogleFileSystem(client, bucketName: bucket);
     }

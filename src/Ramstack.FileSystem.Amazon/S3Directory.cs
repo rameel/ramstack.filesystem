@@ -48,6 +48,8 @@ internal sealed class S3Directory : VirtualDirectory
             BucketName = _fs.BucketName
         };
 
+        dr.Objects ??= [];
+
         do
         {
             // The maximum number of objects returned is MaxKeys, which is 1000,
@@ -59,8 +61,9 @@ internal sealed class S3Directory : VirtualDirectory
                 .ListObjectsV2Async(lr, cancellationToken)
                 .ConfigureAwait(false);
 
-            foreach (var obj in response.S3Objects)
-                dr.Objects.Add(new KeyVersion { Key = obj.Key });
+            if (response.S3Objects  is not null)
+                foreach (var obj in response.S3Objects)
+                    dr.Objects.Add(new KeyVersion { Key = obj.Key });
 
             if (dr.Objects.Count != 0)
                 await _fs.AmazonClient
@@ -89,11 +92,13 @@ internal sealed class S3Directory : VirtualDirectory
                 .ListObjectsV2Async(request, cancellationToken)
                 .ConfigureAwait(false);
 
-            foreach (var prefix in response.CommonPrefixes)
-                yield return new S3Directory(_fs, VirtualPath.Normalize(prefix));
+            if (response.CommonPrefixes is not null)
+                foreach (var prefix in response.CommonPrefixes)
+                    yield return new S3Directory(_fs, VirtualPath.Normalize(prefix));
 
-            foreach (var obj in response.S3Objects)
-                yield return CreateVirtualFile(obj);
+            if (response.S3Objects is not null)
+                foreach (var obj in response.S3Objects)
+                    yield return CreateVirtualFile(obj);
 
             request.ContinuationToken = response.NextContinuationToken;
         }
@@ -116,8 +121,9 @@ internal sealed class S3Directory : VirtualDirectory
                 .ListObjectsV2Async(request, cancellationToken)
                 .ConfigureAwait(false);
 
-            foreach (var obj in response.S3Objects)
-                yield return CreateVirtualFile(obj);
+            if (response.S3Objects is not null)
+                foreach (var obj in response.S3Objects)
+                    yield return CreateVirtualFile(obj);
 
             request.ContinuationToken = response.NextContinuationToken;
         }
@@ -140,8 +146,9 @@ internal sealed class S3Directory : VirtualDirectory
                 .ListObjectsV2Async(request, cancellationToken)
                 .ConfigureAwait(false);
 
-            foreach (var prefix in response.CommonPrefixes)
-                yield return new S3Directory(_fs, VirtualPath.Normalize(prefix));
+            if (response.CommonPrefixes is not null)
+                foreach (var prefix in response.CommonPrefixes)
+                    yield return new S3Directory(_fs, VirtualPath.Normalize(prefix));
 
             request.ContinuationToken = response.NextContinuationToken;
         }
@@ -179,28 +186,31 @@ internal sealed class S3Directory : VirtualDirectory
                 .ListObjectsV2Async(request, cancellationToken)
                 .ConfigureAwait(false);
 
-            foreach (var obj in response.S3Objects)
+            if (response.S3Objects is not null)
             {
-                var path = VirtualPath.Normalize(obj.Key);
-                var directoryPath = VirtualPath.GetDirectoryName(path);
-
-                while (directoryPath.Length != 0 && directories.Add(directoryPath))
+                foreach (var obj in response.S3Objects)
                 {
-                    //
-                    // Directories are yielded in reverse order (deepest first).
-                    //
-                    // Note: We could use a Stack<string> to control the order,
-                    // but since order isn't guaranteed anyway and to avoid
-                    // unnecessary memory allocation, we process them directly.
-                    //
-                    if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
-                        yield return new S3Directory(_fs, directoryPath);
+                    var path = VirtualPath.Normalize(obj.Key);
+                    var directoryPath = VirtualPath.GetDirectoryName(path);
 
-                    directoryPath = VirtualPath.GetDirectoryName(directoryPath);
+                    while (directoryPath.Length != 0 && directories.Add(directoryPath))
+                    {
+                        //
+                        // Directories are yielded in reverse order (deepest first).
+                        //
+                        // Note: We could use a Stack<string> to control the order,
+                        // but since order isn't guaranteed anyway and to avoid
+                        // unnecessary memory allocation, we process them directly.
+                        //
+                        if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
+                            yield return new S3Directory(_fs, directoryPath);
+
+                        directoryPath = VirtualPath.GetDirectoryName(directoryPath);
+                    }
+
+                    if (IsMatched(obj.Key.AsSpan(request.Prefix.Length), patterns, excludes))
+                        yield return CreateVirtualFile(obj, path);
                 }
-
-                if (IsMatched(obj.Key.AsSpan(request.Prefix.Length), patterns, excludes))
-                    yield return CreateVirtualFile(obj, path);
             }
 
             request.ContinuationToken = response.NextContinuationToken;
@@ -234,9 +244,10 @@ internal sealed class S3Directory : VirtualDirectory
                 .ListObjectsV2Async(request, cancellationToken)
                 .ConfigureAwait(false);
 
-            foreach (var obj in response.S3Objects)
-                if (IsMatched(obj.Key.AsSpan(request.Prefix.Length), patterns, excludes))
-                    yield return CreateVirtualFile(obj);
+            if (response.S3Objects is not null)
+                foreach (var obj in response.S3Objects)
+                    if (IsMatched(obj.Key.AsSpan(request.Prefix.Length), patterns, excludes))
+                        yield return CreateVirtualFile(obj);
 
             request.ContinuationToken = response.NextContinuationToken;
         }
@@ -274,24 +285,27 @@ internal sealed class S3Directory : VirtualDirectory
                 .ListObjectsV2Async(request, cancellationToken)
                 .ConfigureAwait(false);
 
-            foreach (var obj in response.S3Objects)
+            if (response.S3Objects is not null)
             {
-                var directoryPath = VirtualPath.GetDirectoryName(
-                    VirtualPath.Normalize(obj.Key));
-
-                while (directoryPath.Length != 0 && directories.Add(directoryPath))
+                foreach (var obj in response.S3Objects)
                 {
-                    //
-                    // Directories are yielded in reverse order (deepest first).
-                    //
-                    // Note: We could use a Stack<string> to control the order,
-                    // but since order isn't guaranteed anyway and to avoid
-                    // unnecessary memory allocation, we process them directly.
-                    //
-                    if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
-                        yield return new S3Directory(_fs, directoryPath);
+                    var directoryPath = VirtualPath.GetDirectoryName(
+                        VirtualPath.Normalize(obj.Key));
 
-                    directoryPath = VirtualPath.GetDirectoryName(directoryPath);
+                    while (directoryPath.Length != 0 && directories.Add(directoryPath))
+                    {
+                        //
+                        // Directories are yielded in reverse order (deepest first).
+                        //
+                        // Note: We could use a Stack<string> to control the order,
+                        // but since order isn't guaranteed anyway and to avoid
+                        // unnecessary memory allocation, we process them directly.
+                        //
+                        if (IsMatched(directoryPath.AsSpan(FullName.Length), patterns, excludes))
+                            yield return new S3Directory(_fs, directoryPath);
+
+                        directoryPath = VirtualPath.GetDirectoryName(directoryPath);
+                    }
                 }
             }
 
@@ -314,8 +328,8 @@ internal sealed class S3Directory : VirtualDirectory
             .CreateFileProperties(
                 creationTime: default,
                 lastAccessTime: default,
-                lastWriteTime: obj.LastModified,
-                length: obj.Size);
+                lastWriteTime: obj.LastModified.GetValueOrDefault(),
+                length: obj.Size ?? 0);
 
         var path = normalizedName ?? VirtualPath.Normalize(obj.Key);
         return new S3File(_fs, path, properties);

@@ -43,8 +43,10 @@ public class ReadonlyGoogleFileSystemTests : VirtualFileSystemSpecificationTests
 
     private static GoogleFileSystem CreateFileSystem(bool isReadOnly)
     {
+        #pragma warning disable CS0618 // Type or member is obsolete
         var client = StorageClient.Create(
             GoogleCredential.FromFile("credentials.json"));
+        #pragma warning restore CS0618 // Type or member is obsolete
 
         return new GoogleFileSystem(client, "ramstack-test-bucket")
         {

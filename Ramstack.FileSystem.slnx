@@ -4,6 +4,7 @@
     <File Path=".gitignore" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="docker-compose.yml" />
     <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
