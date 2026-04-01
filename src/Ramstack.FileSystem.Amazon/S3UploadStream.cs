@@ -22,7 +22,7 @@ internal sealed class S3UploadStream : Stream
     private readonly FileStream _stream;
     private readonly List<PartETag> _partETags;
 
-    private volatile int _disposed;
+    private int _disposed;
 
     /// <inheritdoc />
     public override bool CanRead => false;
@@ -157,6 +157,8 @@ internal sealed class S3UploadStream : Stream
             using var scope = NullSynchronizationContext.CreateScope();
             DisposeAsync().AsTask().Wait();
         }
+
+        base.Dispose(disposing);
     }
 
     /// <inheritdoc />
