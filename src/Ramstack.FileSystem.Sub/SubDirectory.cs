@@ -17,7 +17,7 @@ internal sealed class SubDirectory : VirtualDirectory
     /// Initializes a new instance of the <see cref="SubDirectory"/> class.
     /// </summary>
     /// <param name="fileSystem">The file system associated with this directory.</param>
-    /// <param name="path">The path of the file.</param>
+    /// <param name="path">The path of the directory.</param>
     /// <param name="directory">The underlying <see cref="VirtualDirectory"/> instance to wrap.</param>
     public SubDirectory(SubFileSystem fileSystem, string path, VirtualDirectory directory) : base(path) =>
         (_fs, _directory) = (fileSystem, directory);

@@ -5,7 +5,7 @@ namespace Ramstack.FileSystem.Composite;
 partial class CompositeFileSystem
 {
     /// <summary>
-    /// Tries to flatten the specified <see cref="IVirtualFileSystem"/> into a flat list of the <see cref="IVirtualFileSystem"/>.
+    /// Tries to flatten the specified <see cref="IVirtualFileSystem"/> into a flat list of <see cref="IVirtualFileSystem"/> instances.
     /// </summary>
     /// <remarks>
     /// If the <paramref name="fileSystem"/> is not a <see cref="CompositeFileSystem"/>,
@@ -13,7 +13,7 @@ partial class CompositeFileSystem
     /// </remarks>
     /// <param name="fileSystem">The <see cref="IVirtualFileSystem"/> to flatten.</param>
     /// <returns>
-    /// A <see cref="IVirtualFileSystem"/> that represents the flattened version of the specified <see cref="IVirtualFileSystem"/>.
+    /// An <see cref="IVirtualFileSystem"/> that represents the flattened version of the specified <see cref="IVirtualFileSystem"/>.
     /// </returns>
     public static IVirtualFileSystem Flatten(IVirtualFileSystem fileSystem)
     {
@@ -26,14 +26,14 @@ partial class CompositeFileSystem
     }
 
     /// <summary>
-    /// Creates an instance of the <see cref="IVirtualFileSystem"/> from the specified list and flattens it into a flat list of file systems.
+    /// Creates an <see cref="IVirtualFileSystem"/> from the specified list, flattening any nested <see cref="CompositeFileSystem"/> instances.
     /// </summary>
     /// <remarks>
     /// This method returns a <see cref="CompositeFileSystem"/> if more than one file system remains after flattening.
     /// </remarks>
     /// <param name="list">The list of <see cref="IVirtualFileSystem"/> instances to compose and flatten.</param>
     /// <returns>
-    /// A <see cref="IVirtualFileSystem"/> that represents the flattened version of the specified list of the <see cref="IVirtualFileSystem"/>.
+    /// An <see cref="IVirtualFileSystem"/> that represents the flattened version of the specified list of <see cref="IVirtualFileSystem"/> instances.
     /// </returns>
     public static IVirtualFileSystem Create(params IVirtualFileSystem[] list) =>
         list.Length != 1
@@ -41,14 +41,14 @@ partial class CompositeFileSystem
             : Flatten(list[0]);
 
     /// <summary>
-    /// Creates an instance of the <see cref="IVirtualFileSystem"/> from the specified list and flattens it into a flat list of file systems.
+    /// Creates an <see cref="IVirtualFileSystem"/> from the specified list, flattening any nested <see cref="CompositeFileSystem"/> instances.
     /// </summary>
     /// <remarks>
     /// This method returns a <see cref="CompositeFileSystem"/> if more than one file system remains after flattening.
     /// </remarks>
     /// <param name="list">The list of <see cref="IVirtualFileSystem"/> instances to compose and flatten.</param>
     /// <returns>
-    /// A <see cref="IVirtualFileSystem"/> that represents the flattened version of the specified list of the <see cref="IVirtualFileSystem"/>.
+    /// An <see cref="IVirtualFileSystem"/> that represents the flattened version of the specified list of <see cref="IVirtualFileSystem"/> instances.
     /// </returns>
     public static IVirtualFileSystem Create(IEnumerable<IVirtualFileSystem> list)
     {

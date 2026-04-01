@@ -43,7 +43,7 @@ internal sealed class PhysicalFile : VirtualFile
     /// <inheritdoc />
     protected override ValueTask<Stream> OpenReadCoreAsync(CancellationToken cancellationToken)
     {
-        // SequentialScan is a performance hint that requires extra sys-call on non-Windows systems.
+        // SequentialScan is a performance hint that requires an extra system call on non-Windows systems.
         // https://github.com/dotnet/runtime/blob/46c9a4fff83f35ec659e6659050440aadccf3201/src/libraries/System.Private.CoreLib/src/System/IO/File.cs#L694
         var options = OperatingSystem.IsWindows()
             ? FileOptions.Asynchronous | FileOptions.SequentialScan
@@ -119,7 +119,7 @@ internal sealed class PhysicalFile : VirtualFile
         }
         catch (DirectoryNotFoundException)
         {
-            // The path to the deleting file may not exist.
+            // The path of the file being deleted may not exist.
             // This is a safe scenario and does not require further handling.
         }
 

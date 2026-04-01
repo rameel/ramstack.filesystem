@@ -18,7 +18,7 @@ internal static class PathHelper
     /// <summary>
     /// Determines whether the specified path matches any of the specified patterns.
     /// </summary>
-    /// <param name="path">The path to match for a match.</param>
+    /// <param name="path">The path to test for a match.</param>
     /// <param name="patterns">An array of patterns to match against the path.</param>
     /// <returns>
     /// <see langword="true" /> if the path matches any of the patterns;

@@ -17,7 +17,7 @@ internal sealed class CompositeDirectory : VirtualDirectory
     /// <summary>
     /// Initializes a new instance of the <see cref="CompositeDirectory"/> class.
     /// </summary>
-    /// <param name="fileSystem">The file system associated with this file.</param>
+    /// <param name="fileSystem">The file system associated with this directory.</param>
     /// <param name="path">The path of the directory.</param>
     public CompositeDirectory(CompositeFileSystem fileSystem, string path) : base(path) =>
         _fs = fileSystem;

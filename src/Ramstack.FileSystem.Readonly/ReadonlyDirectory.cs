@@ -16,7 +16,7 @@ internal sealed class ReadonlyDirectory : VirtualDirectory
     /// <summary>
     /// Initializes a new instance of the <see cref="ReadonlyDirectory"/> class.
     /// </summary>
-    /// <param name="fileSystem">The file system associated with this file.</param>
+    /// <param name="fileSystem">The file system associated with this directory.</param>
     /// <param name="directory">The <see cref="VirtualDirectory"/> instance to wrap.</param>
     public ReadonlyDirectory(ReadonlyFileSystem fileSystem, VirtualDirectory directory) : base(directory.FullName) =>
         (_fs, _directory) = (fileSystem, directory);

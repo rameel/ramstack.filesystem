@@ -54,7 +54,7 @@ internal sealed class S3Directory : VirtualDirectory
         {
             // The maximum number of objects returned is MaxKeys, which is 1000,
             // and the maximum number of objects that can be deleted at once is also 1000.
-            // Therefore, we can rely (sure?) on this and avoid splitting
+            // Therefore, we can rely on this and avoid splitting
             // the retrieved objects into separate batches.
 
             var response = await _fs.AmazonClient

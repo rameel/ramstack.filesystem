@@ -44,7 +44,7 @@ public enum AccessControl
     AwsExecRead,
 
     /// <summary>
-    /// Object Owner gets FULL_CONTROL, Bucket Owner gets READ
+    /// Object Owner gets FULL_CONTROL, Bucket Owner gets READ.
     /// This ACL applies only to objects and is equivalent to private when used with PUT Bucket.
     /// You use this ACL to let someone other than the bucket owner write content (get full control)
     /// in the bucket but still grant the bucket owner read access to the objects.
