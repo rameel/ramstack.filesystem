@@ -48,8 +48,8 @@ internal static class EnumerableExtensions
         /// <inheritdoc />
         public ValueTask<bool> MoveNextAsync()
         {
-            var result = !cancellationToken.IsCancellationRequested && enumerator.MoveNext();
-            return new ValueTask<bool>(result);
+            cancellationToken.ThrowIfCancellationRequested();
+            return new ValueTask<bool>(enumerator.MoveNext());
         }
 
         /// <inheritdoc />
