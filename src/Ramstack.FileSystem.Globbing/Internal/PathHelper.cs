@@ -249,7 +249,7 @@ internal static class PathHelper
                 if (Avx2.IsSupported && (int)_position + Vector256<ushort>.Count <= length)
                 {
                     var chunk = LoadVector256(ref source, _position);
-                    var slash = Vector256.Create('/');
+                    var slash = Vector256.Create((ushort)'/');
                     var comparison = Avx2.CompareEqual(chunk, slash);
 
                     //
@@ -269,7 +269,7 @@ internal static class PathHelper
                 else if (Sse2.IsSupported && !Avx2.IsSupported && (int)_position + Vector128<ushort>.Count <= length)
                 {
                     var chunk = LoadVector128(ref source, _position);
-                    var slash = Vector128.Create('/');
+                    var slash = Vector128.Create((ushort)'/');
                     var comparison = Sse2.CompareEqual(chunk, slash);
 
                     //
@@ -289,7 +289,7 @@ internal static class PathHelper
                 else if (AdvSimd.Arm64.IsSupported && (int)_position + Vector128<ushort>.Count <= length)
                 {
                     var chunk = LoadVector128(ref source, _position);
-                    var slash = Vector128.Create('/');
+                    var slash = Vector128.Create((ushort)'/');
                     var comparison = AdvSimd.CompareEqual(chunk, slash);
 
                     //

@@ -12,6 +12,7 @@ namespace Ramstack.FileSystem.Amazon;
 public class ReadonlyAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 {
     private readonly TempFileStorage _storage = new TempFileStorage();
+    private readonly string _storageName = Guid.NewGuid().ToString("N");
 
     [OneTimeSetUp]
     public async Task Setup()
@@ -51,7 +52,7 @@ public class ReadonlyAmazonFileSystemTests : VirtualFileSystemSpecificationTests
             ForcePathStyle = true,
         };
 
-        return new AmazonS3FileSystem(credentials, config, bucketName: "storage")
+        return new AmazonS3FileSystem(credentials, config, bucketName: _storageName)
         {
             IsReadOnly = isReadOnly
         };

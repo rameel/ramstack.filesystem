@@ -74,44 +74,11 @@ public static class VirtualFileExtensions
     /// </returns>
     public static async ValueTask<string> ReadAllTextAsync(this VirtualFile file, Encoding? encoding, CancellationToken cancellationToken = default)
     {
-        //
-        // Use a manual read loop since .NET 6 lacks a StreamReader.ReadToEndAsync overload that accepts a CancellationToken.
-        // This ensures the operation remains responsive to cancellation requests.
-        //
-
-        const int BufferSize = 4096;
-
         // ReSharper disable once UseAwaitUsing
         using var stream = await file.OpenReadAsync(cancellationToken).ConfigureAwait(false);
-        var reader = new StreamReader(stream, encoding ??= Encoding.UTF8);
-        var buffer = (char[]?)null;
+        using var reader = new StreamReader(stream, encoding!);
 
-        try
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            buffer = ArrayPool<char>.Shared.Rent(encoding.GetMaxCharCount(BufferSize));
-            var sb = new StringBuilder();
-
-            while (true)
-            {
-                var count = await reader
-                    .ReadAsync(new Memory<char>(buffer), cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (count == 0)
-                    return sb.ToString();
-
-                sb.Append(buffer.AsSpan(0, count));
-            }
-        }
-        finally
-        {
-            reader.Dispose();
-
-            if (buffer is not null)
-                ArrayPool<char>.Shared.Return(buffer);
-        }
+        return  await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -142,11 +109,8 @@ public static class VirtualFileExtensions
         using var reader = new StreamReader(stream, encoding!);
 
         var list = new List<string>();
-        while (await reader.ReadLineAsync().ConfigureAwait(false) is { } line)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
+        while (await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false) is { } line)
             list.Add(line);
-        }
 
         return list.ToArray();
     }
@@ -165,7 +129,7 @@ public static class VirtualFileExtensions
         // ReSharper disable once UseAwaitUsing
         using var stream = await file.OpenReadAsync(cancellationToken).ConfigureAwait(false);
 
-        var length = GetStreamLength(stream);
+        var length = stream.CanSeek ? stream.Length : 0;
         if (length > Array.MaxLength)
             throw new IOException("The file is too large.");
 
@@ -179,6 +143,7 @@ public static class VirtualFileExtensions
         {
             var bytes = new byte[stream.Length];
             var index = 0;
+
             do
             {
                 var count = await stream.ReadAsync(bytes.AsMemory(index), cancellationToken).ConfigureAwait(false);
@@ -186,8 +151,7 @@ public static class VirtualFileExtensions
                     Error_EndOfStream();
 
                 index += count;
-            }
-            while (index < bytes.Length);
+            } while (index < bytes.Length);
 
             return bytes;
         }
@@ -225,27 +189,9 @@ public static class VirtualFileExtensions
                 var newArray = ArrayPool<byte>.Shared.Rent((int)length);
                 oldArray.AsSpan().TryCopyTo(newArray);
 
-                var rented = oldArray;
-                oldArray = newArray;
-
-                ArrayPool<byte>.Shared.Return(rented);
-                return oldArray;
+                ArrayPool<byte>.Shared.Return(oldArray);
+                return newArray;
             }
-        }
-
-        static long GetStreamLength(Stream stream)
-        {
-            try
-            {
-                if (stream.CanSeek)
-                    return stream.Length;
-            }
-            catch
-            {
-                // skip
-            }
-
-            return 0;
         }
 
         static void Error_EndOfStream() =>
@@ -334,7 +280,7 @@ public static class VirtualFileExtensions
         await using var writer = new StreamWriter(stream, encoding, bufferSize: -1, leaveOpen: false);
 
         foreach (var line in contents)
-            await writer.WriteLineAsync(line).ConfigureAwait(false);
+            await writer.WriteLineAsync(line.AsMemory(), cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
