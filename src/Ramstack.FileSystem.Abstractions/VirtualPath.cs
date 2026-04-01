@@ -157,11 +157,11 @@ public static class VirtualPath
     }
 
     /// <summary>
-    /// Determines if the specified path in a normalized form.
+    /// Determines if the specified path is in a normalized form.
     /// </summary>
     /// <param name="path">The path to test.</param>
     /// <returns>
-    /// <see langword="true" /> if the path in a normalized form;
+    /// <see langword="true" /> if the path is in a normalized form;
     /// otherwise, <see langword="false" />.
     /// </returns>
     public static bool IsNormalized(ReadOnlySpan<char> path)

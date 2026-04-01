@@ -97,7 +97,7 @@ public static partial class VirtualFileSystemExtensions
         fs.GetFile(path).WriteAsync(stream, overwrite, cancellationToken);
 
     /// <summary>
-    /// Asynchronously reads all the text in the file with the specified encoding.
+    /// Asynchronously reads all the text in the file.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file from which to read the entire text content.</param>
@@ -124,7 +124,7 @@ public static partial class VirtualFileSystemExtensions
         fs.GetFile(path).ReadAllTextAsync(encoding, cancellationToken);
 
     /// <summary>
-    /// Asynchronously reads all lines of the file with the specified encoding.
+    /// Asynchronously reads all lines of the file.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to read from.</param>

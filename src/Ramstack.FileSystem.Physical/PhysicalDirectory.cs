@@ -68,7 +68,7 @@ internal sealed class PhysicalDirectory : VirtualDirectory
         }
         catch (DirectoryNotFoundException)
         {
-            // The path to the deleting directory may not exist.
+            // The path of the directory being deleted may not exist.
             // This is a safe scenario and does not require further handling.
         }
 

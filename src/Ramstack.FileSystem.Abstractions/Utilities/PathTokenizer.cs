@@ -17,7 +17,7 @@ internal readonly struct PathTokenizer(string path)
         new Enumerator(path);
 
     /// <summary>
-    /// Tokenizes the specified path into a collection of the path components.
+    /// Tokenizes the specified path into a collection of path components.
     /// </summary>
     /// <param name="path">The file path to tokenize.</param>
     /// <returns>
