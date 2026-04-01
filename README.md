@@ -124,10 +124,10 @@ await foreach (VirtualFile file in fs.GetFilesAsync("/sample/directory"))
 await fs.DeleteDirectoryAsync("/sample/directory");
 ```
 
-## Remark
+## Remarks
 
 The file system in use may be read-only, and as a result, any modifying operations on files and directories will throw an exception.
-To check if the file system is read-only, the `IVirtualFileSystem`, `VirtualFile` and `VirtualDirectory` classes provide the `IsReadOnly` property.
+To check if the file system is read-only, the `IVirtualFileSystem`, `VirtualFile`, and `VirtualDirectory` classes provide the `IsReadOnly` property.
 
 ```csharp
 if (!fs.IsReadOnly)
@@ -139,9 +139,9 @@ if (!fs.IsReadOnly)
 ## Related Projects
 - [Ramstack.FileSystem.Abstractions](https://www.nuget.org/packages/Ramstack.FileSystem.Abstractions) - Provides a virtual file system abstraction.
 - [Ramstack.FileSystem.Physical](https://www.nuget.org/packages/Ramstack.FileSystem.Physical) - Provides an implementation based on the local file system.
-- [Ramstack.FileSystem.Azure](https://www.nuget.org/packages/Ramstack.FileSystem.Azure) - Provides an implementation using Azure Blob storage.
+- [Ramstack.FileSystem.Azure](https://www.nuget.org/packages/Ramstack.FileSystem.Azure) - Provides an implementation using Azure Blob Storage.
 - [Ramstack.FileSystem.Amazon](https://www.nuget.org/packages/Ramstack.FileSystem.Amazon) - Provides an implementation using Amazon S3 storage.
-- [Ramstack.FileSystem.Google](https://www.nuget.org/packages/Ramstack.FileSystem.Google) - Provides an implementation using Google Cloud storage.
+- [Ramstack.FileSystem.Google](https://www.nuget.org/packages/Ramstack.FileSystem.Google) - Provides an implementation using Google Cloud Storage.
 - [Ramstack.FileSystem.Readonly](https://www.nuget.org/packages/Ramstack.FileSystem.Readonly) - Provides a read-only wrapper for the underlying file system.
 - [Ramstack.FileSystem.Globbing](https://www.nuget.org/packages/Ramstack.FileSystem.Globbing) - Wraps the file system, filtering files and directories using glob patterns.
 - [Ramstack.FileSystem.Prefixed](https://www.nuget.org/packages/Ramstack.FileSystem.Prefixed) - Adds a prefix to file paths within the underlying file system.
