@@ -9,7 +9,7 @@ internal static class EnumerableExtensions
     /// Converts an enumerable sequence to an async-enumerable sequence.
     /// </summary>
     /// <typeparam name="T">The type of the elements in the source sequence.</typeparam>
-    /// <param name="source">Th enumerable sequence to convert to an async-enumerable sequence.</param>
+    /// <param name="source">The enumerable sequence to convert to an async-enumerable sequence.</param>
     /// <returns>
     /// The async-enumerable sequence whose elements are pulled from the given enumerable sequence.
     /// </returns>
@@ -48,8 +48,8 @@ internal static class EnumerableExtensions
         /// <inheritdoc />
         public ValueTask<bool> MoveNextAsync()
         {
-            var result = !cancellationToken.IsCancellationRequested && enumerator.MoveNext();
-            return new ValueTask<bool>(result);
+            cancellationToken.ThrowIfCancellationRequested();
+            return new ValueTask<bool>(enumerator.MoveNext());
         }
 
         /// <inheritdoc />
