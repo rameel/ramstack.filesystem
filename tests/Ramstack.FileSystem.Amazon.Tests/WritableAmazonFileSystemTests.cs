@@ -16,6 +16,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 {
     private readonly HashSet<string> _buckets = [];
     private readonly TempFileStorage _storage = new TempFileStorage();
+    private readonly string _storageName = Guid.NewGuid().ToString("N");
 
     [OneTimeSetUp]
     public async Task Setup()
@@ -166,7 +167,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     [Test]
     public async Task File_CopyTo_File_DifferentStorages()
     {
-        using var fs1 = CreateFileSystem("temp-storage");
+        using var fs1 = CreateFileSystem(Guid.NewGuid().ToString("N"));
         using var fs2 = GetFileSystem();
 
         await fs1.CreateBucketAsync();
@@ -307,7 +308,7 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
     }
 
     protected override AmazonS3FileSystem GetFileSystem() =>
-        CreateFileSystem("storage");
+        CreateFileSystem(_storageName);
 
     protected override DirectoryInfo GetDirectoryInfo() =>
         new DirectoryInfo(_storage.Root);
