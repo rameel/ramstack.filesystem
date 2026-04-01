@@ -18,7 +18,7 @@ internal sealed class CompositeFile : VirtualFile
     /// </summary>
     /// <param name="fileSystem">The file system associated with this file.</param>
     /// <param name="path">The path of the file.</param>
-    /// <param name="file">The <see cref="VirtualFile"/> to wrap.</param>
+    /// <param name="file">The <see cref="VirtualFile"/> instance to wrap.</param>
     public CompositeFile(CompositeFileSystem fileSystem, string path, VirtualFile? file = null) : base(path) =>
         (_fs, _file) = (fileSystem, file);
 

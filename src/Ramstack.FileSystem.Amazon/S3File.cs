@@ -134,7 +134,7 @@ internal sealed class S3File : VirtualFile
     /// <param name="destinationBucket">The name of the destination S3 bucket.</param>
     /// <param name="destinationKey">The key of the destination object in the S3 bucket.</param>
     /// <param name="overwrite">A boolean value indicating whether to overwrite the destination object if it already exists.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
     /// </returns>

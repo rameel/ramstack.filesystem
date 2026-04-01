@@ -21,7 +21,7 @@ public sealed class PhysicalFileSystem : IVirtualFileSystem
     /// <summary>
     /// Initializes a new instance of the <see cref="PhysicalFileSystem"/> class.
     /// </summary>
-    /// <param name="path">The physical path of root the directory.</param>
+    /// <param name="path">The physical path of the root directory.</param>
     public PhysicalFileSystem(string path)
     {
         if (!Path.IsPathRooted(path))

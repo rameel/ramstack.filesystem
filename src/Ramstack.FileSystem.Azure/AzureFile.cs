@@ -117,7 +117,7 @@ internal sealed class AzureFile : VirtualFile
     /// <param name="source">The source blob client.</param>
     /// <param name="destination">The destination blob client.</param>
     /// <param name="overwrite">A boolean value indicating whether to overwrite the destination blob if it already exists.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>

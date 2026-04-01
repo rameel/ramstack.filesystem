@@ -108,7 +108,7 @@ public sealed class AmazonS3FileSystem : IVirtualFileSystem
     /// <summary>
     /// Creates the S3 bucket if it does not already exist.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -119,7 +119,7 @@ public sealed class AmazonS3FileSystem : IVirtualFileSystem
     /// Creates the S3 bucket if it does not already exist.
     /// </summary>
     /// <param name="accessControl">The ACL to apply to the bucket.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>

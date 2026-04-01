@@ -142,7 +142,7 @@ internal sealed class GcsFile : VirtualFile
     /// <param name="destinationBucket">The name of the destination GCS bucket.</param>
     /// <param name="destinationObjectName">The destination object name.</param>
     /// <param name="overwrite">A boolean value indicating whether to overwrite the destination object if it already exists.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
