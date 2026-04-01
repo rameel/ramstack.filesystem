@@ -47,8 +47,8 @@ AmazonS3FileSystem fs = new AmazonS3FileSystem(
 ## Related Projects
 - [Ramstack.FileSystem.Abstractions](https://www.nuget.org/packages/Ramstack.FileSystem.Abstractions) - Provides a virtual file system abstraction.
 - [Ramstack.FileSystem.Physical](https://www.nuget.org/packages/Ramstack.FileSystem.Physical) - Provides an implementation based on the local file system.
-- [Ramstack.FileSystem.Azure](https://www.nuget.org/packages/Ramstack.FileSystem.Azure) - Provides an implementation using Azure Blob storage.
-- [Ramstack.FileSystem.Google](https://www.nuget.org/packages/Ramstack.FileSystem.Google) - Provides an implementation using Google Cloud storage.
+- [Ramstack.FileSystem.Azure](https://www.nuget.org/packages/Ramstack.FileSystem.Azure) - Provides an implementation using Azure Blob Storage.
+- [Ramstack.FileSystem.Google](https://www.nuget.org/packages/Ramstack.FileSystem.Google) - Provides an implementation using Google Cloud Storage.
 - [Ramstack.FileSystem.Readonly](https://www.nuget.org/packages/Ramstack.FileSystem.Readonly) - Provides a read-only wrapper for the underlying file system.
 - [Ramstack.FileSystem.Globbing](https://www.nuget.org/packages/Ramstack.FileSystem.Globbing) - Wraps the file system, filtering files and directories using glob patterns.
 - [Ramstack.FileSystem.Prefixed](https://www.nuget.org/packages/Ramstack.FileSystem.Prefixed) - Adds a prefix to file paths within the underlying file system.
@@ -56,7 +56,7 @@ AmazonS3FileSystem fs = new AmazonS3FileSystem(
 - [Ramstack.FileSystem.Adapters](https://www.nuget.org/packages/Ramstack.FileSystem.Adapters) - Provides integration with `Microsoft.Extensions.FileProviders`.
 - [Ramstack.FileSystem.Composite](https://www.nuget.org/packages/Ramstack.FileSystem.Composite) - Provides an implementation that combines multiple file systems into a single composite file system.
 
-## Supported versions
+## Supported Versions
 
 |      | Version        |
 |------|----------------|
