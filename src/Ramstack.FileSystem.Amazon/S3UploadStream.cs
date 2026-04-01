@@ -157,6 +157,8 @@ internal sealed class S3UploadStream : Stream
             using var scope = NullSynchronizationContext.CreateScope();
             DisposeAsync().AsTask().Wait();
         }
+
+        base.Dispose(disposing);
     }
 
     /// <inheritdoc />
