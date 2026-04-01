@@ -72,7 +72,7 @@ public abstract class VirtualFile : VirtualNode
     /// <remarks>
     /// <list type="bullet">
     ///   <item><description>If the file does not exist, it will be created.</description></item>
-    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If the file exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
     ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
     /// </list>
     /// </remarks>
@@ -111,7 +111,7 @@ public abstract class VirtualFile : VirtualNode
     /// <remarks>
     /// <list type="bullet">
     ///   <item><description>If the file does not exist, it will be created.</description></item>
-    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If the file exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
     ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
     /// </list>
     /// </remarks>
@@ -137,7 +137,7 @@ public abstract class VirtualFile : VirtualNode
     /// <remarks>
     /// <list type="bullet">
     ///   <item><description>If the file does not exist, it will be created.</description></item>
-    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
+    ///   <item><description>If the file exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
     ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
     /// </list>
     /// </remarks>
@@ -185,9 +185,9 @@ public abstract class VirtualFile : VirtualNode
     /// </returns>
     /// <remarks>
     /// <list type="bullet">
-    ///   <item><description>If the file does not exist, it should be created.</description></item>
-    ///   <item><description>If the file exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file should be overwritten.</description></item>
-    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception should be thrown.</description></item>
+    ///   <item><description>If the file does not exist, it must be created.</description></item>
+    ///   <item><description>If the file exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file must be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception must be thrown.</description></item>
     /// </list>
     /// </remarks>
     protected abstract ValueTask WriteCoreAsync(Stream stream, bool overwrite, CancellationToken cancellationToken);
@@ -212,9 +212,9 @@ public abstract class VirtualFile : VirtualNode
     /// </returns>
     /// <remarks>
     /// <list type="bullet">
-    ///   <item><description>If the file does not exist, it will be created.</description></item>
-    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
-    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
+    ///   <item><description>If the file does not exist, it must be created.</description></item>
+    ///   <item><description>If the file exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file must be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception must be thrown.</description></item>
     /// </list>
     /// </remarks>
     protected virtual async ValueTask CopyToCoreAsync(string destinationPath, bool overwrite, CancellationToken cancellationToken)
@@ -234,9 +234,9 @@ public abstract class VirtualFile : VirtualNode
     /// </returns>
     /// <remarks>
     /// <list type="bullet">
-    ///   <item><description>If the file does not exist, it will be created.</description></item>
-    ///   <item><description>If it exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file will be overwritten.</description></item>
-    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception will be thrown.</description></item>
+    ///   <item><description>If the file does not exist, it must be created.</description></item>
+    ///   <item><description>If the file exists and <paramref name="overwrite"/> is <see langword="true"/>, the existing file must be overwritten.</description></item>
+    ///   <item><description>If <paramref name="overwrite"/> is <see langword="false"/> and the file exists, an exception must be thrown.</description></item>
     /// </list>
     /// </remarks>
     protected virtual async ValueTask CopyToCoreAsync(VirtualFile destination, bool overwrite, CancellationToken cancellationToken)

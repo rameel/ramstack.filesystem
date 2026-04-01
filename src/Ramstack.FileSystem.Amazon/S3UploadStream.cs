@@ -215,7 +215,7 @@ internal sealed class S3UploadStream : Stream
     /// <summary>
     /// Asynchronously uploads the current buffer to Amazon S3 as a part of the multipart upload.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -269,7 +269,7 @@ internal sealed class S3UploadStream : Stream
     /// <summary>
     /// Asynchronously aborts the multipart upload session.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> that represents the asynchronous abort operation.
     /// </returns>

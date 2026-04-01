@@ -17,7 +17,7 @@ internal sealed class PrefixedFile : VirtualFile
     /// </summary>
     /// <param name="fileSystem">The file system associated with this file.</param>
     /// <param name="path">The prefixed path of the file.</param>
-    /// <param name="file">The underlying <see cref="VirtualFile"/> that this instance wraps.</param>
+    /// <param name="file">The <see cref="VirtualFile"/> instance to wrap.</param>
     public PrefixedFile(PrefixedFileSystem fileSystem, string path, VirtualFile file) : base(path) =>
         (_fileSystem, _file) = (fileSystem, file);
 

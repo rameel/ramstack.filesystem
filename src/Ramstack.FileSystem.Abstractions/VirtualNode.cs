@@ -62,7 +62,7 @@ public abstract class VirtualNode
     /// <summary>
     /// Asynchronously determines whether the file or directory exists.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The task result is <see langword="true"/> if the file or directory exists; otherwise, <see langword="false"/>.
@@ -117,7 +117,7 @@ public abstract class VirtualNode
     /// <summary>
     /// Core implementation for asynchronously determining whether the file or directory exists.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The task result is <see langword="true"/> if the file or directory exists; otherwise, <see langword="false"/>.

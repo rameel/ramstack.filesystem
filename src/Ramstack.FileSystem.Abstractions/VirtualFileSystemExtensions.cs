@@ -24,9 +24,10 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to open.</param>
-    /// <param name="cancellationToken">The optional cancellation token used for canceling the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
-    /// A task representing the asynchronous operation and returns a <see cref="StreamReader"/> that reads from the text file.
+    /// A <see cref="Task{TResult}"/> representing the asynchronous operation,
+    /// containing a <see cref="StreamReader"/> that reads from the text file.
     /// </returns>
     public static Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string path, CancellationToken cancellationToken = default) =>
         fs.OpenTextAsync(path, Encoding.UTF8, cancellationToken);
@@ -36,10 +37,11 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to open.</param>
-    /// <param name="encoding">The character encoding to use.</param>
-    /// <param name="cancellationToken">The optional cancellation token used for canceling the operation.</param>
+    /// <param name="encoding">The encoding applied to the contents.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
-    /// A task representing the asynchronous operation and returns a <see cref="StreamReader"/> that reads from the text file.
+    /// A <see cref="Task{TResult}"/> representing the asynchronous operation,
+    /// containing a <see cref="StreamReader"/> that reads from the text file.
     /// </returns>
     public static async Task<StreamReader> OpenTextAsync(this IVirtualFileSystem fs, string path, Encoding encoding, CancellationToken cancellationToken = default)
     {
@@ -189,7 +191,7 @@ public static partial class VirtualFileSystemExtensions
         fs.GetFile(path).WriteAllTextAsync(contents, encoding, cancellationToken);
 
     /// <summary>
-    /// Asynchronously writes the specified string to the specified the file. If the file already exists, it is truncated and overwritten.
+    /// Asynchronously writes the specified string to the specified file. If the file already exists, it is truncated and overwritten.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to write to.</param>
@@ -273,7 +275,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The task result is <see langword="true"/> if the file exists; otherwise, <see langword="false"/>.
@@ -296,12 +298,12 @@ public static partial class VirtualFileSystemExtensions
     /// <summary>
     /// Asynchronously copies a file within the file system to the specified destination path.
     /// </summary>
-    /// <param name="fs">The <see cref="IVirtualFileSystem"/> instance.</param>
+    /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to copy.</param>
     /// <param name="destinationPath">The path where the file will be copied to.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
-    /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
     public static ValueTask CopyFileAsync(this IVirtualFileSystem fs, string path, string destinationPath, CancellationToken cancellationToken = default) =>
         fs.GetFile(path).CopyToAsync(destinationPath, overwrite: false, cancellationToken);
@@ -309,13 +311,13 @@ public static partial class VirtualFileSystemExtensions
     /// <summary>
     /// Asynchronously copies a file within the file system to the specified destination path.
     /// </summary>
-    /// <param name="fs">The <see cref="IVirtualFileSystem"/> instance.</param>
+    /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to copy.</param>
     /// <param name="destinationPath">The path where the file will be copied to.</param>
     /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
-    /// <param name="cancellationToken">A token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
-    /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
+    /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
     /// <remarks>
     /// <list type="bullet">
@@ -332,7 +334,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the directory.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The task result is <see langword="true"/> if the directory exists; otherwise, <see langword="false"/>.

@@ -26,7 +26,7 @@ public static class VirtualFileExtensions
     /// that reads from the specified text file.
     /// </summary>
     /// <param name="file">The file to get the <see cref="StreamReader"/> for.</param>
-    /// <param name="encoding">The character encoding to use.</param>
+    /// <param name="encoding">The encoding applied to the contents.</param>
     /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
