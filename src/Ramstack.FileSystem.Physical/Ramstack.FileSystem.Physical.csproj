@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
-    <Description>Provides an implementation of Ramstack.FileSystem based on local file system.</Description>
+    <Description>Provides an implementation of Ramstack.FileSystem based on the local file system.</Description>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
