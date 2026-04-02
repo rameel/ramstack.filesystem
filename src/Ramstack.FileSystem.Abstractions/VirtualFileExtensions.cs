@@ -133,6 +133,9 @@ public static class VirtualFileExtensions
         if (length > Array.MaxLength)
             throw new IOException("The file is too large.");
 
+        // https://github.com/dotnet/runtime/blob/5535e31a712343a63f5d7d796cd874e563e5ac14/src/libraries/System.Private.CoreLib/src/System/IO/File.cs#L660
+        // Some file systems (e.g. procfs on Linux) return 0 for length even when there's content.
+        // Thus we need to assume 0 doesn't mean empty.
         var task = length <= 0
             ? ReadAllBytesUnknownLengthImplAsync(stream, cancellationToken)
             : ReadAllBytesImplAsync(stream, cancellationToken);
@@ -142,16 +145,19 @@ public static class VirtualFileExtensions
         static async ValueTask<byte[]> ReadAllBytesImplAsync(Stream stream, CancellationToken cancellationToken)
         {
             var bytes = new byte[stream.Length];
-            var index = 0;
+            var total = 0;
 
             do
             {
-                var count = await stream.ReadAsync(bytes.AsMemory(index), cancellationToken).ConfigureAwait(false);
+                var count = await stream
+                    .ReadAsync(bytes.AsMemory(total), cancellationToken)
+                    .ConfigureAwait(false);
+
                 if (count == 0)
                     Error_EndOfStream();
 
-                index += count;
-            } while (index < bytes.Length);
+                total += count;
+            } while (total < bytes.Length);
 
             return bytes;
         }
@@ -171,22 +177,22 @@ public static class VirtualFileExtensions
                     .ConfigureAwait(false);
 
                 if (count == 0)
-                {
-                    var result = bytes.AsSpan(0, total).ToArray();
-                    ArrayPool<byte>.Shared.Return(bytes);
-                    return result;
-                }
+                    break;
 
                 total += count;
             }
 
+            var result = bytes.AsSpan(0, total).ToArray();
+            ArrayPool<byte>.Shared.Return(bytes);
+            return result;
+
             static byte[] ResizeBuffer(byte[] oldArray)
             {
-                var length = (uint)oldArray.Length * 2;
-                if (length > (uint)Array.MaxLength)
-                    length = (uint)Math.Max(Array.MaxLength, oldArray.Length + 1);
+                var length = oldArray.Length * 2;
+                if ((uint)length > (uint)Array.MaxLength)
+                    length = Math.Max(Array.MaxLength, oldArray.Length + 1);
 
-                var newArray = ArrayPool<byte>.Shared.Rent((int)length);
+                var newArray = ArrayPool<byte>.Shared.Rent(length);
                 oldArray.AsSpan().TryCopyTo(newArray);
 
                 ArrayPool<byte>.Shared.Return(oldArray);
