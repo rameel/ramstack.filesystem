@@ -7,7 +7,7 @@ namespace System.IO;
 /// <summary>
 /// Provides extension methods for the <see cref="StreamReader"/> to offer API compatibility with newer .NET versions.
 /// </summary>
-public static class StreamReaderExtensions
+internal static class StreamReaderExtensions
 {
     /// <summary>
     /// Reads a line of characters asynchronously from the current stream and returns the data as a string.
