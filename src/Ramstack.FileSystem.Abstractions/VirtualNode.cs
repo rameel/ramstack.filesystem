@@ -51,7 +51,7 @@ public abstract class VirtualNode
         _properties = properties;
 
     /// <summary>
-    /// Refreshes the state of the file or directory node, clearing any cached or stored values.
+    /// Invalidates the node's state information so subsequent operations can retrieve updated information.
     /// </summary>
     public void Refresh()
     {
@@ -96,8 +96,7 @@ public abstract class VirtualNode
     }
 
     /// <summary>
-    /// Core implementation for refreshing the state of the file or directory node,
-    /// clearing any cached or stored values.
+    /// Core implementation for invalidating provider-specific state information about the file or directory node.
     /// </summary>
     protected virtual void RefreshCore()
     {

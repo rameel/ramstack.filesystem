@@ -284,7 +284,8 @@ public static partial class VirtualFileSystemExtensions
         fs.GetFile(path).ExistsAsync(cancellationToken);
 
     /// <summary>
-    /// Asynchronously deletes the file at the specified path. No exception is thrown if the file does not exist.
+    /// Asynchronously deletes the file at the specified path.
+    /// A missing file is not considered an error.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to delete.</param>
