@@ -318,7 +318,7 @@ internal sealed class S3Directory : VirtualDirectory
     /// Creates a <see cref="S3File"/> instance based on the specified object.
     /// </summary>
     /// <param name="obj">The <see cref="S3Object"/> representing the file.</param>
-    /// <param name="normalizedName">The normalized name of the object.</param>
+    /// <param name="normalizedName">The normalized name of the object. Defaults to <see langword="null"/>.</param>
     /// <returns>
     /// A new <see cref="S3File"/> instance representing the file.
     /// </returns>

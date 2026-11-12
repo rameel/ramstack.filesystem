@@ -9,7 +9,7 @@ public static class VirtualNodeExtensions
     /// Asynchronously retrieves the properties of the specified file or directory.
     /// </summary>
     /// <param name="node">The source file or directory for which to get the <see cref="VirtualNodeProperties"/>.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// with a result of type <see cref="VirtualNodeProperties"/> containing the node properties.

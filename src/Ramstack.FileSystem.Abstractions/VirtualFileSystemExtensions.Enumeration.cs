@@ -9,7 +9,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="pattern">The glob pattern to match against the names of file nodes.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualNode"/> instances.
     /// </returns>
@@ -24,7 +24,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="pattern">The glob pattern to match against the names of file nodes.</param>
     /// <param name="exclude">An optional glob pattern to exclude certain file nodes.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualNode"/> instances.
     /// </returns>
@@ -38,7 +38,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="patterns">An array of glob patterns to match against the names of file nodes.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualNode"/> instances.
     /// </returns>
@@ -53,7 +53,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="patterns">An array of glob patterns to match against the names of file nodes.</param>
     /// <param name="excludes">An optional array of glob patterns to exclude file nodes.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualNode"/> instances.
     /// </returns>
@@ -66,7 +66,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="pattern">The glob pattern to match against the names of files.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualFile"/> instances.
     /// </returns>
@@ -80,7 +80,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="pattern">The glob pattern to match against the names of files.</param>
     /// <param name="exclude">An optional glob pattern to exclude certain files.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualFile"/> instances.</returns>
     public static IAsyncEnumerable<VirtualFile> GetFilesAsync(this IVirtualFileSystem fs, string path, string pattern, string? exclude, CancellationToken cancellationToken = default) =>
@@ -92,7 +92,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="patterns">An array of glob patterns to match against the names of files.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualFile"/> instances.
     /// </returns>
@@ -106,7 +106,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="patterns">An array of glob patterns to match against the names of files.</param>
     /// <param name="excludes">An optional array of glob patterns to exclude files.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualFile"/> instances.
     /// </returns>
@@ -119,7 +119,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="pattern">The glob pattern to match against the names of directories.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualDirectory"/> instances.
     /// </returns>
@@ -133,7 +133,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="pattern">The glob pattern to match against the names of directories.</param>
     /// <param name="exclude">An optional glob pattern to exclude certain directories.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualDirectory"/> instances.
     /// </returns>
@@ -146,7 +146,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="patterns">An array of glob patterns to match against the names of directories.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualDirectory"/> instances.
     /// </returns>
@@ -160,7 +160,7 @@ partial class VirtualFileSystemExtensions
     /// <param name="path">The path to the directory to search.</param>
     /// <param name="patterns">An array of glob patterns to match against the names of directories.</param>
     /// <param name="excludes">An optional array of glob patterns to exclude directories.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualDirectory"/> instances.
     /// </returns>

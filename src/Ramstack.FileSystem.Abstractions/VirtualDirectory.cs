@@ -49,7 +49,7 @@ public abstract class VirtualDirectory : VirtualNode
     /// <summary>
     /// Asynchronously creates the current directory.
     /// </summary>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -64,7 +64,7 @@ public abstract class VirtualDirectory : VirtualNode
     /// <summary>
     /// Asynchronously deletes the current directory, including all its subdirectories and files.
     /// </summary>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -79,7 +79,7 @@ public abstract class VirtualDirectory : VirtualNode
     /// <summary>
     /// Asynchronously returns an async-enumerable collection of file nodes (both directories and files) within the current directory.
     /// </summary>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualNode"/> instances.
     /// </returns>
@@ -89,7 +89,7 @@ public abstract class VirtualDirectory : VirtualNode
     /// <summary>
     /// Asynchronously returns an async-enumerable collection of files within the current directory.
     /// </summary>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualFile"/> instances.
     /// </returns>
@@ -99,7 +99,7 @@ public abstract class VirtualDirectory : VirtualNode
     /// <summary>
     /// Asynchronously returns an async-enumerable collection of directories within the current directory.
     /// </summary>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualDirectory"/> instances.
     /// </returns>
@@ -112,7 +112,7 @@ public abstract class VirtualDirectory : VirtualNode
     /// </summary>
     /// <param name="patterns">An array of glob patterns to match against the names of file nodes.</param>
     /// <param name="excludes">An optional array of glob patterns to exclude file nodes.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualNode"/> instances.
     /// </returns>
@@ -128,7 +128,7 @@ public abstract class VirtualDirectory : VirtualNode
     /// </summary>
     /// <param name="patterns">An array of glob patterns to match against the names of files.</param>
     /// <param name="excludes">An optional array of glob patterns to exclude files.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualFile"/> instances.
     /// </returns>
@@ -144,7 +144,7 @@ public abstract class VirtualDirectory : VirtualNode
     /// </summary>
     /// <param name="patterns">An array of glob patterns to match against the names of directories.</param>
     /// <param name="excludes">An optional array of glob patterns to exclude directories.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualDirectory"/> instances.
     /// </returns>

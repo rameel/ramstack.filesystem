@@ -62,7 +62,7 @@ public abstract class VirtualNode
     /// <summary>
     /// Asynchronously determines whether the file or directory exists.
     /// </summary>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The task result is <see langword="true"/> if the file or directory exists; otherwise, <see langword="false"/>.
@@ -79,7 +79,7 @@ public abstract class VirtualNode
     /// Asynchronously retrieves the properties of the file or directory.
     /// </summary>
     /// <param name="refresh">A boolean indicating whether to refresh the state before retrieving the properties.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// with a result of type <see cref="VirtualNodeProperties"/> containing the file or directory properties.

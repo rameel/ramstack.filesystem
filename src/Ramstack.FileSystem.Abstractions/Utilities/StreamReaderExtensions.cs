@@ -13,7 +13,7 @@ internal static class StreamReaderExtensions
     /// Reads a line of characters asynchronously from the current stream and returns the data as a string.
     /// </summary>
     /// <param name="reader">The <see cref="StreamReader"/> to read from.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> that represents the asynchronous read operation.
     /// The value of the task contains the next line from the stream, or is <see langword="null"/>
@@ -31,7 +31,7 @@ internal static class StreamReaderExtensions
     /// Reads all characters from the current position to the end of the stream asynchronously and returns them as one string.
     /// </summary>
     /// <param name="reader">The <see cref="StreamReader"/> to read from.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> that represents the asynchronous read operation.
     /// The value of the task contains a string with the characters from the current position to the end of the stream.
