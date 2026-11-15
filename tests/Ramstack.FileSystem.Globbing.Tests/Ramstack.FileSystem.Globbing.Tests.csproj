@@ -20,6 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\src\Ramstack.FileSystem.Globbing\Internal\PathHelper.cs">
+      <Link>Internal\PathHelper.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Ramstack.FileSystem.Globbing\Ramstack.FileSystem.Globbing.csproj" />
     <ProjectReference Include="..\..\src\Ramstack.FileSystem.Physical\Ramstack.FileSystem.Physical.csproj" />
     <ProjectReference Include="..\Ramstack.FileSystem.Specification.Tests\Ramstack.FileSystem.Specification.Tests.csproj" />
