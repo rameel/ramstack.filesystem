@@ -60,8 +60,8 @@ public sealed class GoogleFileSystem : IVirtualFileSystem
     /// Asynchronously creates the bucket in Google Cloud Storage if it does not already exist.
     /// </summary>
     /// <param name="projectId">The Google Cloud project ID.</param>
-    /// <param name="options">Additional options for the operation.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="options">Additional options for the operation. Defaults to <see langword="null"/>.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>

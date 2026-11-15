@@ -13,7 +13,7 @@ public static class VirtualFileExtensions
     /// character encoding that reads from the specified text file.
     /// </summary>
     /// <param name="file">The file to get the <see cref="StreamReader"/> for.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The result is a <see cref="StreamReader"/> that reads from the text file.
@@ -27,7 +27,7 @@ public static class VirtualFileExtensions
     /// </summary>
     /// <param name="file">The file to get the <see cref="StreamReader"/> for.</param>
     /// <param name="encoding">The encoding applied to the contents.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The result is a <see cref="StreamReader"/> that reads from the text file.
@@ -43,7 +43,7 @@ public static class VirtualFileExtensions
     /// </summary>
     /// <param name="file">The file to write to.</param>
     /// <param name="stream">A <see cref="Stream"/> containing the content to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -54,7 +54,7 @@ public static class VirtualFileExtensions
     /// Asynchronously reads all the text in the current file.
     /// </summary>
     /// <param name="file">The file from which to read the entire text content.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing the full text from the current file.
@@ -67,7 +67,7 @@ public static class VirtualFileExtensions
     /// </summary>
     /// <param name="file">The file from which to read the entire text content.</param>
     /// <param name="encoding">The encoding applied to the contents.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing the full text from the current file.
@@ -85,7 +85,7 @@ public static class VirtualFileExtensions
     /// Asynchronously reads all lines of the current file.
     /// </summary>
     /// <param name="file">The file to read from.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing an array of all lines in the current file.
@@ -98,7 +98,7 @@ public static class VirtualFileExtensions
     /// </summary>
     /// <param name="file">The file to read from.</param>
     /// <param name="encoding">The encoding applied to the contents.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing an array of all lines in the current file.
@@ -119,7 +119,7 @@ public static class VirtualFileExtensions
     /// Asynchronously reads the entire contents of the current file into a byte array.
     /// </summary>
     /// <param name="file">The file to read from.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing an array of the file's bytes.
@@ -209,7 +209,7 @@ public static class VirtualFileExtensions
     /// </summary>
     /// <param name="file">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -222,7 +222,7 @@ public static class VirtualFileExtensions
     /// <param name="file">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
     /// <param name="encoding">The encoding to apply to the string.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -234,7 +234,7 @@ public static class VirtualFileExtensions
     /// </summary>
     /// <param name="file">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -247,7 +247,7 @@ public static class VirtualFileExtensions
     /// <param name="file">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
     /// <param name="encoding">The encoding to apply to the string.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -263,7 +263,7 @@ public static class VirtualFileExtensions
     /// </summary>
     /// <param name="file">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -276,7 +276,7 @@ public static class VirtualFileExtensions
     /// <param name="file">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
     /// <param name="encoding">The encoding to apply to the string.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -294,7 +294,7 @@ public static class VirtualFileExtensions
     /// </summary>
     /// <param name="file">The file to write to.</param>
     /// <param name="bytes">The bytes to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -306,7 +306,7 @@ public static class VirtualFileExtensions
     /// </summary>
     /// <param name="file">The file to write to.</param>
     /// <param name="bytes">The bytes to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -321,7 +321,7 @@ public static class VirtualFileExtensions
     /// </summary>
     /// <param name="file">The source <see cref="VirtualFile"/> to copy from.</param>
     /// <param name="destinationPath">The path of the destination file. This cannot be a directory.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -344,7 +344,7 @@ public static class VirtualFileExtensions
     /// Asynchronously returns the size of the specified file in bytes.
     /// </summary>
     /// <param name="file">The file to get the size of.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The result is the size of the specified file in bytes, or <c>-1</c> if the file does not exist.

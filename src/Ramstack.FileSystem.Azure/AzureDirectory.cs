@@ -291,7 +291,7 @@ internal sealed class AzureDirectory : VirtualDirectory
     /// Creates a <see cref="AzureFile"/> instance based on the specified blob item.
     /// </summary>
     /// <param name="blob">The <see cref="BlobItem"/> representing the file.</param>
-    /// <param name="normalizedPath">The normalized name of the blob.</param>
+    /// <param name="normalizedPath">The normalized name of the blob. Defaults to <see langword="null"/>.</param>
     /// <returns>
     /// A new <see cref="AzureFile"/> instance representing the file.
     /// </returns>

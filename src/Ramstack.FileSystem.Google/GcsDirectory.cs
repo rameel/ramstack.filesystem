@@ -247,7 +247,7 @@ internal sealed class GcsDirectory : VirtualDirectory
     /// Creates a <see cref="GcsFile"/> instance based on the specified object item.
     /// </summary>
     /// <param name="obj">The <see cref="GcsObject"/> representing the file.</param>
-    /// <param name="normalizedPath">The normalized name of the object.</param>
+    /// <param name="normalizedPath">The normalized name of the object. Defaults to <see langword="null"/>.</param>
     /// <returns>
     /// A new <see cref="GcsFile"/> instance representing the file.
     /// </returns>

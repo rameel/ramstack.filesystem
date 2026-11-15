@@ -57,7 +57,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// that includes the name of the account and the name of the container. This is likely to be similar
     /// to <c>https://{account_name}.blob.core.windows.net/{container_name}</c>.</param>
     /// <param name="options">Optional client options that define the transport pipeline policies
-    /// for authentication, retries, etc., that are applied to every request.</param>
+    /// for authentication, retries, etc., that are applied to every request. Defaults to <see langword="null"/>.</param>
     public AzureFileSystem(Uri containerUri, BlobClientOptions? options = null) =>
         AzureClient = new BlobContainerClient(containerUri, options);
 
@@ -69,7 +69,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// to <c>https://{account_name}.blob.core.windows.net/{container_name}</c>.</param>
     /// <param name="credential">The shared key credential used to sign requests.</param>
     /// <param name="options">Optional client options that define the transport pipeline policies
-    /// for authentication, retries, etc., that are applied to every request.</param>
+    /// for authentication, retries, etc., that are applied to every request. Defaults to <see langword="null"/>.</param>
     public AzureFileSystem(Uri containerUri, StorageSharedKeyCredential credential, BlobClientOptions? options = null) =>
         AzureClient = new BlobContainerClient(containerUri, credential, options);
 
@@ -81,7 +81,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// to <c>https://{account_name}.blob.core.windows.net/{container_name}</c>.</param>
     /// <param name="credential">The token credential used to sign requests.</param>
     /// <param name="options">Optional client options that define the transport pipeline policies
-    /// for authentication, retries, etc., that are applied to every request.</param>
+    /// for authentication, retries, etc., that are applied to every request. Defaults to <see langword="null"/>.</param>
     public AzureFileSystem(Uri containerUri, TokenCredential credential, BlobClientOptions? options = null) =>
         AzureClient = new BlobContainerClient(containerUri, credential, options);
 
@@ -103,7 +103,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     /// <summary>
     /// Asynchronously creates the container in Azure Blob Storage if it does not already exist.
     /// </summary>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -134,7 +134,7 @@ public sealed class AzureFileSystem : IVirtualFileSystem
     ///   </item>
     /// </list>
     /// </param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>

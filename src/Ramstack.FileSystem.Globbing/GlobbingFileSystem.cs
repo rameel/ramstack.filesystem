@@ -32,7 +32,7 @@ public sealed class GlobbingFileSystem : IVirtualFileSystem
     /// </summary>
     /// <param name="fileSystem">The underlying file system.</param>
     /// <param name="pattern">The pattern to include in the enumeration.</param>
-    /// <param name="exclude">The optional pattern to exclude from the enumeration.</param>
+    /// <param name="exclude">The optional pattern to exclude from the enumeration. Defaults to <see langword="null"/>.</param>
     public GlobbingFileSystem(IVirtualFileSystem fileSystem, string pattern, string? exclude = null)
     {
         ArgumentNullException.ThrowIfNull(fileSystem);
@@ -48,7 +48,7 @@ public sealed class GlobbingFileSystem : IVirtualFileSystem
     /// </summary>
     /// <param name="fileSystem">The underlying file system.</param>
     /// <param name="patterns">The patterns to include in the enumeration.</param>
-    /// <param name="excludes">The optional patterns to exclude from the enumeration.</param>
+    /// <param name="excludes">The optional patterns to exclude from the enumeration. Defaults to <see langword="null"/>.</param>
     public GlobbingFileSystem(IVirtualFileSystem fileSystem, string[] patterns, string[]? excludes = null)
     {
         ArgumentNullException.ThrowIfNull(fileSystem);

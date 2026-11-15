@@ -36,7 +36,7 @@ public abstract class VirtualFile : VirtualNode
     /// <summary>
     /// Asynchronously opens the file for reading.
     /// </summary>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// with a result of type <see cref="Stream"/> for reading the file content.
@@ -47,7 +47,7 @@ public abstract class VirtualFile : VirtualNode
     /// <summary>
     /// Asynchronously opens the file for writing.
     /// </summary>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// with a result of type <see cref="Stream"/> for writing to the file.
@@ -65,7 +65,7 @@ public abstract class VirtualFile : VirtualNode
     /// </summary>
     /// <param name="stream">A <see cref="Stream"/> containing the content to write to the file.</param>
     /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -87,7 +87,7 @@ public abstract class VirtualFile : VirtualNode
     /// <summary>
     /// Asynchronously deletes the current file.
     /// </summary>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -104,7 +104,7 @@ public abstract class VirtualFile : VirtualNode
     /// </summary>
     /// <param name="destinationPath">The path of the destination file. This cannot be a directory.</param>
     /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -130,7 +130,7 @@ public abstract class VirtualFile : VirtualNode
     /// </summary>
     /// <param name="destination">The destination <see cref="VirtualFile"/> where the contents will be copied to.</param>
     /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> that represents the asynchronous copy operation.
     /// </returns>

@@ -37,10 +37,7 @@ public static class VirtualPath
     /// or an empty string if no extension is present.
     /// </returns>
     /// <remarks>
-    /// <see cref="Path.GetExtension(string)"/> returns an empty string ("")
-    /// if the extension consists solely of a period (e.g., "file."), which differs from
-    /// <see cref="FileSystemInfo.Extension"/>, which returns "." in this case.
-    /// This method follows the behavior of <see cref="Path.GetExtension(string)"/>.
+    /// If the file name ends with a period (for example, <c>file.</c>), the result is empty.
     /// </remarks>
     public static string GetExtension(string path)
     {
@@ -57,10 +54,7 @@ public static class VirtualPath
     /// or an empty string if no extension is present.
     /// </returns>
     /// <remarks>
-    /// <see cref="Path.GetExtension(ReadOnlySpan{char})"/> returns an empty string ("")
-    /// if the extension consists solely of a period (e.g., "file."), which differs from
-    /// <see cref="FileSystemInfo.Extension"/>, which returns "." in this case.
-    /// This method follows the behavior of <see cref="Path.GetExtension(ReadOnlySpan{char})"/>.
+    /// If the file name ends with a period (for example, <c>file.</c>), the result is empty.
     /// </remarks>
     public static ReadOnlySpan<char> GetExtension(ReadOnlySpan<char> path)
     {

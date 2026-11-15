@@ -12,7 +12,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to open.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation, containing a stream for reading the file content.
     /// </returns>
@@ -24,7 +24,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to open.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation,
     /// containing a <see cref="StreamReader"/> that reads from the text file.
@@ -38,7 +38,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to open.</param>
     /// <param name="encoding">The encoding applied to the contents.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation,
     /// containing a <see cref="StreamReader"/> that reads from the text file.
@@ -54,7 +54,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to open or create.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation, containing a stream for writing to the file content.
     /// </returns>
@@ -67,7 +67,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file.</param>
     /// <param name="stream">A <see cref="Stream"/> containing the content to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -82,7 +82,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="stream">A <see cref="Stream"/> containing the content to write to the file.</param>
     /// <param name="overwrite"><see langword="true"/> to overwrite an existing file;
     /// <see langword="false"/> to throw an exception if the file already exists.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -101,7 +101,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file from which to read the entire text content.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing the full text from the current file.
@@ -115,7 +115,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file from which to read the entire text content.</param>
     /// <param name="encoding">The encoding applied to the contents.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing the full text from the current file.
@@ -128,7 +128,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to read from.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing an array of all lines in the current file.
@@ -142,7 +142,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to read from.</param>
     /// <param name="encoding">The encoding applied to the contents.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing an array of all lines in the current file.
@@ -155,7 +155,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to read from.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation,
     /// containing an array of the file's bytes.
@@ -169,7 +169,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -183,7 +183,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="path">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
     /// <param name="encoding">The encoding to apply to the string.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -196,7 +196,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -210,7 +210,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="path">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
     /// <param name="encoding">The encoding to apply to the string.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -223,7 +223,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -237,7 +237,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="path">The file to write to.</param>
     /// <param name="contents">The contents to write to the file.</param>
     /// <param name="encoding">The encoding to apply to the string.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -250,7 +250,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to write to.</param>
     /// <param name="bytes">The bytes to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -263,7 +263,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The file to write to.</param>
     /// <param name="bytes">The bytes to write to the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -275,7 +275,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The task result is <see langword="true"/> if the file exists; otherwise, <see langword="false"/>.
@@ -284,11 +284,12 @@ public static partial class VirtualFileSystemExtensions
         fs.GetFile(path).ExistsAsync(cancellationToken);
 
     /// <summary>
-    /// Asynchronously deletes the file at the specified path. No exception is thrown if the file does not exist.
+    /// Asynchronously deletes the file at the specified path.
+    /// A missing file is not considered an error.
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to delete.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -301,7 +302,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the file to copy.</param>
     /// <param name="destinationPath">The path where the file will be copied to.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -315,7 +316,7 @@ public static partial class VirtualFileSystemExtensions
     /// <param name="path">The path of the file to copy.</param>
     /// <param name="destinationPath">The path where the file will be copied to.</param>
     /// <param name="overwrite"><see langword="true"/> to overwrite an existing file; <see langword="false"/> to throw an exception if the file already exists.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -334,7 +335,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the directory.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> representing the asynchronous operation.
     /// The task result is <see langword="true"/> if the directory exists; otherwise, <see langword="false"/>.
@@ -347,7 +348,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the directory to create.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -359,7 +360,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the directory to delete.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A <see cref="ValueTask"/> representing the asynchronous operation.
     /// </returns>
@@ -372,7 +373,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the directory.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualNode"/> instances.
     /// </returns>
@@ -384,7 +385,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the directory.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualFile"/> instances.
     /// </returns>
@@ -396,7 +397,7 @@ public static partial class VirtualFileSystemExtensions
     /// </summary>
     /// <param name="fs">The file system to use.</param>
     /// <param name="path">The path of the directory.</param>
-    /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel the operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// An async-enumerable collection of <see cref="VirtualDirectory"/> instances.
     /// </returns>
