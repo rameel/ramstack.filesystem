@@ -116,11 +116,9 @@ public class WritableAmazonFileSystemTests : VirtualFileSystemSpecificationTests
 
             var count = 0;
 
-            while (!reader.EndOfStream)
+            while (await reader.ReadLineAsync() is { } line)
             {
-                Assert.That(
-                    await reader.ReadLineAsync(),
-                    Is.EqualTo(value));
+                Assert.That(line, Is.EqualTo(value));
 
                 count++;
             }

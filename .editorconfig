@@ -30,3 +30,16 @@ csharp_indent_labels = no_change
 
 # IDE0079: Remove unnecessary suppression
 dotnet_remove_unnecessary_suppression_exclusions = category:ReSharper
+
+[tests/**.cs]
+# CA1707: Identifiers should not contain underscores
+# Tests follow the Method_Condition_ExpectedResult naming convention.
+dotnet_diagnostic.CA1707.severity = none
+
+# CA1001: Types that own disposable fields should be disposable
+# Test fixtures release their resources in [OneTimeTearDown] methods, which the rule does not recognize.
+dotnet_diagnostic.CA1001.severity = none
+
+# CA1716: Identifiers should not match keywords
+# Test namespaces match the namespaces of the code under test.
+dotnet_diagnostic.CA1716.severity = none

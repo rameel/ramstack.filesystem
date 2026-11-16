@@ -162,6 +162,8 @@ internal sealed class S3UploadStream : Stream
     }
 
     /// <inheritdoc />
+    [SuppressMessage("Usage", "CA2215:Dispose methods should call base class dispose",
+        Justification = "Stream.DisposeAsync only calls Dispose, which re-enters this method, and the base Stream releases nothing on disposal.")]
     public override async ValueTask DisposeAsync()
     {
         if (Interlocked.Exchange(ref _disposed, 1) != 0)
