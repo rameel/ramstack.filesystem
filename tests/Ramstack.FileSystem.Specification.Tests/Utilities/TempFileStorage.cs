@@ -7,8 +7,8 @@ public sealed class TempFileStorage : IDisposable
     public TempFileStorage()
     {
         var path = Root;
-        var list = new[]
-            {
+        string[] files =
+            [
                 "project/docs/user_manual.pdf",
                 "project/docs/api_reference.md",
                 "project/docs/troubleshooting/common_issues.txt",
@@ -79,7 +79,9 @@ public sealed class TempFileStorage : IDisposable
                 "project/README.md",
                 "project/global.json",
                 "project/nuget.config",
-            }
+            ];
+
+        var list = files
             .Select(p => Path.Combine(path, p))
             .ToArray();
 

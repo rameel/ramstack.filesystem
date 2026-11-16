@@ -24,8 +24,9 @@ public abstract class VirtualFileSystemSpecificationTests
 
         static async Task CompareDirectoriesAsync(VirtualDirectory virtualDir, DirectoryInfo localDir)
         {
-            if (await virtualDir.ExistsAsync() != localDir.Exists)
-                Assert.Fail($"Directory '{virtualDir.FullName}'.Exists ({virtualDir.ExistsAsync().Result}) != '{localDir.FullName}'.Exists ({localDir.Exists})");
+            var exists = await virtualDir.ExistsAsync();
+            if (exists != localDir.Exists)
+                Assert.Fail($"Directory '{virtualDir.FullName}'.Exists ({exists}) != '{localDir.FullName}'.Exists ({localDir.Exists})");
 
             var virtualFiles = await virtualDir.GetFilesAsync().OrderBy(f => f.Name).ToArrayAsync();
             var localFiles = localDir.EnumerateFiles().OrderBy(f => f.Name).ToArray();

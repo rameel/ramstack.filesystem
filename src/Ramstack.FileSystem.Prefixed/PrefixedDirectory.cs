@@ -6,7 +6,7 @@ namespace Ramstack.FileSystem.Prefixed;
 /// Represents a directory in a <see cref="PrefixedFileSystem"/>,
 /// wrapping an existing <see cref="VirtualDirectory"/> instance with a prefixed path.
 /// </summary>
-internal class PrefixedDirectory : VirtualDirectory
+internal sealed class PrefixedDirectory : VirtualDirectory
 {
     private readonly PrefixedFileSystem _fs;
     private readonly VirtualDirectory _directory;
