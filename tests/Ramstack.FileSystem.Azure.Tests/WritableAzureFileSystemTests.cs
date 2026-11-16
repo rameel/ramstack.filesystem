@@ -75,7 +75,7 @@ public class WritableAzureFileSystemTests : VirtualFileSystemSpecificationTests
     [Test]
     public async Task File_CopyTo_File_DifferentStorages()
     {
-        using var fs1 = CreateFileSystem("temp-storage");
+        using var fs1 = CreateFileSystem(Guid.NewGuid().ToString("N"));
         using var fs2 = GetFileSystem();
 
         await fs1.CreateContainerAsync();
